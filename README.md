@@ -30,6 +30,11 @@ It only changes how *you* see Teams, on your PC: nothing changes for anybody els
 3. Switch on **On in Teams** at the top right. The first time, Teams closes and reopens by itself
    (a few seconds): do it when you're not in a call.
 
+**Switch in Teams**: once it's on, Teams itself has a small sparkle button at the top left, next to
+"Collapse app bar": a click switches Teams Remix off or back on, the same as **On in Teams** in the app (the two always
+agree). Full sparkle = on, empty crossed-out sparkle = off. It goes away during calls with "normal Teams during calls",
+and when the app is closed.
+
 **Updates**: when a new version is out, the app says so at the top; **Update** installs it with one click (Teams doesn't
 close, your themes and nicknames stay). Every change pushed here becomes a release by itself, numbered by date
 (`2026.11.26`, `2026.11.26.2`...). A copy made with `git clone` updates with `git pull` instead.
@@ -56,6 +61,8 @@ PC) lives in `%APPDATA%\teams-remix\`, so updating the app never touches it.
   Texts are written in Italian in the code; a text with no English simply shows in Italian.
 
 A personal project, not affiliated with Microsoft. Teams is a trademark of Microsoft.
+
+License: MIT (see [LICENSE](LICENSE)).
 
 ---
 
@@ -89,6 +96,11 @@ Cambia solo come vedi Teams tu, sul tuo PC: per gli altri non cambia niente.
 3. Accendi **Attivo su Teams** in alto a destra. La prima volta Teams si chiude e si riapre da solo
    (pochi secondi): fallo quando non sei in call.
 
+**Interruttore su Teams**: una volta acceso, Teams stesso ha un pulsantino con una scintilla in alto a sinistra,
+accanto al pulsante che comprime la barra delle app: un clic spegne o riaccende Teams Remix, come **Attivo su Teams** nell'app (i due
+vanno sempre d'accordo). Scintilla piena = attivo, scintilla vuota e barrata = spento. Sparisce durante le call con
+"durante le call Teams normale", e quando l'app è chiusa.
+
 **Aggiornamenti**: quando esce una versione nuova l'app lo dice in alto; **Aggiorna** la installa con un clic (Teams non
 si chiude, temi e soprannomi restano). Ogni modifica caricata qui diventa da sola una release, numerata con la data
 (`2026.11.26`, `2026.11.26.2`...). Una copia fatta con `git clone` si aggiorna invece con `git pull`.
@@ -107,3 +119,5 @@ Teams visti sul PC) sta in `%APPDATA%\teams-remix\`, quindi aggiornare l'app non
 `themes-default\` sono i temi dell'app: i primi che trovi, e quelli di "Ripristina originale".
 
 Progetto personale, non collegato a Microsoft. Teams è un marchio di Microsoft.
+
+Licenza: MIT (vedi [LICENSE](LICENSE)).

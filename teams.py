@@ -654,6 +654,124 @@ _JS_BASE = """(function(){
   return o;
 })()"""
 
+# The switch inside Teams, next to Teams' own "Collapse app bar" button at the top left: the same as "Attivo su
+# Teams" in the app. It is a copy of that button (same size, colours, hover, focus, light and dark), with an icon of
+# its own: a full sparkle when on, an empty crossed-out one when off, and aria-pressed; after a click a small spinner
+# takes the sparkle's place and further clicks wait until the app has done it. It stays when Teams Remix is
+# off (it is the way to switch it back on). The page never talks to the app: a click is only remembered here, and the
+# app collects it through the same local channel it uses to colour Teams (toggle_sync, every check), then saves it
+# like a click in its own window. If the app stops asking for a while (closed), the switch goes away by itself.
+# Teams redraws its title bar now and then: the switch is put back in its place, never twice. Without that button
+# (another layout) nothing is added.
+TOGGLE_VERSION = 2
+TOGGLE_ID = "tt-remix-toggle"
+TOGGLE_JS = r"""
+(function(){
+  if (window.__ttToggleOff) { try { window.__ttToggleOff(); } catch (e) {} }
+  window.__ttToggleV = TOGGLE_V;
+  var D = document, ID = 'TOGGLE_ID', NS = 'http://www.w3.org/2000/svg', STALE = 12000;
+  var cfg = null, asked = null, waitFor = null, waitAt = 0, shown = false, seen = 0, btn = null, hb = null, hbOpen = null, tip = null, tipT = 0, obs = null, fixT = 0;
+  var WAIT = 20000;  // the app normally answers within a few seconds
+  // 20x20 like Teams' icons: a big and a small sparkle; off = the same, empty, crossed out
+  var BIG = 'M8.5 4.5Q9.4 10.1 15 11Q9.4 11.9 8.5 17.5Q7.6 11.9 2 11Q7.6 10.1 8.5 4.5Z';
+  var SMALL = 'M15.5 1.5Q15.9 4.1 18.5 4.5Q15.9 4.9 15.5 7.5Q15.1 4.9 12.5 4.5Q15.1 4.1 15.5 1.5Z';
+  function svgEl(tag, attrs){ var e = D.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); return e; }
+  function icon(on){
+    var s = svgEl('svg', {viewBox: '0 0 20 20', width: '1em', height: '1em', 'font-size': '20px', 'aria-hidden': 'true', focusable: 'false'});
+    if (on) { s.style.color = 'var(--colorCompoundBrandForeground1, var(--colorBrandForeground1, currentColor))';
+      [BIG, SMALL].forEach(function(d){ s.appendChild(svgEl('path', {d: d, fill: 'currentColor'})); }); }
+    else { [BIG, SMALL].forEach(function(d){ s.appendChild(svgEl('path', {d: d, fill: 'none', stroke: 'currentColor', 'stroke-width': '1.1', 'stroke-linejoin': 'round'})); });
+      s.appendChild(svgEl('path', {d: 'M2.5 2.5L17.5 17.5', stroke: 'currentColor', 'stroke-width': '1.3', 'stroke-linecap': 'round'})); }
+    return s; }
+  // while the app does it: a small spinner like Teams' own, in Teams' brand colour
+  function spinner(){
+    var s = svgEl('svg', {viewBox: '0 0 20 20', width: '1em', height: '1em', 'font-size': '20px', 'aria-hidden': 'true', focusable: 'false'});
+    s.style.color = 'var(--colorCompoundBrandForeground1, var(--colorBrandForeground1, currentColor))';
+    s.appendChild(svgEl('circle', {cx: '10', cy: '10', r: '6.5', fill: 'none', stroke: 'currentColor', 'stroke-width': '2', opacity: '.25'}));
+    var arc = svgEl('path', {d: 'M10 3.5A6.5 6.5 0 0 1 16.5 10', fill: 'none', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round'});
+    arc.appendChild(svgEl('animateTransform', {attributeName: 'transform', type: 'rotate', from: '0 10 10', to: '360 10 10', dur: '.9s', repeatCount: 'indefinite'}));
+    s.appendChild(arc);
+    return s; }
+  function busy(){ return asked !== null || waitFor !== null; }
+  function stale(){ return !cfg || Date.now() - seen > STALE; }
+  // in Teams' own language: Teams in English gets English, whatever the app's language
+  function txt(k){ var all = cfg.texts || {}, l = /^it/i.test(D.documentElement.lang || navigator.language) ? all.it : all.en; return (l || all.it || {})[k] || ''; }
+  function tipText(){ return !cfg ? '' : txt(busy() ? (shown ? 'tip_wait_on' : 'tip_wait_off') : (shown ? 'tip_on' : 'tip_off')); }
+  // a tooltip like Teams' own (Fluent): below the button, after a short wait, in Teams' colours
+  function hideTip(){ clearTimeout(tipT); tipT = 0; if (tip) tip.remove(); tip = null; if (btn) btn.removeAttribute('aria-describedby'); }
+  function showTip(){ if (!btn || !btn.isConnected || !cfg) return;
+    if (!tip) { tip = D.createElement('div'); tip.id = ID + '-tip'; tip.setAttribute('role', 'tooltip');
+      tip.style.cssText = 'position:fixed;z-index:2147483647;pointer-events:none;box-sizing:border-box;max-width:240px;padding:4px 11px 6px;'
+        + 'border-radius:var(--borderRadiusMedium,4px);border:1px solid var(--colorTransparentStroke,transparent);'
+        + 'background:var(--colorNeutralBackground1,#fff);color:var(--colorNeutralForeground1,#242424);'
+        + 'font-family:var(--fontFamilyBase,inherit);font-size:var(--fontSizeBase200,12px);line-height:var(--lineHeightBase200,16px);'
+        + 'filter:drop-shadow(0 0 2px var(--colorNeutralShadowAmbient,rgba(0,0,0,.12))) drop-shadow(0 4px 8px var(--colorNeutralShadowKey,rgba(0,0,0,.14)))';
+      var cs = getComputedStyle(btn);  // Teams' tokens live on its providers, not on the page: take them from the button
+      ['--borderRadiusMedium', '--colorTransparentStroke', '--colorNeutralBackground1', '--colorNeutralForeground1', '--fontFamilyBase',
+       '--fontSizeBase200', '--lineHeightBase200', '--colorNeutralShadowAmbient', '--colorNeutralShadowKey'].forEach(function(v){
+        var x = cs.getPropertyValue(v); if (x) tip.style.setProperty(v, x); });
+      D.body.appendChild(tip); }
+    tip.textContent = tipText(); btn.setAttribute('aria-describedby', tip.id);
+    var r = btn.getBoundingClientRect(), w = tip.offsetWidth;
+    tip.style.left = Math.round(Math.max(4, Math.min(innerWidth - w - 4, r.left + r.width / 2 - w / 2))) + 'px';
+    tip.style.top = Math.round(r.bottom + 6) + 'px'; }
+  function laterTip(){ clearTimeout(tipT); tipT = setTimeout(showTip, 250); }
+  function drop(){ hideTip(); [].forEach.call(D.querySelectorAll('#' + ID), function(x){ x.remove(); }); btn = null; hb = null; watch(false); }
+  function paint(){ if (!btn || !cfg) return;
+    var b = busy();
+    btn.setAttribute('aria-label', cfg.label); btn.setAttribute('aria-pressed', String(shown)); btn.setAttribute('data-on', String(shown));
+    if (b) { btn.setAttribute('aria-busy', 'true'); btn.setAttribute('aria-disabled', 'true'); btn.style.cursor = 'progress'; }
+    else { btn.removeAttribute('aria-busy'); btn.removeAttribute('aria-disabled'); btn.style.cursor = ''; }
+    var sp = btn.firstElementChild, key = b ? 'wait' : String(shown);
+    if (sp && sp.getAttribute('data-icon') !== key) { sp.setAttribute('data-icon', key); sp.replaceChildren(b ? spinner() : icon(shown)); }
+    if (tip) { tip.textContent = tipText(); showTip(); } }
+  function make(from){
+    var b = D.createElement('button'); b.type = 'button'; b.id = ID; b.className = from.className;
+    var fsp = from.querySelector('.fui-Button__icon'), sp = D.createElement('span');
+    sp.className = fsp ? fsp.className : 'fui-Button__icon'; b.appendChild(sp);
+    b.addEventListener('click', function(e){ e.stopPropagation(); if (!cfg || busy()) return;  // one at a time
+      asked = !shown; shown = asked; paint(); });  // the app collects it at its next check
+    b.addEventListener('pointerenter', laterTip); b.addEventListener('pointerleave', hideTip);
+    b.addEventListener('focus', function(){ if (b.matches(':focus-visible')) laterTip(); }); b.addEventListener('blur', hideTip);
+    b.addEventListener('keydown', function(e){ if (e.key === 'Escape') hideTip(); });
+    return b; }
+  function ok(){ return !!btn && btn.isConnected && !!hb && hb.isConnected && btn.previousElementSibling === hb.parentElement
+    && hb.getAttribute('data-appbar-expanded') === hbOpen; }
+  function check(){ if (fixT || !cfg || ok()) return; fixT = setTimeout(function(){ fixT = 0; place(); }, 50); }
+  function watch(on){ if (on && !obs && D.body) { obs = new MutationObserver(check); obs.observe(D.body, {childList: true, subtree: true, attributes: true, attributeFilter: ['data-appbar-expanded']}); }
+    if (!on && obs) { obs.disconnect(); obs = null; } }
+  // right after the cell of Teams' button, taking no room: Teams' layout does not move
+  function place(){
+    if (stale()) { drop(); return false; }
+    var h = D.querySelector('[data-tid="hamburger-button"]'), cell = h && h.parentElement, row = cell && cell.parentElement;
+    if (!h || !row || !h.offsetWidth) { drop(); return false; }  // another layout, or the button is hidden: nothing of ours
+    [].forEach.call(D.querySelectorAll('#' + ID), function(x){ if (x !== btn) x.remove(); });
+    if (!btn) { btn = make(h); paint(); }
+    if (btn.className !== h.className) btn.className = h.className;  // Teams' own look, whatever it is now
+    hb = h; hbOpen = h.getAttribute('data-appbar-expanded');
+    if (btn.parentElement !== row || btn.previousElementSibling !== cell) row.insertBefore(btn, cell.nextSibling);
+    var hr = h.getBoundingClientRect(), cr = cell.getBoundingClientRect(), w = h.offsetWidth;
+    var ml = Math.round(4 - (cr.right - hr.right));  // 4px after Teams' button
+    btn.style.margin = '0 ' + (-(w + ml)) + 'px 0 ' + ml + 'px'; btn.style.flex = 'none';
+    watch(true);
+    return true; }
+  var beat = setInterval(function(){ if (btn && stale()) drop(); }, 3000);
+  window.__ttToggleSync = function(c){
+    seen = Date.now();
+    var out = {asked: asked, placed: false};
+    // a click goes to the app now; the spinner stays until the app says it is done (its state is the one clicked)
+    if (asked !== null) { shown = waitFor = asked; waitAt = Date.now(); asked = null; }
+    else if (waitFor !== null && (!c || !!c.on === waitFor || Date.now() - waitAt > WAIT)) waitFor = null;
+    if (waitFor === null) shown = !!(c && c.on);
+    cfg = c || null;
+    if (!cfg) { drop(); return out; }
+    out.placed = place(); paint();
+    return out; };
+  window.__ttToggleOff = function(){ clearInterval(beat); clearTimeout(fixT); cfg = null; drop();
+    window.__ttToggleSync = null; window.__ttToggleV = null; };
+})();
+""".replace("TOGGLE_V", str(TOGGLE_VERSION)).replace("TOGGLE_ID", TOGGLE_ID)
+
 
 # ---------- config ----------
 
@@ -952,11 +1070,57 @@ def test_effects(port):
 
 
 def remove_css(port):
+    """Everything of Teams Remix goes away, except the switch in Teams (toggle_sync decides about that)."""
     for t in cdp.pages(port):
         try:
             cdp.evaluate(t["webSocketDebuggerUrl"], _JS_REMOVE)
         except (OSError, RuntimeError):
             pass
+
+
+# ---------- the switch inside Teams ----------
+
+TOGGLE_TEXTS = {"tip_on": "Teams Remix attivo: clic per spegnerlo", "tip_off": "Teams Remix spento: clic per accenderlo",
+                "tip_wait_on": "Accendo Teams Remix...", "tip_wait_off": "Spengo Teams Remix..."}
+
+
+def toggle_config(on):
+    """What the switch in Teams shows: the app's choice, with its texts in both languages. It sits among Teams' own
+    buttons, so it speaks Teams' language (like the nickname group in the search), whatever the app's language."""
+    import i18n
+    return {"on": bool(on), "label": "Teams Remix",
+            "texts": {"it": dict(TOGGLE_TEXTS), "en": {k: i18n.EN[v] for k, v in TOGGLE_TEXTS.items()}}}
+
+
+def _toggle_call(cfg):
+    return ("(function(c){ return window.__ttToggleV === %d && window.__ttToggleSync ? window.__ttToggleSync(c) : '__missing'; })(%s)"
+            % (TOGGLE_VERSION, json.dumps(cfg)))
+
+
+def toggle_sync(port, cfg):
+    """Show the switch in Teams' windows as `cfg` says (toggle_config(...); None: no switch) and collect a click on it.
+    Returns True or False if it was clicked in Teams since the last time (switch on / off), else None.
+    The page is only read through the local channel the app already uses: it never reaches the app by itself."""
+    asked = None
+    try:
+        targets = cdp.pages(port)
+    except (OSError, ValueError):  # Teams closing right now: nothing to show, nothing clicked
+        return None
+    for t in targets:
+        if is_popup(t):  # no switch in a notification
+            continue
+        ws = t["webSocketDebuggerUrl"]
+        try:
+            r = cdp.evaluate(ws, _toggle_call(cfg))
+            if r == "__missing":  # a new or reloaded window, or an older switch: put this one in
+                if cfg is None:
+                    continue
+                r = cdp.evaluate(ws, TOGGLE_JS + "\n" + _toggle_call(cfg))
+        except (OSError, RuntimeError):
+            continue
+        if isinstance(r, dict) and isinstance(r.get("asked"), bool):
+            asked = r["asked"]
+    return asked
 
 
 # ---------- autostart ----------

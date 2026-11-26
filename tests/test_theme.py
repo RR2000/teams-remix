@@ -436,6 +436,7 @@ class UpdaterTest(unittest.TestCase):
         names = zipfile.ZipFile(out).namelist()
         self.assertIn("VERSION", names)
         self.assertIn("teams_theme.pyw", names)
+        self.assertIn("LICENSE", names)
         self.assertFalse([n for n in names if n.startswith(("tests/", "tools/", ".github/"))])
 
 
@@ -509,6 +510,160 @@ class CallTest(unittest.TestCase):
             self.teams.live_port, self.teams.save_config = saved, save
         self.assertEqual(self.reopened, [])
         self.assertIn("call", w.snapshot()["msg"])
+
+
+class TeamsSwitchTest(unittest.TestCase):
+    """The switch inside Teams, next to 'Collapse app bar': the same choice as 'Attivo su Teams' in the app."""
+
+    def setUp(self):
+        import teams
+        import worker
+        self.teams, self.worker = teams, worker
+        names = ("toggle_sync", "live_port", "remove_css", "save_config", "teams_in_call", "teams_running", "base_tokens")
+        self.saved = {n: getattr(teams, n) for n in names}
+        self.shown, self.clicks, self.removed, self.saves, self.call = [], [], [], [], [False]
+
+        def toggle_sync(port, cfg):
+            self.shown.append(cfg)
+            return self.clicks.pop(0) if self.clicks else None
+        teams.toggle_sync = toggle_sync
+        teams.live_port = lambda cfg: 9
+        teams.remove_css = lambda port: self.removed.append(port)
+        teams.save_config = lambda cfg: self.saves.append(dict(cfg))
+        teams.teams_in_call = lambda: self.call[0]
+        teams.teams_running = lambda: True
+        teams.base_tokens = lambda port: None
+
+    def tearDown(self):
+        for n, f in self.saved.items():
+            setattr(self.teams, n, f)
+
+    def make(self, on, option=False):
+        class Store:
+            def current(self):
+                return "notte", None
+        w = self.worker.Worker(store=Store(), cfg={"theme_on": on, "off_in_call": option})
+        w._sync = lambda port, force=False: None if w._in_call else "applied"
+        return w
+
+    def test_what_the_switch_says_in_both_languages(self):
+        cfg = self.teams.toggle_config(True)
+        self.assertEqual((cfg["on"], cfg["label"]), (True, "Teams Remix"))
+        it, en = cfg["texts"]["it"], cfg["texts"]["en"]
+        self.assertEqual(sorted(it), sorted(en))               # every text has its English
+        self.assertIn("spegnerlo", it["tip_on"])
+        self.assertEqual(en["tip_off"], "Teams Remix is off: click to switch it on")
+        self.assertEqual((it["tip_wait_on"], en["tip_wait_off"]), ("Accendo Teams Remix...", "Switching Teams Remix off..."))
+        self.assertIs(self.teams.toggle_config(0)["on"], False)
+        self.assertIn("documentElement.lang", self.teams.TOGGLE_JS)  # Teams' language picks, like the search group
+
+    def test_click_in_teams_switches_off_like_the_app(self):
+        w = self.make(True)
+        self.clicks.append(False)
+        w.do_tick()
+        self.assertFalse(w.cfg["theme_on"])                   # the same choice the app saves
+        self.assertFalse(self.saves[-1]["theme_on"])          # saved in the same file
+        self.assertFalse(w.snapshot()["on"])                  # "Attivo su Teams" in the app follows
+        self.assertEqual(self.removed, [9])                   # Teams Remix goes away from Teams...
+        self.assertEqual(self.shown[-1]["on"], False)         # ...the switch stays, showing off
+        self.assertIsNotNone(self.shown[-1])
+
+    def test_click_in_teams_switches_back_on(self):
+        w = self.make(False)
+        self.clicks.append(True)
+        w.do_tick()
+        self.assertTrue(w.cfg["theme_on"])
+        self.assertTrue(w.snapshot()["on"])
+        self.assertEqual(self.shown[-1]["on"], True)
+        self.assertIn("notte", w.snapshot()["msg"])           # the app says what happened, as for its own switch
+
+    def test_same_state_clicked_twice_changes_nothing(self):
+        w = self.make(True)
+        self.clicks.append(True)                              # on, off, on again before the app looked
+        w.do_tick()
+        self.assertTrue(w.cfg["theme_on"])
+        self.assertEqual((self.removed, self.saves), ([], []))
+
+    def test_change_from_the_app_shows_in_teams(self):
+        w = self.make(True)
+        w.do_tick()
+        self.assertEqual(self.shown[-1]["on"], True)
+        w._want(False)                                        # "Attivo su Teams" switched off in the app
+        w.do_off()
+        self.assertEqual(self.shown[-1]["on"], False)         # at once, not at the next check
+        w.do_tick()
+        self.assertEqual(self.shown[-1]["on"], False)
+
+    def test_hidden_during_a_call_and_a_late_click_ignored(self):
+        w = self.make(True, option=True)
+        self.call[0] = True
+        self.clicks.append(False)
+        w.do_tick()
+        self.assertIsNone(self.shown[-1])                     # Teams normal in a call: no switch either
+        self.assertTrue(w.cfg["theme_on"])                    # the click just before the call does not count
+        self.assertEqual(self.removed, [9])                   # paused as before
+        self.call[0] = False
+        w.do_tick()
+        self.assertEqual(self.shown[-1]["on"], True)          # back after the call
+
+    def test_option_off_keeps_the_switch_in_a_call(self):
+        w = self.make(True, option=False)
+        self.call[0] = True
+        w.do_tick()
+        self.assertEqual(self.shown[-1]["on"], True)
+
+    def test_script(self):
+        js = self.teams.TOGGLE_JS
+        self.assertIn('[data-tid="hamburger-button"]', js)  # next to Teams' own "Collapse app bar"
+        self.assertIn("aria-pressed", js)                      # the state is not only a colour
+        self.assertNotIn("innerHTML", js)                      # Teams refuses HTML text (Trusted Types)
+        self.assertIn("if (x !== btn) x.remove()", js)         # never two
+        self.assertIn("if (!cfg || busy()) return", js)        # after a click, the next one waits for the app
+        self.assertIn("spinner()", js)                         # a spinner instead of the sparkle meanwhile
+        self.assertIn("aria-busy", js)
+        self.assertIn("another layout", js)                    # no button of Teams: nothing of ours
+        self.assertNotIn(self.teams.TOGGLE_ID, self.teams._JS_REMOVE)  # switching off leaves the switch
+        self.assertNotIn("TOGGLE_V", js)
+        self.assertIn('"on": false', self.teams._toggle_call(self.teams.toggle_config(False)))
+        self.assertIn("(null)", self.teams._toggle_call(None))
+
+    def test_script_is_valid_javascript(self):
+        import shutil, subprocess
+        node = shutil.which("node")
+        if not node:
+            self.skipTest("node not installed")
+        js = self.teams.TOGGLE_JS + ";" + self.teams._toggle_call(self.teams.toggle_config(True))
+        with tempfile.NamedTemporaryFile("w", suffix=".js", delete=False, encoding="utf-8") as f:
+            f.write(js + ";")
+        try:
+            r = subprocess.run([node, "--check", f.name], capture_output=True, text=True)
+            self.assertEqual(r.returncode, 0, r.stderr)
+        finally:
+            os.unlink(f.name)
+
+
+    def test_switch_on_a_page(self):
+        """The real script on a small fake page: its place, never two, the spinner, Teams' language."""
+        import shutil, subprocess
+        node = shutil.which("node")
+        if not node:
+            self.skipTest("node not installed")
+        with tempfile.NamedTemporaryFile("w", suffix=".js", delete=False, encoding="utf-8") as f:
+            f.write(self.teams.TOGGLE_JS)
+        try:
+            r = subprocess.run([node, str(ROOT / "tests" / "toggle_fake_dom.js"), f.name], capture_output=True, text=True, timeout=30)
+        finally:
+            os.unlink(f.name)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        out = json.loads(r.stdout.strip().splitlines()[-1])
+        self.assertEqual(out, {
+            "placed": True, "count": 1, "nextToTeams": True, "sameLook": True, "pressed": "true", "label": "Teams Remix",
+            "countAfterRepeats": 1, "countAfterRedraw": 1,                      # never two, back after a redraw
+            "busyAfterClick": "true", "iconAfterClick": "wait", "pressedAfterClick": "false",  # spinner at once
+            "asked": False, "busyWhileAppWorks": "true", "askedWhileBusy": None,  # one click at a time
+            "busyAfterApp": None, "pressedAfterApp": "false", "iconAfterApp": "false",
+            "tipEn": "off", "tipIt": "spento",                                    # Teams' language
+            "countHidden": 0, "placedWithout": False, "countWithout": 0})
 
 
 class JiggleTest(unittest.TestCase):

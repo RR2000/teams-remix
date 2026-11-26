@@ -30,6 +30,7 @@ class Worker(threading.Thread):
         self.applied_ver = None
         self._was_running = None
         self._in_call = False  # "Teams normale durante le call": paused while Teams uses the microphone
+        self._asked = None  # a click on the switch inside Teams, not handled yet (True: on, False: off)
         self.state = {"running": False, "ready": False, "on": bool(cfg.get("theme_on")), "active": False,
                       "mode": None, "busy": "", "msg": "", "msg_at": "", "call": False}
 
@@ -121,6 +122,20 @@ class Worker(threading.Thread):
         self._set(running=running, ready=bool(port), active=self.want_on and bool(port) and self.applied_ver is not None,
                   busy="")
 
+    # ---------- the switch inside Teams ----------
+    def _show_toggle(self, port, hidden=False):
+        """The switch in Teams shows the same choice as "Attivo su Teams" in the app; a click on it is kept for
+        do_tick. Hidden while Teams has to be normal for a call: nothing of Teams Remix during a call."""
+        asked = teams.toggle_sync(port, None if hidden else teams.toggle_config(self.want_on))
+        if asked is not None:
+            self._asked = asked
+
+    def _toggle_now(self):
+        """After a switch on or off: the switch in Teams follows at once, not at the next check."""
+        port = teams.live_port(self.cfg)
+        if port:
+            self._show_toggle(port, bool(self.cfg.get("off_in_call")) and teams.teams_in_call())
+
     # ---------- core ----------
     def _call_pause(self, port):
         """With the option on, Teams goes back to normal while it uses the microphone (a call, a meeting) and
@@ -211,6 +226,13 @@ class Worker(threading.Thread):
         just_started = running and self._was_running is False
         self._was_running = running
         if port:
+            hidden = bool(self.cfg.get("off_in_call")) and teams.teams_in_call()
+            self._show_toggle(port, hidden)
+            asked, self._asked = self._asked, None
+            if asked is not None and not hidden and asked != self.want_on:
+                # clicked in Teams: exactly as if "Attivo su Teams" had been switched in the app (same file, same steps)
+                (self.do_on if asked else self.do_off)()
+                return
             if self.want_on:
                 if self._call_pause(port):
                     return
@@ -243,6 +265,7 @@ class Worker(threading.Thread):
             r = self._sync(port, force=True)
             name, _ = self.store.current()
             self.say(tr("Fatto! Teams Remix e' attivo (tema '{name}').", name=name) if r else tr("Teams si sta ancora caricando: Teams Remix arriva da solo."))
+            self._toggle_now()
         elif teams.teams_running():
             self._reopen_with_theme(tr("Riapro Teams per accendere Teams Remix (pochi secondi)..."))
         else:
@@ -287,8 +310,9 @@ class Worker(threading.Thread):
         self._in_call = False
         self._set(call=False)
         if port:
-            teams.remove_css(port)
+            teams.remove_css(port)  # the switch in Teams stays: it is the way to switch back on
         self.say(tr("Teams Remix spento: Teams e' com'era. Tema, coinquilini e soprannomi restano salvati."))
+        self._toggle_now()
 
     def do_normal(self):
         self._want(False)

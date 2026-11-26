@@ -85,6 +85,8 @@ EN = {
     "Chiama la pecora": "Call the sheep", "Chiama il toro": "Call the bull", "Chiama il fantasma": "Call the ghost",
     "Chiama il robot": "Call the robot", "Chiama il camion": "Call the truck", "Chiama il Drugo": "Call the Dude",
     "Fai partire gli effetti": "Start the effects",
+    "Teams Remix attivo: clic per spegnerlo": "Teams Remix is on: click to switch it off",
+    "Teams Remix spento: clic per accenderlo": "Teams Remix is off: click to switch it on",
     "Testo arcobaleno {col}": "Rainbow text {col}",
     "Testo sullo sfondo": "Text on the background",
     "Testo secondario": "Secondary text",

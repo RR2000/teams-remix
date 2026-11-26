@@ -86,8 +86,10 @@ def _safe_names(z):
     return z.namelist()
 
 
-def install(data, app_dir=HERE, backup_dir=BACKUP_DIR):
+def install(data, app_dir=None, backup_dir=None):
     """Put the release zip `data` in place of the app's files. Returns the new version."""
+    app_dir = Path(app_dir) if app_dir else HERE
+    backup_dir = Path(backup_dir) if backup_dir else BACKUP_DIR  # read now: it can be pointed elsewhere (tests)
     z = zipfile.ZipFile(io.BytesIO(data))
     names = _safe_names(z)
     if not all(n in names for n in NEEDED) or "VERSION" not in names:
@@ -95,7 +97,10 @@ def install(data, app_dir=HERE, backup_dir=BACKUP_DIR):
     new = z.read("VERSION").decode("utf-8").strip()
     if not parse(new):
         raise ValueError("the update has no valid version")
-    old = current_version() if app_dir == HERE else (Path(app_dir) / "VERSION").read_text(encoding="utf-8").strip()
+    try:
+        old = (app_dir / "VERSION").read_text(encoding="utf-8").strip() or None
+    except OSError:
+        old = None
     with tempfile.TemporaryDirectory() as tmp:  # unpack first: nothing changes if the zip is broken
         z.extractall(tmp)
         keep = Path(backup_dir) / (old or "unknown")

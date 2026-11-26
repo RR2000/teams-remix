@@ -408,6 +408,13 @@ class UpdaterTest(unittest.TestCase):
         self.assertEqual((app / "server.py").read_text(encoding="utf-8"), "new server.py")
         self.assertEqual((app / "VERSION").read_text(encoding="utf-8").strip(), "2026.11.27")
         self.assertEqual((backup / "2026.11.26" / "server.py").read_text(encoding="utf-8"), "old server.py")  # can go back
+        saved = updater.BACKUP_DIR
+        updater.BACKUP_DIR = tmp / "elsewhere"   # the backup folder is read when installing, not when loading
+        try:
+            updater.install(self.release("2026.11.28"), app)
+        finally:
+            updater.BACKUP_DIR = saved
+        self.assertTrue((tmp / "elsewhere" / "2026.11.27" / "server.py").exists())
 
     def test_refuses_what_is_not_a_release(self):
         import updater

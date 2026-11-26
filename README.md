@@ -24,11 +24,15 @@ It only changes how *you* see Teams, on your PC: nothing changes for anybody els
 - [Python 3.13](https://www.python.org/downloads/) from python.org. No other dependency.
 
 ## Install
-1. Download the project (**Code > Download ZIP**, or `git clone`) and unpack it anywhere.
+1. Download `teams-remix.zip` from the latest [release](https://github.com/RR2000/teams-remix/releases/latest) and unpack it anywhere.
 2. Double-click `teams_theme.pyw`. To keep it handy: right-click the file >
    **Show more options > Send to > Desktop (create shortcut)**.
 3. Switch on **On in Teams** at the top right. The first time, Teams closes and reopens by itself
    (a few seconds): do it when you're not in a call.
+
+**Updates**: when a new version is out, the app says so at the top; **Update** installs it with one click (Teams doesn't
+close, your themes and nicknames stay). Every change pushed here becomes a release by itself, numbered by date
+(`2026.11.26`, `2026.11.26.2`...). A copy made with `git clone` updates with `git pull` instead.
 
 ## How it works
 To colour Teams, the app reopens it with a WebView2 control channel listening only on `127.0.0.1`
@@ -44,7 +48,8 @@ PC) lives in `%APPDATA%\teams-remix\`, so updating the app never touches it.
 `themes-default\` holds the app's themes: the first ones you get, and the ones "Restore original" goes back to.
 
 ## For tinkerers
-- Tests: `python -B -m unittest discover -s tests`
+- Tests: `python -B -m unittest discover -s tests` (the release workflow runs them too: no green, no release)
+- Release zip by hand: `python tools/package.py <version> teams-remix.zip`
 - Icon: `python tools/make_icon.py` (needs Pillow, only there).
 - `theme.py` makes the CSS (deterministic), `teams.py` talks to Teams, `worker.py` keeps it up to date,
   `server.py` + `ui/index.html` are the app's window, `i18n.py` and the table in `ui/index.html` hold the English.
@@ -78,11 +83,15 @@ Cambia solo come vedi Teams tu, sul tuo PC: per gli altri non cambia niente.
 - [Python 3.13](https://www.python.org/downloads/) installato da python.org. Nessun'altra dipendenza.
 
 ### Installazione
-1. Scarica il progetto (**Code > Download ZIP**, oppure `git clone`) ed estrailo dove vuoi.
+1. Scarica `teams-remix.zip` dall'ultima [release](https://github.com/RR2000/teams-remix/releases/latest) ed estrailo dove vuoi.
 2. Apri `teams_theme.pyw` con un doppio clic. Per averlo a portata di mano: tasto destro sul file >
    **Mostra altre opzioni > Invia a > Desktop (crea collegamento)**.
 3. Accendi **Attivo su Teams** in alto a destra. La prima volta Teams si chiude e si riapre da solo
    (pochi secondi): fallo quando non sei in call.
+
+**Aggiornamenti**: quando esce una versione nuova l'app lo dice in alto; **Aggiorna** la installa con un clic (Teams non
+si chiude, temi e soprannomi restano). Ogni modifica caricata qui diventa da sola una release, numerata con la data
+(`2026.11.26`, `2026.11.26.2`...). Una copia fatta con `git clone` si aggiorna invece con `git pull`.
 
 ### Come funziona
 Per poter colorare Teams, l'app lo riapre con un canale di controllo di WebView2 aperto solo su `127.0.0.1`

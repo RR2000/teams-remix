@@ -77,6 +77,9 @@ EN = {
     "Modalita' non valida.": "Invalid mode.",
     "Foto non valida: usa un'immagine JPG o PNG.": "Invalid photo: use a JPG or PNG picture.",
     "Foto non valida o troppo grande.": "Invalid or too large photo.",
+    # updates
+    "Non c'è nessun aggiornamento da fare.": "There is no update to install.",
+    "Aggiornamento non riuscito ({e}). Niente è cambiato: riprova piu' tardi.": "Update failed ({e}). Nothing changed: try again later.",
     # on Teams (screen readers) and in the readability checks
     "Chiama il capibara": "Call the capybara", "Chiama il gatto": "Call the cat", "Chiama il cane": "Call the dog",
     "Chiama la pecora": "Call the sheep", "Chiama il toro": "Call the bull", "Chiama il fantasma": "Call the ghost",

@@ -180,6 +180,10 @@ details.more-opts > summary { cursor: pointer; color: var(--text-2); font-weight
 .more .box { margin-top: 10px; padding: 14px; border-radius: var(--radius-s); background: var(--surface); border: 1px solid var(--border); display: grid; gap: 12px; justify-items: start; }
 .more p { margin: 0; }
 
+.updbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; max-width: 1320px; margin: 12px auto 0; padding: 10px 14px;
+  border: 1px solid var(--accent, var(--border-strong)); border-radius: var(--radius-s); background: var(--surface); }
+.updbar .txt { flex: 1; min-width: 200px; font-weight: 600; }
+.updbar details { flex-basis: 100%; order: 3; } .updbar pre { white-space: pre-wrap; margin: 6px 0 0; font: inherit; color: var(--text-2); }
 dialog { border: 1px solid var(--border-strong); border-radius: var(--radius); background: var(--surface); color: var(--text); padding: 22px; width: min(460px, calc(100vw - 32px)); box-shadow: 0 20px 60px rgba(0,0,0,.35); }
 dialog::backdrop { background: rgba(0,0,0,.35); }
 dialog h2 { margin: 0 0 8px; font-size: 18px; }
@@ -203,6 +207,7 @@ dialog .btn.primary.danger { background: var(--danger); border-color: var(--dang
   <div id="status" class="status" role="status" aria-live="polite"><span class="dot"></span><span>Controllo Teams...</span></div>
   <div class="actions" id="actions"></div>
 </header>
+<div class="updbar" id="updbar" role="status" aria-live="polite" hidden></div>
 
 <div class="layout" id="view-themes">
   <nav class="side" aria-label="Temi">
@@ -377,6 +382,11 @@ dialog .btn.primary.danger { background: var(--danger); border-color: var(--dang
     <label class="switch"><input type="checkbox" id="offincall"> Durante le call, Teams normale</label>
     <p class="hint" style="margin-top:8px" data-t="callhint">Quando entri in una call o in una riunione, tema, coinquilini e soprannomi spariscono da soli e tornano quando la call finisce.
       <b>Teams non si riapre</b>, quindi la call non cade. Se no, in qualunque momento basta spegnere "Attivo su Teams" in alto.</p>
+  </section>
+  <section class="card" style="margin-top:14px">
+    <div class="cardhead"><h3>Aggiornamenti</h3></div>
+    <label class="switch"><input type="checkbox" id="checkupd"> Controlla da solo se c'è una versione nuova (su GitHub)</label>
+    <p class="hint" style="margin-top:8px" id="vernote"></p>
   </section>
   <section class="card" style="margin-top:14px">
     <div class="cardhead"><h3>Teams</h3></div>
@@ -554,6 +564,13 @@ const EN = {
   "Call": "Calls", "Durante le call, Teams normale": "During calls, normal Teams",
   "Per colorare Teams l'app lo riapre con un canale di controllo che funziona solo su questo PC. Finché quel canale è aperto, altri programmi sul PC potrebbero leggere cosa c'è in Teams. Questo pulsante lo chiude e rimette Teams com'è.": "To colour Teams, the app reopens it with a control channel that only works on this PC. While that channel is open, other programs on the PC could read what's in Teams. This button closes it and puts Teams back as it is.",
   "Riapri Teams com'era": "Reopen Teams as it was", "App": "App",
+  "Aggiornamenti": "Updates", "Controlla da solo se c'è una versione nuova (su GitHub)": "Check by itself for a new version (on GitHub)",
+  "Questa copia viene da git: si aggiorna con git pull.": "This copy comes from git: it updates with git pull.",
+  "Versione installata: {v}.": "Installed version: {v}.", "Versione installata: non indicata.": "Installed version: not given.",
+  "Aggiorna": "Update", "C'è una versione nuova di Teams Remix: {v}.": "A new version of Teams Remix is out: {v}.", "Cosa cambia": "What changes",
+  "Aggiornare adesso?": "Update now?", "Hai modifiche non salvate in: {l}. Aggiornando si perdono.": "You have unsaved changes in: {l}. Updating loses them.",
+  "Aggiorno Teams Remix... Teams non si chiude.": "Updating Teams Remix... Teams doesn't close.",
+  "Aggiornato alla versione {v}: la finestra nuova si apre da sola, puoi chiudere questa.": "Updated to version {v}: the new window opens by itself, you can close this one.",
   "Teams Remix resta accesa in background per rimettere tema, coinquilini e soprannomi quando Teams si ricarica.": "Teams Remix stays on in the background to put the theme, housemates and nicknames back when Teams reloads.",
 };
 // paragraphs with words in bold: translated whole
@@ -623,6 +640,10 @@ function renderStatus() {
   $("respectrm").checked = !!S.respect_reduced_motion;
   $("offincall").checked = !!S.off_in_call;
   segPress("lang", S.lang_pref || "auto");
+  $("checkupd").checked = !!S.check_updates;
+  $("vernote").textContent = S.git_copy ? t("Questa copia viene da git: si aggiorna con git pull.")
+    : S.version ? t("Versione installata: {v}.", { v: S.version }) : t("Versione installata: non indicata.");
+  renderUpdate();
   $("rmnote").hidden = !tm.reduced;
   $("rmnote").textContent = S.respect_reduced_motion ? t("Windows chiede animazioni ridotte e hai scelto di rispettarlo: gli effetti sono fermi (lo cambi in Opzioni).")
                                                      : t("Windows chiede animazioni ridotte: gli effetti partono lo stesso, perché li hai scelti tu.");
@@ -991,6 +1012,34 @@ $("normal").addEventListener("click", () => ask({ title: t("Riaprire Teams com'e
 $("autostart").addEventListener("change", async (e) => { try { absorb(await api("/api/autostart", { on: e.target.checked })); } catch (err) { $("msgline").textContent = t("Avvio con Windows non cambiato: ") + err.message; } renderStatus(); });
 $("respectrm").addEventListener("change", async (e) => { try { absorb(await api("/api/reduced-motion", { on: e.target.checked })); } catch (err) { $("msgline").textContent = t("Impostazione non cambiata: ") + err.message; } renderStatus(); schedulePreview(); });
 $("offincall").addEventListener("change", async (e) => { try { absorb(await api("/api/off-in-call", { on: e.target.checked })); } catch (err) { $("msgline").textContent = t("Impostazione non cambiata: ") + err.message; } renderStatus(); });
+/* ---------- updates: a newer release on GitHub, installed with one click (Teams is not touched) ---------- */
+let updating = false, POLL = null;
+function renderUpdate() {
+  const u = S.update, bar = $("updbar");
+  if (updating) return;
+  bar.hidden = !u; if (!u) return;
+  const btn = el("button", { class: "btn primary small", type: "button" }, t("Aggiorna"));
+  btn.addEventListener("click", askUpdate);
+  bar.replaceChildren(el("span", { class: "txt" }, t("C'è una versione nuova di Teams Remix: {v}.", { v: u.version })), btn,
+    ...(u.notes ? [el("details", {}, el("summary", {}, t("Cosa cambia")), el("pre", {}, u.notes))] : []));
+}
+async function askUpdate() {
+  await pushEdit();
+  const unsaved = [...new Set(Object.keys(S.drafts))];
+  if (!unsaved.length) return installUpdate();
+  ask({ title: t("Aggiornare adesso?"), text: t("Hai modifiche non salvate in: {l}. Aggiornando si perdono.", { l: unsaved.map(tname).join(", ") }),
+        ok: t("Aggiorna"), danger: true, run: installUpdate });
+}
+async function installUpdate() {
+  const bar = $("updbar"); updating = true;
+  bar.replaceChildren(el("span", { class: "spin" }), el("span", { class: "txt" }, t("Aggiorno Teams Remix... Teams non si chiude.")));
+  try {
+    const r = await api("/api/update", {});
+    clearInterval(POLL);
+    document.body.replaceChildren(el("p", { style: "padding:24px" }, t("Aggiornato alla versione {v}: la finestra nuova si apre da sola, puoi chiudere questa.", { v: r.updated })));
+  } catch (e) { updating = false; bar.replaceChildren(el("span", { class: "txt" }, e.message)); }
+}
+$("checkupd").addEventListener("change", async (e) => { try { absorb(await api("/api/check-updates", { on: e.target.checked })); } catch (err) { $("msgline").textContent = t("Impostazione non cambiata: ") + err.message; } renderStatus(); });
 $("lang").addEventListener("click", async (e) => { const b = e.target.closest("button"); if (!b || b.dataset.v === S.lang_pref) return;
   try { await pushEdit(); await api("/api/lang", { lang: b.dataset.v }); location.reload(); } catch (err) { $("msgline").textContent = t("Impostazione non cambiata: ") + err.message; } });
 $("quit").addEventListener("click", () => {
@@ -1167,7 +1216,7 @@ async function poll() {
   }
   catch (e) { $("status").hidden = false; $("status").replaceChildren(el("span", { class: "dot" }), el("span", {}, t("App non raggiungibile: è stata chiusa?"))); }
 }
-(async () => { const st = await api("/api/state"); LANG = st.lang === "en" ? "en" : "it"; translatePage(); NICK = clone(st.nicknames || []); load(st); renderView(); setInterval(poll, 1500); })();
+(async () => { const st = await api("/api/state"); LANG = st.lang === "en" ? "en" : "it"; translatePage(); NICK = clone(st.nicknames || []); load(st); renderView(); POLL = setInterval(poll, 1500); })();
 </script>
 </body>
 </html>

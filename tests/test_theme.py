@@ -371,6 +371,67 @@ class LanguagesTest(unittest.TestCase):
         self.assertEqual(i18n.resolve("auto"), i18n.windows_lang())
 
 
+class UpdaterTest(unittest.TestCase):
+    """New releases from GitHub, installed in place of the app's files only."""
+
+    def make_zip(self, files):
+        import io
+        import zipfile
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w") as z:
+            for n, data in files.items():
+                z.writestr(n, data)
+        return buf.getvalue()
+
+    def release(self, version):
+        import updater
+        return self.make_zip({**{n: f"new {n}" for n in updater.NEEDED}, "VERSION": version + "\n", "i18n.py": "new"})
+
+    def test_versions_are_dates(self):
+        import updater
+        self.assertTrue(updater.newer("v2026.11.27", "2026.11.26"))
+        self.assertTrue(updater.newer("2026.11.26.2", "2026.11.26"))   # the second release of the day
+        self.assertTrue(updater.newer("2026.12.1", "2026.11.30"))      # numbers, not text: 12 > 11
+        self.assertFalse(updater.newer("2026.11.26", "2026.11.26"))
+        self.assertFalse(updater.newer("2026.11.26", None))            # a copy without version is never offered one
+        self.assertFalse(updater.newer("nonsense", "2026.11.26"))
+
+    def test_install_replaces_the_app_and_keeps_the_old_one(self):
+        import updater
+        tmp = Path(tempfile.mkdtemp())
+        app, backup = tmp / "app", tmp / "backup"
+        for n in updater.NEEDED:
+            (app / n).parent.mkdir(parents=True, exist_ok=True)
+            (app / n).write_text(f"old {n}", encoding="utf-8")
+        (app / "VERSION").write_text("2026.11.26\n", encoding="utf-8")
+        self.assertEqual(updater.install(self.release("2026.11.27"), app, backup), "2026.11.27")
+        self.assertEqual((app / "server.py").read_text(encoding="utf-8"), "new server.py")
+        self.assertEqual((app / "VERSION").read_text(encoding="utf-8").strip(), "2026.11.27")
+        self.assertEqual((backup / "2026.11.26" / "server.py").read_text(encoding="utf-8"), "old server.py")  # can go back
+
+    def test_refuses_what_is_not_a_release(self):
+        import updater
+        tmp = Path(tempfile.mkdtemp())
+        with self.assertRaises(ValueError):
+            updater.install(self.make_zip({"VERSION": "2026.11.27", "x.py": ""}), tmp, tmp / "b")      # not the app
+        with self.assertRaises(ValueError):
+            updater.install(self.make_zip({**{n: "" for n in updater.NEEDED}, "VERSION": "2026.11.27",
+                                           "../evil.py": ""}), tmp, tmp / "b")                       # outside the folder
+        with self.assertRaises(ValueError):
+            updater.download_and_install("https://example.com/teams-remix.zip")                       # only from the repo
+
+    def test_release_zip_has_the_version_and_only_the_app(self):
+        import zipfile
+        sys.path.insert(0, str(ROOT / "tools"))
+        import package
+        out = Path(tempfile.mkdtemp()) / "r.zip"
+        package.build("2026.11.27", out)
+        names = zipfile.ZipFile(out).namelist()
+        self.assertIn("VERSION", names)
+        self.assertIn("teams_theme.pyw", names)
+        self.assertFalse([n for n in names if n.startswith(("tests/", "tools/", ".github/"))])
+
+
 class ThemesFolderTest(unittest.TestCase):
     def test_own_themes_move_to_appdata_once(self):
         import teams

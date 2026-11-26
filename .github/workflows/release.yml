@@ -1,0 +1,52 @@
+# Every push to main that changes the app makes a release by itself: tests first, then a version from the date
+# (2026.11.26, or 2026.11.26.2 for the second one that day), notes from the commit messages since the last release,
+# and the zip the app downloads when it updates. If the tests fail, there is no release.
+name: release
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ["**.md"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency: release
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Tests
+        run: python -B -m unittest discover -s tests
+
+      - name: Version and notes
+        id: v
+        shell: bash
+        run: |
+          base=$(date -u +%Y.%-m.%-d)
+          n=$(git tag -l "v$base" "v$base.*" | wc -l)
+          if [ "$n" -eq 0 ]; then v="$base"; else v="$base.$((n + 1))"; fi
+          prev=$(git describe --tags --abbrev=0 2>/dev/null || true)
+          if [ -n "$prev" ]; then git log --format='- %s' "$prev..HEAD" > notes.md; else git log --format='- %s' > notes.md; fi
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+
+      - name: Package
+        run: python tools/package.py ${{ steps.v.outputs.version }} teams-remix.zip
+
+      - name: Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release create "v${{ steps.v.outputs.version }}" teams-remix.zip
+          --title "Teams Remix ${{ steps.v.outputs.version }}" --notes-file notes.md --target "$GITHUB_SHA"

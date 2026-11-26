@@ -6,6 +6,7 @@ import re
 import secrets
 import shutil
 import subprocess
+import sys
 import threading
 import urllib.request
 import winreg
@@ -15,6 +16,7 @@ from pathlib import Path
 import i18n
 import teams
 import theme
+import updater
 from i18n import tr
 
 HERE = Path(__file__).resolve().parent
@@ -271,6 +273,7 @@ class AppServer:
     def __init__(self, cfg):
         self.cfg = cfg
         i18n.set_lang(cfg.get("lang"))  # 'it', 'en' or 'auto' (Windows' language)
+        self.update, self._update_wake = None, threading.Event()  # a newer release on GitHub, if any
         self.store = ThemeStore(THEMES, cfg, THEMES_DEFAULT)
         from worker import Worker
         self.worker = Worker(self.store, cfg)
@@ -289,6 +292,9 @@ class AppServer:
         dmode = self.worker.default_mode(snap.get("mode"))
         return {"teams": snap, "autostart": teams.autostart_enabled(),
                 "lang": i18n.lang(), "lang_pref": self.cfg.get("lang") if self.cfg.get("lang") in i18n.LANGS else "auto",
+                "version": updater.current_version(), "git_copy": updater.is_git_copy(),
+                "check_updates": bool(self.cfg.get("check_updates", True)),
+                "update": {k: self.update[k] for k in ("version", "notes", "page")} if self.update else None,
                 "respect_reduced_motion": bool(self.cfg.get("respect_reduced_motion")),
                 "off_in_call": bool(self.cfg.get("off_in_call")), **self.store.listing(),
                 "default_mode": dmode, "default_mode_real": self.worker.base_is_real(dmode),
@@ -379,6 +385,15 @@ class AppServer:
         elif path == "/api/reduced-motion":
             self.cfg["respect_reduced_motion"] = bool(body["on"])
             teams.save_config(self.cfg)
+        elif path == "/api/update":
+            return self._install_update()
+        elif path == "/api/check-updates":
+            self.cfg["check_updates"] = bool(body["on"])
+            teams.save_config(self.cfg)
+            if self.cfg["check_updates"]:
+                self._update_wake.set()  # look now
+            else:
+                self.update = None
         elif path == "/api/lang":
             pref = body.get("lang")
             self.cfg["lang"] = pref if pref in i18n.LANGS else "auto"
@@ -399,7 +414,30 @@ class AppServer:
     def serve(self, startup=False):
         self.worker.start()
         self.worker.submit("startup" if startup else "tick")
+        threading.Thread(target=self._update_loop, daemon=True).start()
         self.httpd.serve_forever()
+
+    # ---------- updates from GitHub ----------
+    def _update_loop(self):
+        """Shortly after start, then every 12 hours (or at once when the option is switched on)."""
+        self._update_wake.wait(20)
+        while True:
+            self._update_wake.clear()
+            if self.cfg.get("check_updates", True):
+                self.update = updater.check()
+            self._update_wake.wait(12 * 3600)
+
+    def _install_update(self):
+        if not self.update:
+            raise ValueError(tr("Non c'è nessun aggiornamento da fare."))
+        try:
+            version = updater.download_and_install(self.update["zip"])
+        except (OSError, ValueError) as e:
+            raise ValueError(tr("Aggiornamento non riuscito ({e}). Niente è cambiato: riprova piu' tardi.", e=e))
+        # the new app starts as soon as this one is gone, and opens its window
+        subprocess.Popen([sys.executable, str(HERE / "teams_theme.pyw"), "--restart"], cwd=str(HERE), creationflags=teams.NO_WINDOW)
+        threading.Timer(1.0, self.httpd.shutdown).start()
+        return {"updated": version}
 
 
 def _edge():

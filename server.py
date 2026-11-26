@@ -28,6 +28,7 @@ ASSETS = HERE / "assets"
 NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9 _-]{0,39}$")
 HEX6 = re.compile(r"^#[0-9a-fA-F]{6}$")
 DEFAULT = "Originale di Teams"  # built in: Teams' own colours, the debug channel stays open
+ALIVE_WAIT = 50  # seconds the app holds the window's /api/alive request before it answers "still here"
 
 
 def clean_theme(params):
@@ -247,6 +248,8 @@ def make_handler(app):
                 return self._send(403, {"error": "token"})
             if self.path == "/api/state":
                 return self._send(200, app.state())
+            if self.path == "/api/alive":  # held open: answers at once when the app closes, so its window closes too
+                return self._send(200, {"bye": app.closing.wait(ALIVE_WAIT)})
             return self._send(404, {"error": "not found"})
 
         def do_POST(self):
@@ -278,6 +281,7 @@ class AppServer:
         from worker import Worker
         self.worker = Worker(self.store, cfg)
         self.token = secrets.token_urlsafe(24)
+        self.closing = threading.Event()  # set when the app is about to close: its window closes by itself
         self.httpd = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(self))
         self.port = self.httpd.server_address[1]
         cfg["ui_port"], cfg["ui_token"] = self.port, self.token
@@ -405,6 +409,7 @@ class AppServer:
             teams.save_config(self.cfg)
             self.worker.submit("tick")  # takes effect at once, also in the middle of a call
         elif path == "/api/quit":
+            self.closing.set()
             threading.Timer(0.3, self.httpd.shutdown).start()
             return
         else:
@@ -436,6 +441,7 @@ class AppServer:
             raise ValueError(tr("Aggiornamento non riuscito ({e}). Niente è cambiato: riprova piu' tardi.", e=e))
         # the new app starts as soon as this one is gone, and opens its window
         subprocess.Popen([sys.executable, str(HERE / "teams_theme.pyw"), "--restart"], cwd=str(HERE), creationflags=teams.NO_WINDOW)
+        threading.Timer(0.5, self.closing.set).start()  # after this answer: the old window closes, the new one opens
         threading.Timer(1.0, self.httpd.shutdown).start()
         return {"updated": version}
 
@@ -454,6 +460,90 @@ def _edge():
         if os.path.exists(p):
             return p
     return shutil.which("msedge")
+
+
+# ---------- one window only ----------
+# The app's window is an Edge --app window, whose title is exactly the page's: "Teams Remix" while the app answers,
+# "Teams Remix (non raggiungibile)" once its app is gone (the page then closes itself, see ui/index.html).
+APP_TITLE = "Teams Remix"
+DEAD_TITLES = ("Teams Remix (non raggiungibile)", "Teams Remix (can't be reached)")
+
+
+def pick_app_windows(windows):
+    """[(hwnd, process image name, title)] -> [(hwnd, title)] of the app's windows: Edge, with exactly one of our titles
+    (a normal Edge window adds the browser's name to its title, so it never matches)."""
+    return [(h, t) for h, exe, t in windows if exe.lower() == "msedge.exe" and (t == APP_TITLE or t in DEAD_TITLES)]
+
+
+def _top_windows():
+    """[(hwnd, process image name, title)] of the visible top-level windows."""
+    import ctypes
+    from ctypes import wintypes as W
+    user, kernel, out = ctypes.windll.user32, ctypes.windll.kernel32, []
+
+    def image(pid):
+        h = kernel.OpenProcess(0x1000, False, pid)  # PROCESS_QUERY_LIMITED_INFORMATION
+        if not h:
+            return ""
+        try:
+            buf, n = ctypes.create_unicode_buffer(260), W.DWORD(260)
+            return os.path.basename(buf.value) if kernel.QueryFullProcessImageNameW(h, 0, buf, ctypes.byref(n)) else ""
+        finally:
+            kernel.CloseHandle(h)
+
+    @ctypes.WINFUNCTYPE(W.BOOL, W.HWND, W.LPARAM)
+    def each(h, _):
+        if user.IsWindowVisible(h):
+            n = user.GetWindowTextLengthW(h)
+            if n:
+                b = ctypes.create_unicode_buffer(n + 1)
+                user.GetWindowTextW(h, b, n + 1)
+                pid = W.DWORD()
+                user.GetWindowThreadProcessId(h, ctypes.byref(pid))
+                out.append((h, image(pid.value), b.value))
+        return True
+
+    user.EnumWindows(each, 0)
+    return out
+
+
+def app_windows():
+    try:
+        return pick_app_windows(_top_windows())
+    except (AttributeError, OSError):  # not Windows, or not allowed to look: behave as before
+        return []
+
+
+def _close(hwnd):
+    import ctypes
+    ctypes.windll.user32.PostMessageW(hwnd, 0x0010, 0, 0)  # WM_CLOSE: that window only, as its own X button
+
+
+def _front(hwnd):
+    import ctypes
+    user = ctypes.windll.user32
+    if user.IsIconic(hwnd):
+        user.ShowWindow(hwnd, 9)  # SW_RESTORE
+    user.SetForegroundWindow(hwnd)
+
+
+def close_dead_windows():
+    """Starting with no app running: every window of the app is left over from an app that is gone."""
+    for h, _ in app_windows():
+        _close(h)
+
+
+def show_window(url):
+    """The app is already running: bring its window to the front, or open one if it has none. Never a second one."""
+    wins = app_windows()
+    for h, t in wins:
+        if t != APP_TITLE:
+            _close(h)
+    live = [h for h, t in wins if t == APP_TITLE]
+    if live:
+        _front(live[0])
+    else:
+        open_window(url)
 
 
 def open_window(url):

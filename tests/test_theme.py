@@ -666,6 +666,89 @@ class TeamsSwitchTest(unittest.TestCase):
             "countHidden": 0, "placedWithout": False, "countWithout": 0})
 
 
+class OneWindowTest(unittest.TestCase):
+    """One window of the app: a second start shows the open one, a window whose app is gone closes itself."""
+
+    def setUp(self):
+        import server
+        self.server = server
+        self.saved = {n: getattr(server, n) for n in ("app_windows", "_close", "_front", "open_window")}
+        self.closed, self.fronted, self.opened, self.wins = [], [], [], []
+        server.app_windows = lambda: list(self.wins)
+        server._close = self.closed.append
+        server._front = self.fronted.append
+        server.open_window = self.opened.append
+
+    def tearDown(self):
+        for n, f in self.saved.items():
+            setattr(self.server, n, f)
+
+    def test_the_app_tells_its_window_when_it_closes(self):
+        import threading, urllib.request
+        from http.server import ThreadingHTTPServer
+
+        class App:
+            token, closing = "tok", threading.Event()
+        app = App()
+        httpd = ThreadingHTTPServer(("127.0.0.1", 0), self.server.make_handler(app))
+        app.port = httpd.server_address[1]
+        threading.Thread(target=httpd.serve_forever, daemon=True).start()
+        saved, self.server.ALIVE_WAIT = self.server.ALIVE_WAIT, 0.2
+        op = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+
+        def alive(token="tok"):
+            req = urllib.request.Request(f"http://127.0.0.1:{app.port}/api/alive", headers={"X-Token": token})
+            with op.open(req, timeout=5) as r:
+                return json.loads(r.read().decode())
+        try:
+            self.assertEqual(alive(), {"bye": False})           # still here: the window asks again
+            app.closing.set()
+            self.assertEqual(alive(), {"bye": True})            # closing: the window closes itself
+            with self.assertRaises(urllib.error.HTTPError):
+                alive("wrong")                                  # the token, as for everything else
+        finally:
+            self.server.ALIVE_WAIT = saved
+            httpd.shutdown()
+            httpd.server_close()
+
+    def test_only_the_apps_own_windows(self):
+        wins = [(1, "msedge.exe", "Teams Remix"), (2, "MSEDGE.EXE", "Teams Remix (can't be reached)"),
+                (3, "msedge.exe", "Teams Remix - Personal - Microsoft Edge"),   # a normal Edge window
+                (4, "notepad.exe", "Teams Remix"), (5, "msedge.exe", "Inbox"),
+                (6, "msedge.exe", "Teams Remix (non raggiungibile)")]
+        self.assertEqual(self.server.pick_app_windows(wins),
+                         [(1, "Teams Remix"), (2, "Teams Remix (can't be reached)"), (6, "Teams Remix (non raggiungibile)")])
+
+    def test_second_start_shows_the_open_window(self):
+        self.wins = [(7, "Teams Remix (non raggiungibile)"), (8, "Teams Remix")]
+        self.server.show_window("http://127.0.0.1:1/?t=x")
+        self.assertEqual((self.fronted, self.opened, self.closed), ([8], [], [7]))
+
+    def test_no_window_open_one(self):
+        self.server.show_window("u")
+        self.assertEqual((self.fronted, self.opened), ([], ["u"]))
+
+    def test_fresh_start_closes_the_leftovers(self):
+        self.wins = [(7, "Teams Remix (non raggiungibile)"), (8, "Teams Remix")]  # no app running: both are left over
+        self.server.close_dead_windows()
+        self.assertEqual(self.closed, [7, 8])
+
+    def test_the_window_closes_itself_with_the_titles_the_start_knows(self):
+        import re
+        html = (ROOT / "ui" / "index.html").read_text(encoding="utf-8")
+        self.assertEqual(re.search(r"<title>(.*?)</title>", html).group(1), self.server.APP_TITLE)
+        self.assertIn('document.title = "Teams Remix (" + t("non raggiungibile") + ")"', html)
+        self.assertIn('"non raggiungibile": "can\'t be reached"', html)
+        self.assertEqual(self.server.DEAD_TITLES, ("Teams Remix (non raggiungibile)", "Teams Remix (can't be reached)"))
+        self.assertIn("++FAILS >= 3) closeWindow()", html)      # a few seconds without the app, not one slow answer
+        self.assertIn("window.close()", html)
+        self.assertIn('api("/api/alive")', html)                 # also when Edge slows the window's timers down
+        self.assertIn("watchApp();", html)
+        start = (ROOT / "teams_theme.pyw").read_text(encoding="utf-8")
+        self.assertIn("server.show_window(running)", start)
+        self.assertIn("server.close_dead_windows()", start)
+
+
 class JiggleTest(unittest.TestCase):
     def test_only_the_inside_moves(self):
         css = theme.generate(BASE, {**D, "jiggle": True})

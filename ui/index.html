@@ -445,7 +445,7 @@ const EN = {
   "Sei in call: Teams è normale, a call finita torna tutto da solo": "You're in a call: Teams is normal, everything comes back by itself afterwards",
   "Teams è chiuso: tema, coinquilini e soprannomi arrivano quando lo apri": "Teams is closed: theme, housemates and nicknames arrive when you open it",
   "Sto preparando Teams...": "Getting Teams ready...",
-  "App non raggiungibile: è stata chiusa?": "The app can't be reached: was it closed?",
+  "App non raggiungibile: è stata chiusa?": "The app can't be reached: was it closed?", "non raggiungibile": "can't be reached",
   // themes list and head
   "Temi": "Themes", "+ Nuovo": "+ New", "Ripristina originale": "Restore original", "Duplica": "Duplicate", "Rinomina": "Rename", "Elimina": "Delete",
   "Seri": "Serious", "Divertenti": "Fun", "I miei": "Mine",
@@ -1046,7 +1046,7 @@ $("quit").addEventListener("click", () => {
   const unsaved = [...new Set(Object.keys(S.drafts).concat(editPending ? [S.selected] : []))];
   ask({ title: t("Chiudere l'app?"), text: (unsaved.length ? t("Hai modifiche non salvate in: {l}. Chiudendo si perdono. ", { l: unsaved.map(tname).join(", ") }) : "") + t("Tema, coinquilini e soprannomi restano su Teams finché Teams non si ricarica, ma l'app smette di rimetterli."),
     ok: t("Chiudi l'app"), danger: unsaved.length > 0,
-    run: async () => { await api("/api/quit", {}); document.body.replaceChildren(el("p", { style: "padding:24px" }, t("App chiusa. Puoi chiudere questa finestra."))); } });
+    run: async () => { await api("/api/quit", {}); document.body.replaceChildren(el("p", { style: "padding:24px" }, t("App chiusa. Puoi chiudere questa finestra."))); closeWindow(); } });
 });
 window.addEventListener("beforeunload", (e) => { if (Object.keys(S.drafts).length || editPending) { e.preventDefault(); e.returnValue = ""; } });
 
@@ -1206,17 +1206,42 @@ function saveNick() {
 $("nickadd").addEventListener("click", () => { NICK.push({ from: "", to: "" }); renderNick(); $("nicklist").querySelectorAll("input")[NICK.length * 2 - 2].focus(); });
 
 /* ---------- boot + polling ---------- */
+// One window per app: when the app is gone (closed, updated, restarted) this window closes by itself instead of staying
+// on "App non raggiungibile"; its title says it first, so the next start can close it too if the browser refused.
+let FAILS = 0;
+function closeWindow() {
+  clearInterval(POLL); S.drafts = {}; editPending = false;  // nothing left to save: the app is gone
+  document.title = "Teams Remix (" + t("non raggiungibile") + ")";
+  window.close();
+}
+// Edge slows the timers of a window that is covered or in the background down to once a minute, so the app also holds
+// one request open: it answers "bye" when the app closes; if it breaks, the app is gone (checked once more, since a
+// network change can break it too).
+async function watchApp() {
+  for (;;) {
+    let gone = false;
+    try { gone = !!(await api("/api/alive")).bye; }
+    catch (e) {
+      if (!(e instanceof TypeError)) { await new Promise((r) => setTimeout(r, 5000)); continue; }
+      await new Promise((r) => setTimeout(r, 1000));
+      try { await api("/api/state"); } catch (e2) { gone = e2 instanceof TypeError; }
+    }
+    if (gone) return closeWindow();
+  }
+}
 async function poll() {
   try {
     const st = await api("/api/state");
+    FAILS = 0;
     // changed from outside (another window, startup, a helper): reload, unless the user is typing right now
     const outside = st.selected !== S.selected || JSON.stringify(st.drafts[st.selected] || null) !== JSON.stringify(S.drafts[S.selected] || null);
     if (outside && !editPending) { load(st); return; }
     absorb(st); renderStatus(); renderHead();
   }
-  catch (e) { $("status").hidden = false; $("status").replaceChildren(el("span", { class: "dot" }), el("span", {}, t("App non raggiungibile: è stata chiusa?"))); }
+  catch (e) { $("status").hidden = false; $("status").replaceChildren(el("span", { class: "dot" }), el("span", {}, t("App non raggiungibile: è stata chiusa?")));
+    if (e instanceof TypeError && ++FAILS >= 3) closeWindow(); }  // the app does not answer at all (not an error of its own)
 }
-(async () => { const st = await api("/api/state"); LANG = st.lang === "en" ? "en" : "it"; translatePage(); NICK = clone(st.nicknames || []); load(st); renderView(); POLL = setInterval(poll, 1500); })();
+(async () => { const st = await api("/api/state"); LANG = st.lang === "en" ? "en" : "it"; translatePage(); NICK = clone(st.nicknames || []); load(st); renderView(); POLL = setInterval(poll, 1500); watchApp(); })();
 </script>
 </body>
 </html>

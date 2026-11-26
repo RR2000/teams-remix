@@ -19,10 +19,11 @@ def main():
             time.sleep(0.5)
         cfg = teams.load_config()
     running = server.existing_instance(cfg)
-    if running:  # one instance only: just show its window
+    if running:  # one instance only, one window only: show the one it has, or open it
         if not startup:
-            server.open_window(running)
+            server.show_window(running)
         return
+    server.close_dead_windows()  # windows left over from an app that is gone (closed, updated, restarted)
     teams.migrate_themes(server.OLD_THEMES)  # only once nobody else is running: the themes move to APPDATA
     app = server.AppServer(cfg)
     if not startup:

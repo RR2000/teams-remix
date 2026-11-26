@@ -1,0 +1,33 @@
+{
+  "background": "#0b1450",
+  "text": "#fff6ff",
+  "brand_hue": 300,
+  "brand_sat": 1.0,
+  "link": "#74c0fc",
+  "on_brand": "#1a1033",
+  "glow": "#ff6bd5",
+  "font": "'Comic Sans MS', 'Comic Sans', cursive",
+  "radius": 4,
+  "bg_mode": "solid",
+  "bg_colors": [
+    "#ff4fa3",
+    "#8f6bff",
+    "#3fb6ff"
+  ],
+  "glass": 35,
+  "flow_angle": 120,
+  "flow_seconds": 6,
+  "colors_anim": "buttons",
+  "fall": "",
+  "fall_style": "snow",
+  "pass": [
+    "pizza",
+    "comet"
+  ],
+  "pass_freq": "sometimes",
+  "trail": true,
+  "jiggle": true,
+  "when": "auto",
+  "trigger": "",
+  "group": "divertenti"
+}

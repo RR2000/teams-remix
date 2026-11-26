@@ -1,0 +1,30 @@
+{
+  "background": "#14052b",
+  "text": "#fde7ff",
+  "brand_hue": 318,
+  "brand_sat": 1.0,
+  "link": "#00e5ff",
+  "on_brand": "#14052b",
+  "glow": "#ff2bd6",
+  "font": "'Cascadia Mono', Consolas, monospace",
+  "radius": 3,
+  "bg_mode": "solid",
+  "bg_colors": [
+    "#ff4fa3",
+    "#8f6bff",
+    "#3fb6ff"
+  ],
+  "glass": 35,
+  "flow_angle": 120,
+  "flow_seconds": 6,
+  "colors_anim": "off",
+  "fall": "",
+  "fall_style": "snow",
+  "pass": [],
+  "pass_freq": "sometimes",
+  "trail": true,
+  "jiggle": false,
+  "when": "auto",
+  "trigger": "",
+  "group": "divertenti"
+}

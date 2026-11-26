@@ -1,0 +1,30 @@
+{
+  "background": "#17191c",
+  "text": "#e8eaed",
+  "brand_hue": 174,
+  "brand_sat": 0.55,
+  "link": "#63d3c9",
+  "on_brand": "#0b1f1d",
+  "glow": "#000000",
+  "font": "",
+  "radius": 1,
+  "bg_mode": "solid",
+  "bg_colors": [
+    "#ff4fa3",
+    "#8f6bff",
+    "#3fb6ff"
+  ],
+  "glass": 35,
+  "flow_angle": 120,
+  "flow_seconds": 6,
+  "colors_anim": "off",
+  "fall": "",
+  "fall_style": "snow",
+  "pass": [],
+  "pass_freq": "sometimes",
+  "trail": true,
+  "jiggle": false,
+  "when": "auto",
+  "trigger": "",
+  "group": "seri"
+}

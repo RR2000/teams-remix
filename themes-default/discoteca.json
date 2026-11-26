@@ -1,0 +1,30 @@
+{
+  "background": "#120024",
+  "text": "#fff0ff",
+  "brand_hue": 300,
+  "brand_sat": 1.0,
+  "link": "#00f5ff",
+  "on_brand": "#1a0026",
+  "glow": "#ff00cc",
+  "font": "Impact, sans-serif",
+  "radius": 4,
+  "bg_mode": "gradient_anim",
+  "bg_colors": [
+    "#ff00cc",
+    "#3333ff",
+    "#00ffcc"
+  ],
+  "glass": 45,
+  "flow_angle": 120,
+  "flow_seconds": 5,
+  "colors_anim": "off",
+  "fall": "🪩💃🕺✨",
+  "fall_style": "rain",
+  "pass": [],
+  "pass_freq": "sometimes",
+  "trail": true,
+  "jiggle": true,
+  "when": "auto",
+  "trigger": "",
+  "group": "divertenti"
+}

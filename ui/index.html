@@ -1,0 +1,1173 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teams Remix</title>
+<link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png">
+<link rel="icon" type="image/svg+xml" href="/icon.svg">
+<style>
+:root {
+  color-scheme: light dark;
+  --bg: #f4f4f7; --surface: #ffffff; --surface-2: #f0f0f4; --surface-3: #e6e6ec;
+  --text: #1b1b1f; --text-2: #4b4b57; --border: #dcdce4; --border-strong: #b9b9c6;
+  --accent: #5b5fc7; --accent-hover: #4f52b2; --on-accent: #ffffff; --accent-soft: #e8e9fb;
+  --ok: #0e7a0d; --ok-soft: #e3f4e1; --warn: #8a5300; --warn-soft: #fdf0d9;
+  --danger: #b10e1c; --focus: #5b5fc7;
+  --shadow: 0 1px 2px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06);
+  --radius: 12px; --radius-s: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #161619; --surface: #212126; --surface-2: #2a2a30; --surface-3: #34343b;
+    --text: #f2f2f6; --text-2: #b9b9c6; --border: #36363e; --border-strong: #50505b;
+    --accent: #9da3ff; --accent-hover: #b4b8ff; --on-accent: #15153a; --accent-soft: #2c2d52;
+    --ok: #7dd472; --ok-soft: #1d3320; --warn: #f2c94c; --warn-soft: #3a3016;
+    --danger: #ff9a9a; --focus: #b4b8ff;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 20px rgba(0,0,0,.35);
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--text); font: 15px/1.45 "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif; min-width: 0; overflow-x: hidden; }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+[hidden] { display: none !important; }
+
+.top { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 12px 20px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 16px; }
+.logo { width: 30px; height: 30px; display: block; }
+.status { display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: var(--surface-2); font-size: 14px; }
+.status .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--text-2); flex: none; }
+.status.ok .dot { background: var(--ok); } .status.warn .dot { background: var(--warn); }
+.spin { width: 14px; height: 14px; border: 2px solid var(--border-strong); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; flex: none; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.top .actions { margin-left: auto; display: flex; gap: 8px; }
+.power { display: inline-flex; align-items: center; gap: 12px; padding: 6px 8px 6px 16px; border-radius: 999px; border: 1px solid var(--border-strong); background: var(--surface); cursor: pointer; font-weight: 600; }
+.power .knob { width: 52px; height: 30px; border-radius: 999px; background: var(--surface-3); position: relative; transition: background .2s; flex: none; }
+.power .knob::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: var(--text-2); transition: left .2s, background .2s; }
+.power[aria-checked="true"] .knob { background: var(--accent); }
+.power[aria-checked="true"] .knob::after { left: 25px; background: var(--on-accent); }
+.power:disabled { opacity: .6; cursor: progress; }
+
+.btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border-strong); background: var(--surface); padding: 7px 14px; border-radius: var(--radius-s); cursor: pointer; white-space: nowrap; }
+.btn:hover { background: var(--surface-2); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+.btn.primary:hover { background: var(--accent-hover); }
+.btn.ghost { border-color: transparent; background: transparent; }
+.btn.ghost:hover { background: var(--surface-2); }
+.btn.danger { color: var(--danger); }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.small { padding: 4px 10px; font-size: 14px; }
+
+.layout { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 20px; padding: 20px; max-width: 1320px; margin: 0 auto; }
+.side { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.side-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.lbl-up { font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--text-2); margin: 10px 4px 2px; font-weight: 600; }
+.titem { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 8px 10px; border-radius: var(--radius-s); border: 1px solid transparent; background: transparent; cursor: pointer; }
+.titem:hover { background: var(--surface-2); }
+.titem[aria-current="true"] { background: var(--surface); border-color: var(--border-strong); box-shadow: var(--shadow); }
+.titem .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+.chip { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--accent-soft); white-space: nowrap; }
+.chip.warn { background: var(--warn-soft); color: var(--warn); font-weight: 600; }
+.sw { width: 30px; height: 24px; border-radius: 7px; border: 1px solid var(--border-strong); flex: none; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; }
+
+.main { min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+.head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.head h1 { margin: 0; font-size: 24px; font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+.head .tools { display: flex; gap: 2px; flex-wrap: wrap; margin-left: auto; }
+.savebar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 14px; border-radius: var(--radius-s); background: var(--warn-soft); }
+.savebar .txt { flex: 1; min-width: 200px; font-weight: 600; color: var(--warn); }
+.hint { color: var(--text-2); font-size: 14px; margin: 0; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow); min-width: 0; }
+.cardhead { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.cardhead h3 { margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-2); margin-right: auto; }
+
+.seg { display: inline-flex; background: var(--surface-2); border-radius: 10px; padding: 3px; gap: 3px; flex-wrap: wrap; }
+.seg button { border: 0; background: transparent; padding: 6px 12px; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.seg button[aria-pressed="true"] { background: var(--surface); box-shadow: var(--shadow); font-weight: 600; }
+.seg .now { font-size: 11px; padding: 0 6px; border-radius: 999px; background: var(--ok-soft); color: var(--ok); font-weight: 600; }
+
+.work { display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 460px); gap: 16px; align-items: start; }
+.work .editor { min-width: 0; }
+.pvcol { position: sticky; top: 76px; }
+.work .editor .grid2 { grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 1500px) { .work .editor .grid2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); } }
+@media (max-width: 1000px) { .work { grid-template-columns: minmax(0, 1fr); } .pvcol { position: static; order: -1; } }
+.pvframe { width: 100%; height: 360px; border: 1px solid var(--border-strong); border-radius: 10px; display: block; background: #000; }
+.pvfoot { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
+.pvnote { color: var(--text-2); font-size: 13px; flex: 1; min-width: 220px; }
+.read { border: 0; border-radius: 999px; padding: 4px 12px; cursor: pointer; font-weight: 600; background: var(--ok-soft); color: var(--ok); }
+.read.bad { background: var(--warn-soft); color: var(--warn); }
+.checks { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 6px; }
+.checks li { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 8px; background: var(--surface-2); font-size: 14px; }
+.checks .ico { font-weight: 700; width: 20px; text-align: center; flex: none; }
+.checks li.ok .ico { color: var(--ok); } .checks li.bad { background: var(--warn-soft); } .checks li.bad .ico { color: var(--warn); }
+.checks .val { margin-left: auto; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); }
+.tabs button { border: 0; background: transparent; padding: 10px 16px; cursor: pointer; font-weight: 600; color: var(--text-2); border-bottom: 3px solid transparent; margin-bottom: -1px; font-size: 16px; }
+.tabs button[aria-selected="true"] { color: var(--text); border-bottom-color: var(--accent); }
+.panel { display: grid; gap: 14px; padding-top: 14px; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+.field { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 6px 12px; padding: 9px 0; border-top: 1px solid var(--border); }
+.field:first-child { border-top: 0; padding-top: 0; }
+.field > .lbl { font-weight: 500; }
+.field .desc { grid-column: 1 / -1; color: var(--text-2); font-size: 13px; margin-top: -4px; }
+.full { grid-column: 1 / -1; }
+.color { display: flex; align-items: center; gap: 8px; }
+.color input[type=color] { width: 40px; height: 32px; padding: 0; border: 1px solid var(--border-strong); border-radius: 8px; background: none; cursor: pointer; }
+.color input[type=color]::-webkit-color-swatch-wrapper { padding: 3px; }
+.color input[type=color]::-webkit-color-swatch { border: 0; border-radius: 5px; }
+.hex { width: 92px; padding: 6px 8px; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--surface); font-family: "Cascadia Mono", Consolas, monospace; font-size: 14px; }
+.hex[aria-invalid="true"] { border-color: var(--danger); }
+.range { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; }
+.range input { flex: 1; min-width: 0; accent-color: var(--accent); }
+.range input.hue { -webkit-appearance: none; appearance: none; height: 12px; border-radius: 999px; border: 1px solid var(--border-strong); }
+.range input.hue::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #fff; border: 2px solid #1b1b1f; box-shadow: 0 1px 3px rgba(0,0,0,.4); }
+.range output { min-width: 64px; text-align: right; font-variant-numeric: tabular-nums; color: var(--text-2); }
+.arrow { display: inline-block; width: 22px; text-align: center; font-weight: 700; color: var(--text); }
+.gradbar { height: 26px; border-radius: 8px; border: 1px solid var(--border-strong); }
+details.more-opts > summary { cursor: pointer; color: var(--text-2); font-weight: 600; padding: 4px 0; }
+.fx-block .blockhead { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.fx-block .blockhead .e { font-size: 22px; }
+.fx-block .blockhead b { font-size: 16px; }
+.row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.pick { border: 1px solid var(--border-strong); background: var(--surface); border-radius: 999px; padding: 5px 12px; cursor: pointer; }
+.pick[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); font-weight: 600; }
+.emoji-in { width: 150px; padding: 6px 10px; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--surface); font-size: 18px; }
+.switch { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; }
+.switch input { appearance: none; -webkit-appearance: none; width: 40px; height: 22px; border-radius: 999px; background: var(--surface-3); border: 1px solid var(--border-strong); position: relative; cursor: pointer; margin: 0; flex: none; }
+.switch input::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--text-2); transition: left .15s; }
+.switch input:checked { background: var(--accent); border-color: var(--accent); }
+.switch input:checked::after { left: 20px; background: var(--on-accent); }
+
+.fpick { position: relative; }
+.fbtn { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 12px; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--surface); cursor: pointer; font-size: 16px; text-align: left; }
+.fbtn::after { content: "▾"; font-family: "Segoe UI", sans-serif; color: var(--text-2); }
+.flist { position: absolute; z-index: 20; left: 0; right: 0; top: calc(100% + 4px); margin: 0; padding: 4px; list-style: none; background: var(--surface); border: 1px solid var(--border-strong); border-radius: 10px; box-shadow: 0 12px 32px rgba(0,0,0,.25); max-height: 340px; overflow-y: auto; }
+.flist li { padding: 9px 12px; border-radius: 7px; cursor: pointer; font-size: 17px; display: flex; justify-content: space-between; gap: 10px; }
+.flist li small { font-family: "Segoe UI", sans-serif; font-size: 12px; color: var(--text-2); align-self: center; white-space: nowrap; }
+.flist li[aria-selected="true"] { background: var(--accent-soft); }
+.flist li.active, .flist li:hover { background: var(--surface-2); outline: 1px solid var(--border-strong); }
+.fontcustom { width: 100%; padding: 7px 9px; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--surface); margin-top: 8px; }
+
+.nickview { max-width: 860px; margin: 0 auto; padding: 20px; }
+.layout1 { max-width: 1320px; margin: 0 auto; padding: 20px; }
+.petsgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, 560px); gap: 16px; align-items: start; }
+@media (max-width: 1000px) { .petsgrid { grid-template-columns: minmax(0, 1fr); } }
+.nicklist { display: grid; gap: 8px; margin-top: 14px; }
+.nickrow { display: grid; grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr) auto; gap: 10px; align-items: center; }
+.nickpic { position: relative; width: 40px; height: 40px; }
+.nickpic .pic { width: 40px; height: 40px; padding: 0; border-radius: 50%; border: 1px dashed var(--border-strong); background: var(--surface-2, var(--surface));
+  display: grid; place-items: center; font-size: 18px; cursor: pointer; overflow: hidden; color: var(--text-2); }
+.nickpic .pic.has { border-style: solid; }
+.nickpic .pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.nickpic .unpic { position: absolute; right: -6px; top: -6px; width: 20px; height: 20px; padding: 0; border-radius: 50%; font-size: 11px; line-height: 1;
+  border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); cursor: pointer; }
+.nickrow input { width: 100%; min-width: 0; padding: 8px 10px; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--surface); }
+.nickrow .to { font-weight: 600; }
+.nickrow .arrow { color: var(--text-2); }
+.nickempty { padding: 18px; border: 1px dashed var(--border-strong); border-radius: var(--radius-s); color: var(--text-2); text-align: center; }
+@media (max-width: 560px) { .nickrow { grid-template-columns: auto minmax(0, 1fr) auto; } .nickrow .arrow { display: none; } }
+.foot { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 14px 20px 22px; max-width: 1320px; margin: 0 auto; }
+.msg-line { flex: 1; min-width: 240px; color: var(--text-2); font-size: 14px; }
+.msg-line time { font-variant-numeric: tabular-nums; margin-right: 6px; }
+.more { width: 100%; font-size: 14px; color: var(--text-2); }
+.more summary { cursor: pointer; width: fit-content; }
+.more .box { margin-top: 10px; padding: 14px; border-radius: var(--radius-s); background: var(--surface); border: 1px solid var(--border); display: grid; gap: 12px; justify-items: start; }
+.more p { margin: 0; }
+
+dialog { border: 1px solid var(--border-strong); border-radius: var(--radius); background: var(--surface); color: var(--text); padding: 22px; width: min(460px, calc(100vw - 32px)); box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+dialog::backdrop { background: rgba(0,0,0,.35); }
+dialog h2 { margin: 0 0 8px; font-size: 18px; }
+dialog p { margin: 0 0 14px; color: var(--text-2); }
+dialog input { width: 100%; padding: 8px 10px; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--surface); }
+dialog .err { color: var(--danger); font-size: 14px; min-height: 20px; margin: 6px 0 0; }
+dialog .btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+dialog .btn.primary.danger { background: var(--danger); border-color: var(--danger); color: var(--surface); }
+
+@media (max-width: 760px) {
+  .layout { grid-template-columns: minmax(0, 1fr); padding: 16px; }
+  .top { padding: 10px 16px; } .foot { padding: 12px 16px 20px; }
+  .pvframe { height: 340px; }
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><img class="logo" src="/icon.svg" alt="" width="30" height="30">Teams Remix</div>
+  <div class="seg" role="tablist" aria-label="Sezione" id="view"><button data-v="themes">🎨 Temi</button><button data-v="pets">🐾 Coinquilini</button><button data-v="nick">🏷️ Soprannomi</button><button data-v="opts">⚙️ Opzioni</button></div>
+  <div id="status" class="status" role="status" aria-live="polite"><span class="dot"></span><span>Controllo Teams...</span></div>
+  <div class="actions" id="actions"></div>
+</header>
+
+<div class="layout" id="view-themes">
+  <nav class="side" aria-label="Temi">
+    <div class="side-head"><span class="lbl-up" style="margin:0">Temi</span><button class="btn small" id="new">+ Nuovo</button></div>
+    <div id="tlist"></div>
+  </nav>
+
+  <main class="main">
+    <div class="head">
+      <h1 id="tname"></h1>
+      <div class="tools">
+        <button class="btn ghost" id="reset">Ripristina originale</button>
+        <button class="btn ghost" id="dup">Duplica</button>
+        <button class="btn ghost" id="ren">Rinomina</button>
+        <button class="btn ghost danger" id="del">Elimina</button>
+      </div>
+    </div>
+    <section class="card" id="defcard" hidden>
+      <div class="cardhead"><h3>Teams originale</h3>
+        <div class="seg" role="group" aria-label="Originale chiaro o scuro" id="defmode"><button data-v="light">☀️ Chiaro</button><button data-v="dark">🌙 Scuro</button></div></div>
+      <p class="hint" id="defhint">Questo è Teams com'è. Puoi modificarlo come gli altri: quando salvi diventa un tema nuovo.</p>
+    </section>
+    <div class="savebar" id="savebar" hidden>
+      <span class="txt" id="savetxt"></span>
+      <button class="btn" id="discard">Annulla modifiche</button>
+      <button class="btn primary" id="save">Salva</button>
+    </div>
+
+
+    <div class="work">
+    <div class="editor">
+      <div class="tabs" role="tablist">
+        <button role="tab" id="tab-colors" aria-controls="panel-colors">🎨 Colori</button>
+        <button role="tab" id="tab-fx" aria-controls="panel-fx">✨ Effetti</button>
+      </div>
+
+      <div class="panel" id="panel-colors" role="tabpanel" aria-labelledby="tab-colors">
+        <div class="grid2">
+          <section class="card"><div class="cardhead"><h3>Colori</h3></div><div id="colors"></div></section>
+          <section class="card">
+            <div class="cardhead"><h3>Sfondo della finestra</h3></div>
+            <div class="seg" role="group" aria-label="Tipo di sfondo" id="bgmode">
+              <button data-v="solid">Tinta unita</button><button data-v="gradient">Gradiente</button><button data-v="gradient_anim">Gradiente che scorre</button>
+            </div>
+            <div id="bgextra" style="margin-top:12px"></div>
+          </section>
+        </div>
+        <section class="card">
+          <div class="cardhead"><h3>Testo e forme</h3></div>
+          <div class="field">
+            <span class="lbl" id="font-l">Font</span><span></span>
+            <div class="full">
+              <div class="fpick">
+                <button class="fbtn" id="fontbtn" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="font-l fontbtn"></button>
+                <ul class="flist" id="fontlist" role="listbox" aria-labelledby="font-l" tabindex="-1" hidden></ul>
+              </div>
+              <input class="fontcustom" id="fontcustom" placeholder="Nome del font, es. Papyrus" aria-label="Altro font" hidden>
+            </div>
+          </div>
+          <details class="more-opts">
+            <summary>Altre opzioni</summary>
+            <div id="moreopts"></div>
+          </details>
+        </section>
+      </div>
+
+      <div class="panel" id="panel-fx" role="tabpanel" aria-labelledby="tab-fx" hidden>
+        <p class="hint" id="rmnote" hidden></p>
+        <section class="card fx-block" id="whenblock">
+          <div class="blockhead"><span class="e" aria-hidden="true">⏱️</span><b>Quando partono</b></div>
+          <div class="seg" role="group" aria-label="Quando partono gli effetti" id="when">
+            <button data-v="auto">Da soli, ogni tanto</button><button data-v="click">Quando clicco il bottone su Teams</button>
+          </div>
+          <div id="whenextra"></div>
+        </section>
+        <div class="grid2">
+          <section class="card fx-block">
+            <div class="blockhead"><span class="e" aria-hidden="true">🌈</span><b>Colori che cambiano</b></div>
+            <div class="seg" role="group" aria-label="Colori che cambiano" id="canim">
+              <button data-v="off">Spenti</button><button data-v="buttons">Pulsanti</button><button data-v="text">Pulsanti e testo</button><button data-v="all">Tutto 🪩</button>
+            </div>
+            <p class="hint" style="margin-top:8px">"Tutto" fa cambiare colore a tutta la finestra, foto comprese.</p>
+          </section>
+          <section class="card fx-block">
+            <div class="blockhead"><span class="e" aria-hidden="true">🕺</span><b>Pulsanti ballerini</b></div>
+            <label class="switch"><input type="checkbox" id="jiggle"> Passando con il mouse i pulsanti si dimenano e le foto fanno una giravolta</label>
+          </section>
+          <section class="card fx-block">
+            <div class="blockhead"><span class="e" aria-hidden="true">🌧️</span><b>Cose che cadono</b></div>
+            <div class="chips" id="fallchips"></div>
+            <div class="row"><input class="emoji-in" id="fall" placeholder="o scrivi le tue" aria-label="Cosa cade (emoji o lettere)" maxlength="40">
+              <button class="btn small ghost" id="fallclear">Niente</button></div>
+            <div class="row" id="fallstyle-row"><div class="seg" role="group" aria-label="Come cadono" id="fallstyle">
+              <button data-v="snow">Neve (piano, ondeggia)</button><button data-v="rain">Pioggia</button><button data-v="storm">Diluvio</button></div></div>
+          </section>
+          <section class="card fx-block">
+            <div class="blockhead"><span class="e" aria-hidden="true">🚀</span><b>Chi vola</b></div>
+            <div class="chips" id="passchips"></div>
+            <div class="row"><input class="emoji-in" id="passemoji" placeholder="+ un'emoji" aria-label="Aggiungi un'emoji che vola" maxlength="8">
+              <span class="hint">animali e chi vola: fino a 3 insieme</span></div>
+            <div class="row" id="freq-row"><span class="hint">Quanto spesso</span><div class="seg" role="group" aria-label="Quanto spesso passano" id="passfreq">
+              <button data-v="rare">Raramente</button><button data-v="sometimes">Ogni tanto</button><button data-v="often">Spesso</button></div></div>
+            <div class="row"><label class="switch"><input type="checkbox" id="trail"> Scia arcobaleno</label></div>
+          </section>
+        </div>
+      </div>
+    </div>
+    <div class="pvcol">
+    <section class="card" aria-labelledby="h-pv">
+      <div class="cardhead">
+        <h3 id="h-pv">Anteprima</h3>
+        <button class="btn small primary" id="fxtest">▶ Prova gli effetti</button>
+      </div>
+      <iframe class="pvframe" id="pvframe" title="Anteprima del tema"></iframe>
+      <div class="pvfoot">
+        <button class="read" id="readbtn" aria-expanded="false" aria-controls="checks"></button>
+        <span class="pvnote" id="pvnote"></span>
+      </div>
+      <ul class="checks" id="checks" hidden></ul>
+    </section>
+    </div>
+    </div>
+  </main>
+</div>
+
+<div class="layout1" id="view-pets" hidden>
+  <div class="petsgrid">
+    <section class="card">
+      <div class="cardhead"><h3>🐾 Coinquilini</h3></div>
+      <p class="hint">Abitano nel tuo Teams, con qualunque tema (anche con l'originale). Ognuno ha la sua cosa: una ciotola, una balla di fieno per il toro, una zucca per il fantasma, una scatola di cavi per il robot, un pacchetto per il camion, il latte per il Drugo.</p>
+      <div class="chips" id="petchips" style="margin-top:12px"></div>
+      <div id="petextra"></div>
+    </section>
+    <section class="card">
+      <div class="cardhead"><h3>Anteprima</h3><button class="btn small primary" id="petcall">▶ Chiamali ora</button></div>
+      <iframe class="pvframe" id="petframe" title="Anteprima dei coinquilini"></iframe>
+      <p class="pvnote" id="petnote" style="margin-top:8px">Nell'anteprima funziona come su Teams: clicca e trascina le ciotole, clicca i coinquilini per coccolarli.</p>
+    </section>
+  </div>
+</div>
+<div class="nickview" id="view-nick" hidden>
+  <section class="card">
+    <div class="cardhead"><h3>Soprannomi</h3><button class="btn small primary" id="nickadd">+ Aggiungi</button></div>
+    <p class="hint" data-t="nickhint">Scrivi il nome come lo vedi su Teams e il soprannome da vedere al suo posto: chat, elenchi, notifiche.
+      Lo vedi <b>solo tu, su questo PC</b>: per gli altri non cambia niente, e quello che scrivi nei messaggi resta com'è.
+      Scrivi <b>Cognome Nome</b>, senza virgola: "Verdi Luna" cambia sia "Verdi, Luna" (colleghi) sia "Luna Verdi" (esterni).</p>
+    <p class="hint" style="margin-top:8px">📷 Con la foto, su Teams quella persona ha la tua foto al posto della sua (anche lei la vedi solo tu).</p>
+    <p class="hint" style="margin-top:8px">🔎 Puoi anche cercare per soprannome: scrivilo nella ricerca di Teams in alto e in cima ai risultati
+      compare "Soprannomi" (al massimo 2 persone). Cliccane uno e Teams apre quella persona.</p>
+    <div id="nicklist" class="nicklist"></div>
+    <p class="hint" id="nicknote" style="margin-top:12px"></p>
+  </section>
+</div>
+
+<div class="nickview" id="view-opts" hidden>
+  <section class="card">
+    <div class="cardhead"><h3>Lingua</h3></div>
+    <div class="seg" role="group" aria-label="Lingua" id="lang"><button data-v="auto">Automatica (come Windows)</button><button data-v="it">Italiano</button><button data-v="en">English</button></div>
+  </section>
+  <section class="card" style="margin-top:14px">
+    <div class="cardhead"><h3>Avvio</h3></div>
+    <label class="switch"><input type="checkbox" id="autostart"> Quando accendo il PC, accendi Teams Remix (tema, coinquilini e soprannomi)</label>
+    <p class="hint" style="margin-top:8px">All'accesso l'app parte da sola in background e aspetta Teams.</p>
+  </section>
+  <section class="card" style="margin-top:14px">
+    <div class="cardhead"><h3>Animazioni</h3></div>
+    <label class="switch"><input type="checkbox" id="respectrm"> Rispetta "riduci animazioni" di Windows (gli effetti si fermano)</label>
+    <p class="hint" style="margin-top:8px">Spento: gli effetti partono sempre, perché li scegli tu tema per tema.</p>
+  </section>
+  <section class="card" style="margin-top:14px">
+    <div class="cardhead"><h3>Call</h3></div>
+    <label class="switch"><input type="checkbox" id="offincall"> Durante le call, Teams normale</label>
+    <p class="hint" style="margin-top:8px" data-t="callhint">Quando entri in una call o in una riunione, tema, coinquilini e soprannomi spariscono da soli e tornano quando la call finisce.
+      <b>Teams non si riapre</b>, quindi la call non cade. Se no, in qualunque momento basta spegnere "Attivo su Teams" in alto.</p>
+  </section>
+  <section class="card" style="margin-top:14px">
+    <div class="cardhead"><h3>Teams</h3></div>
+    <p class="hint">Per colorare Teams l'app lo riapre con un canale di controllo che funziona solo su questo PC. Finché quel canale è aperto, altri programmi sul PC potrebbero leggere cosa c'è in Teams. Questo pulsante lo chiude e rimette Teams com'è.</p>
+    <div class="row"><button class="btn" id="normal">Riapri Teams com'era</button></div>
+  </section>
+  <section class="card" style="margin-top:14px">
+    <div class="cardhead"><h3>App</h3></div>
+    <p class="hint">Teams Remix resta accesa in background per rimettere tema, coinquilini e soprannomi quando Teams si ricarica.</p>
+    <div class="row"><button class="btn" id="quit">Chiudi l'app</button></div>
+  </section>
+</div>
+
+<footer class="foot">
+  <div class="msg-line" id="msgline" aria-live="polite"></div>
+</footer>
+
+<dialog id="dlg">
+  <form method="dialog">
+    <h2 id="dlg-t"></h2>
+    <p id="dlg-p"></p>
+    <input id="dlg-i" autocomplete="off" maxlength="40">
+    <div class="err" id="dlg-e" role="alert"></div>
+    <div class="btns"><button class="btn" value="cancel">Annulla</button><button class="btn primary" id="dlg-ok">OK</button></div>
+  </form>
+</dialog>
+
+<script>
+"use strict";
+const TOKEN = "__TOKEN__";
+const FONTS = [
+  ["", "Font di Teams"], ["'Cascadia Mono', Consolas, monospace", "Cascadia Mono (terminale)"], ["'Comic Sans MS', 'Comic Sans', cursive", "Comic Sans"],
+  ["Consolas, monospace", "Consolas"], ["'Courier New', monospace", "Courier New (macchina da scrivere)"], ["Georgia, serif", "Georgia (libro)"],
+  ["'Segoe Script', cursive", "Segoe Script (corsivo)"], ["Impact, sans-serif", "Impact"], ["'Lucida Console', monospace", "Lucida Console"], ["__custom__", "Altro font..."],
+];
+const FALL_PICKS = ["🌸", "⭐", "❄️", "💸", "🍊", "🍕", "🪩", "❤️", "🎉"];
+const PASS_PICKS = [["capybara", "🍊 Capibara"], ["cat", "🐱 Gatto"], ["dog", "🐶 Cane"], ["sheep", "🐑 Pecora"], ["bull", "🐂 Toro"], ["ghost", "👻 Fantasma"], ["robot", "🤖 Robot"], ["truck", "🚚 Camion"], ["dude", "🕶️ Drugo"], ["pizza", "🍕 Pizza"], ["comet", "☄️ Cometa"]];
+const WALKERS = ["capybara", "cat", "dog", "sheep", "bull", "ghost", "robot", "truck", "dude"];
+// each housemate has its thing on Teams: [icon, name, what it does there]
+const THING = { capybara: ["🥣", "ciotola di mandarini", "mangiare"], cat: ["🥣", "ciotola col pesce", "mangiare"],
+                dog: ["🥣", "ciotola con l'osso", "mangiare"], sheep: ["🥣", "ciotola d'erba", "mangiare"], bull: ["🌾", "balla di fieno", "mangiare"],
+                ghost: ["🎃", "zucca", "giocare"], truck: ["📦", "pacchetto", "caricare il pacchetto"], robot: ["📦", "scatola di cavi", "prendere i cavi"],
+                dude: ["🥛", "cartone del latte", "bere il latte"] };
+const FOOD = Object.fromEntries(Object.entries(THING).map(([k, [i, n]]) => [k, `${i} ${n}`]));
+const GROUP_LABEL = { seri: "Seri", divertenti: "Divertenti", miei: "I miei" };
+
+let S = { themes: {}, drafts: {}, builtin: [], changed: [], selected: "", default: "", default_theme: {}, teams: {} };
+let E = null, editTimer = null, editPending = false, tab = "colors";
+
+/* ---------- languages: Italian in the code, English here; a missing text stays in Italian ---------- */
+let LANG = "it";
+const EN = {
+  // header, sections
+  "Sezione": "Section", "🎨 Temi": "🎨 Themes", "🐾 Coinquilini": "🐾 Housemates", "🏷️ Soprannomi": "🏷️ Nicknames", "⚙️ Opzioni": "⚙️ Options",
+  "Controllo Teams...": "Checking Teams...", "Attivo su Teams": "On in Teams",
+  "Sei in call: Teams è normale, a call finita torna tutto da solo": "You're in a call: Teams is normal, everything comes back by itself afterwards",
+  "Teams è chiuso: tema, coinquilini e soprannomi arrivano quando lo apri": "Teams is closed: theme, housemates and nicknames arrive when you open it",
+  "Sto preparando Teams...": "Getting Teams ready...",
+  "App non raggiungibile: è stata chiusa?": "The app can't be reached: was it closed?",
+  // themes list and head
+  "Temi": "Themes", "+ Nuovo": "+ New", "Ripristina originale": "Restore original", "Duplica": "Duplicate", "Rinomina": "Rename", "Elimina": "Delete",
+  "Seri": "Serious", "Divertenti": "Fun", "I miei": "Mine",
+  "Modifiche non salvate": "Unsaved changes", "● non salvato": "● not saved", "in uso": "in use",
+  "Originale di Teams": "Teams original", "arcobaleno": "rainbow", "bosco": "forest", "capibara": "capybara", "carta": "paper",
+  "discoteca": "disco", "grafite": "graphite", "notte": "night", "prato": "meadow", "synthwave": "synthwave",
+  "Teams originale": "Original Teams", "Originale chiaro o scuro": "Original light or dark", "☀️ Chiaro": "☀️ Light", "🌙 Scuro": "🌙 Dark",
+  "Questo è Teams com'è. Puoi modificarlo come gli altri: quando salvi diventa un tema nuovo.": "This is Teams as it is. You can change it like the others: when you save, it becomes a new theme.",
+  "Stai modificando l'originale: quando salvi diventa un tema nuovo.": "You're changing the original: when you save, it becomes a new theme.",
+  "Teams è in modalità chiara: gli metto i suoi colori originali scuri.": "Teams is in light mode: I give it its original dark colours.",
+  "Teams è in modalità scura: gli metto i suoi colori originali chiari.": "Teams is in dark mode: I give it its original light colours.",
+  " (Non ho ancora visto Teams così su questo PC: i colori sono stimati.)": " (I haven't seen Teams like this on this PC yet: the colours are estimated.)",
+  "● Hai modificato l'originale: Teams lo mostra già. Salvando diventa un tema nuovo.": "● You changed the original: Teams already shows it. Saving makes it a new theme.",
+  "● Modifiche non salvate: Teams le mostra già, ma il tema non è ancora salvato.": "● Unsaved changes: Teams already shows them, but the theme isn't saved yet.",
+  "Salva come nuovo tema...": "Save as new theme...", "Salva": "Save", "Annulla modifiche": "Discard changes",
+  // colours
+  "🎨 Colori": "🎨 Colours", "✨ Effetti": "✨ Effects", "Colori": "Colours", "Sfondo della finestra": "Window background", "Tipo di sfondo": "Background type",
+  "Tinta unita": "Solid", "Gradiente": "Gradient", "Gradiente che scorre": "Flowing gradient", "Testo e forme": "Text and shapes", "Font": "Font",
+  "Nome del font, es. Papyrus": "Font name, e.g. Papyrus", "Altro font": "Other font", "Altre opzioni": "More options",
+  "Sfondo": "Background", "Testo": "Text", "Colore principale": "Main colour", "Intensità del colore principale": "Main colour strength", "Link": "Links",
+  "Il tema è uguale con Teams chiaro e scuro: se lo sfondo è chiaro, è un tema chiaro.": "The theme looks the same with Teams light and dark: a light background makes a light theme.",
+  "Pulsanti, selezioni e menzioni (il viola di Teams).": "Buttons, selections and mentions (Teams' purple).",
+  "Se si legge male sullo sfondo, lo sistemo da solo.": "If it's hard to read on the background, I fix it myself.",
+  "Scritte sul colore principale": "Text on the main colour", "Se si leggono male, le sistemo da solo.": "If they're hard to read, I fix them myself.",
+  "Alone delle ombre": "Shadow glow", "Le ombre di menu e finestre diventano un alone di questo colore.": "Shadows of menus and windows become a glow of this colour.",
+  "Arrotondamento degli angoli": "Corner rounding", "{l} (selettore)": "{l} (picker)", "{l} (esadecimale)": "{l} (hex)",
+  "Lo sfondo usa il colore \"Sfondo\".": "The background uses the \"Background\" colour.", "Colore {n} del gradiente": "Gradient colour {n}",
+  "Direzione": "Direction", "Un giro ogni": "One loop every", "Meno secondi = scorre più veloce.": "Fewer seconds = flows faster.",
+  "Trasparenza dei pannelli": "Panel transparency", "Più è alta, più il gradiente si vede attraverso chat ed elenchi.": "The higher it is, the more the gradient shows through chats and lists.",
+  "Font di Teams": "Teams font", "Cascadia Mono (terminale)": "Cascadia Mono (terminal)", "Courier New (macchina da scrivere)": "Courier New (typewriter)",
+  "Georgia (libro)": "Georgia (book)", "Segoe Script (corsivo)": "Segoe Script (handwriting)", "Altro font...": "Other font...",
+  "predefinito": "default", "scrivi tu": "type it",
+  // effects
+  "Quando partono": "When they start", "Quando partono gli effetti": "When the effects start", "Da soli, ogni tanto": "By themselves, now and then",
+  "Quando clicco il bottone su Teams": "When I click the button in Teams", "Colori che cambiano": "Changing colours", "Spenti": "Off", "Pulsanti": "Buttons",
+  "Pulsanti e testo": "Buttons and text", "Tutto 🪩": "Everything 🪩", "\"Tutto\" fa cambiare colore a tutta la finestra, foto comprese.": "\"Everything\" changes the colour of the whole window, photos included.",
+  "Pulsanti ballerini": "Dancing buttons", "Passando con il mouse i pulsanti si dimenano e le foto fanno una giravolta": "Under the mouse, buttons wiggle and photos do a twirl",
+  "Cose che cadono": "Things that fall", "o scrivi le tue": "or type your own", "Cosa cade (emoji o lettere)": "What falls (emoji or letters)", "Niente": "Nothing",
+  "Come cadono": "How they fall", "Neve (piano, ondeggia)": "Snow (slow, swaying)", "Pioggia": "Rain", "Diluvio": "Downpour", "Chi vola": "Who flies",
+  "+ un'emoji": "+ an emoji", "Aggiungi un'emoji che vola": "Add a flying emoji", "animali e chi vola: fino a 3 insieme": "animals and flyers: up to 3 together",
+  "Quanto spesso": "How often", "Quanto spesso passano": "How often they pass", "Raramente": "Rarely", "Ogni tanto": "Now and then", "Spesso": "Often",
+  "Scia arcobaleno": "Rainbow trail",
+  "Il bottone compare su Teams appena accendi qualcosa da far partire: chi passa, cose che cadono o pulsanti ballerini (qui sotto).": "The button shows up in Teams as soon as you switch on something to start: flyers, falling things or dancing buttons (below).",
+  "automatico": "automatic", "Emoji del bottone": "Button emoji",
+  "Il bottone {b} è su Teams in basso a destra, sopra il box dei messaggi: trascinalo dove vuoi. Lo clicchi e partono chi passa, le cose che cadono e i pulsanti ballerini. Lo vedi anche nell'anteprima.": "The {b} button is in Teams at the bottom right, above the message box: drag it wherever you like. Click it and the flyers, falling things and dancing buttons start. You see it in the preview too.",
+  "Gli animali vanno a mangiare alla ciotola, ovunque la metti": "The animals go and eat at the bowl, wherever you put it", "Togli": "Remove",
+  "🍊 Capibara": "🍊 Capybara", "🐱 Gatto": "🐱 Cat", "🐶 Cane": "🐶 Dog", "🐑 Pecora": "🐑 Sheep", "🐂 Toro": "🐂 Bull", "👻 Fantasma": "👻 Ghost",
+  "🤖 Robot": "🤖 Robot", "🚚 Camion": "🚚 Truck", "🕶️ Drugo": "🕶️ The Dude", "🍕 Pizza": "🍕 Pizza", "☄️ Cometa": "☄️ Comet",
+  // preview
+  "Anteprima": "Preview", "▶ Prova gli effetti": "▶ Try the effects", "Anteprima del tema": "Theme preview",
+  "Anteprima vera: gli stessi colori del tuo Teams e lo stesso CSS che va su Teams.": "Real preview: the same colours as your Teams and the same CSS that goes to Teams.",
+  "Per un tema chiaro i colori di base di Teams chiaro sono stimati (non l'ho ancora visto su questo PC): il risultato su Teams è quello vero.": "For a light theme, light Teams' base colours are estimated (not seen on this PC yet): the result in Teams is the real one.",
+  "! {n} cosa si legge male": "! {n} thing is hard to read", "! {n} cose si leggono male": "! {n} things are hard to read", "✓ Si legge bene": "✓ Easy to read",
+  " (sistemato da solo)": " (fixed automatically)", "Anteprima non disponibile: ": "Preview not available: ",
+  "Le modifiche all'originale si perdono. Continuo?": "Changes to the original will be lost. Go on?", "Modifica non applicata: ": "Change not applied: ",
+  // mock Teams in the preview
+  "Cerca": "Search", "Club del caffè": "Coffee club", "Pranzo del venerdì": "Friday lunch", "Gita in montagna": "Mountain trip", "Condividi": "Share", "Chiama": "Call",
+  "Ho portato i biscotti, li trovi ": "I brought cookies, you'll find them ", "qui": "here", "Perfetto, grazie!": "Perfect, thanks!", " caffè alle 15?": " coffee at 3?",
+  "Scrivi un messaggio": "Type a message", "TU": "ME",
+  // dialogs
+  "Annulla": "Cancel", "Salva come nuovo tema": "Save as new theme",
+  "L'originale di Teams non cambia: le tue modifiche diventano un tema nuovo, in \"I miei\".": "Teams' original doesn't change: your changes become a new theme, in \"Mine\".",
+  "Il mio tema": "My theme", "Crea il tema": "Create the theme", "Tema '{n}' creato.": "Theme '{n}' created.", "Tema '{n}' salvato.": "Theme '{n}' saved.",
+  "Ripristinare l'originale?": "Restore the original?", "'{n}' torna com'era quando è arrivato con l'app. Le tue modifiche a questo tema si perdono.": "'{n}' goes back to how it came with the app. Your changes to this theme are lost.",
+  "Ripristina": "Restore", "Nuovo tema": "New theme", "Parte da Teams com'è adesso. Per partire da un altro tema usa \"Duplica\".": "Starts from Teams as it is now. To start from another theme use \"Duplicate\".",
+  "Crea": "Create", "Duplica tema": "Duplicate theme", "Copia di '{n}' com'è adesso (modifiche non salvate comprese), in \"I miei\".": "Copy of '{n}' as it is now (unsaved changes included), in \"Mine\".",
+  " copia": " copy", "Rinomina tema": "Rename theme", "Nuovo nome:": "New name:", "Eliminare il tema?": "Delete the theme?", "'{n}' viene cancellato.": "'{n}' will be deleted.",
+  " È un tema dell'app: non si potrà ripristinare.": " It's one of the app's themes: it can't be restored.", "Errore: ": "Error: ",
+  "Teams si riapre un attimo": "Teams reopens for a moment", "Va bene": "OK",
+  "Per accendere Teams Remix, Teams si chiude e si riapre da solo, in pochi secondi. Se sei in una call, aspetta che finisca.": "To switch Teams Remix on, Teams closes and reopens by itself, in a few seconds. If you're in a call, wait until it ends.",
+  "Per provare gli effetti si accende Teams Remix e Teams si riapre da solo, in pochi secondi. Se sei in una call, aspetta che finisca.": "To try the effects, Teams Remix switches on and Teams reopens by itself, in a few seconds. If you're in a call, wait until it ends.",
+  "Riaprire Teams com'era?": "Reopen Teams as it was?", "Teams si chiude e si riapre senza Teams Remix: niente tema, coinquilini e soprannomi. Se sei in una call, aspetta che finisca.": "Teams closes and reopens without Teams Remix: no theme, housemates or nicknames. If you're in a call, wait until it ends.",
+  "Riapri Teams": "Reopen Teams", "Avvio con Windows non cambiato: ": "Start with Windows not changed: ", "Impostazione non cambiata: ": "Setting not changed: ",
+  "Chiudere l'app?": "Close the app?", "Hai modifiche non salvate in: {l}. Chiudendo si perdono. ": "You have unsaved changes in: {l}. Closing loses them. ",
+  "Tema, coinquilini e soprannomi restano su Teams finché Teams non si ricarica, ma l'app smette di rimetterli.": "Theme, housemates and nicknames stay in Teams until Teams reloads, but the app stops putting them back.",
+  "Chiudi l'app": "Close the app", "App chiusa. Puoi chiudere questa finestra.": "App closed. You can close this window.",
+  // housemates
+  "🐾 Coinquilini": "🐾 Housemates", "▶ Chiamali ora": "▶ Call them now", "Anteprima dei coinquilini": "Housemates preview",
+  "Abitano nel tuo Teams, con qualunque tema (anche con l'originale). Ognuno ha la sua cosa: una ciotola, una balla di fieno per il toro, una zucca per il fantasma, una scatola di cavi per il robot, un pacchetto per il camion, il latte per il Drugo.": "They live in your Teams, with any theme (the original too). Each one has its thing: a bowl, a hay bale for the bull, a pumpkin for the ghost, a box of cables for the robot, a parcel for the truck, milk for the Dude.",
+  "Nell'anteprima funziona come su Teams: clicca e trascina le ciotole, clicca i coinquilini per coccolarli.": "The preview works like Teams: click and drag the bowls, click the housemates to cuddle them.",
+  "Scegli chi abita nel tuo Teams: poi decidi come vivono.": "Pick who lives in your Teams: then decide how they live.",
+  "ciotola di mandarini": "bowl of tangerines", "ciotola col pesce": "bowl with fish", "ciotola con l'osso": "bowl with a bone", "ciotola d'erba": "bowl of grass",
+  "balla di fieno": "hay bale", "zucca": "pumpkin", "pacchetto": "parcel", "scatola di cavi": "box of cables", "cartone del latte": "carton of milk",
+  "Come vivono": "How they live", "🏠 Vivono su Teams": "🏠 They live in Teams", "🥣 Arrivano quando clicco la loro ciotola": "🥣 They come when I click their bowl", "Passano ogni tanto": "They pass by now and then",
+  "Vivono con te: girano per la finestra, si fermano a guardarsi intorno, ogni tanto escono a farsi un giro e poi tornano. La loro ciotola li richiama a mangiare (anche quando sono usciti a farsi un giro) e dopo restano con te per un po'.": "They live with you: they wander around the window, stop to look around, now and then go out for a walk and come back. Their bowl calls them to eat (even when they're out for a walk) and afterwards they stay with you for a while.",
+  "Non ci sono finché non clicchi la ciotola di uno di loro: allora arriva, mangia e se ne va, da un lato a caso.": "They aren't there until you click one of their bowls: then that one comes, eats and leaves, on a random side.",
+  "Ogni tanto uno di loro attraversa la finestra in fondo, da un lato o dall'altro, si ferma un attimo e riparte. Niente ciotole.": "Now and then one of them crosses the bottom of the window, from one side or the other, stops a moment and goes on. No bowls.",
+  "Sempre: cliccane uno per coccolarlo ❤️, trascinalo per spostarlo.": "Always: click one to cuddle it ❤️, drag it to move it.",
+  "Ognuno ha la sua: {things}. Stanno su Teams in basso a destra, sopra il box dei messaggi: trascinale dove vuoi. ": "Each one has its own: {things}. They're in Teams at the bottom right, above the message box: drag them wherever you like. ",
+  "Se sposti una ciotola mentre il suo coinquilino arriva, lui cambia strada; se la sposti mentre mangia (o lo prendi in braccio), si arrabbia 💢⛈️ e se ne va": "If you move a bowl while its housemate is coming, it changes its way; if you move it while it's eating (or pick it up), it gets angry 💢⛈️ and leaves",
+  ": si nasconde dietro il bordo e torna da solo quando gli passa. Se lo chiami con la ciotola mentre è ancora arrabbiato, sbuca un po' dal bordo, ti fa vedere che è ancora arrabbiato 💢 e torna a nascondersi: del tuo cibo non gli importa.": ": it hides behind the edge and comes back by itself when it's over it. If you call it with the bowl while it's still angry, it peeks out from the edge, shows you it's still angry 💢 and hides again: it doesn't care about your food.",
+  "Grandezza delle ciotole": "Bowl size", "Piccole": "Small", "Medie": "Medium", "Grandi": "Large", "Enormi": "Huge",
+  "Grandezza dei coinquilini": "Housemate size", "Piccoli": "Small", "Normali": "Normal", "Velocità": "Speed", "Piano": "Slow", "Normale": "Normal", "Veloce": "Fast",
+  "❤️ Cuoricini mentre mangiano": "❤️ Little hearts while they eat", "💤 Pisolino dopo aver mangiato": "💤 A nap after eating", "🌈 Scia arcobaleno dietro": "🌈 Rainbow trail behind",
+  "🏷️ Un nome sopra la testa (lascia vuoto per niente):": "🏷️ A name above the head (leave empty for none):", "es. Pippo": "e.g. Rex", "Nome di {x}": "Name of {x}",
+  "Coinquilini non salvati: ": "Housemates not saved: ",
+  "Per chiamarli su Teams serve accendere \"Attivo su Teams\": Teams si chiude e si riapre da solo. Se sei in una call, aspetta che finisca.": "To call them in Teams, \"On in Teams\" has to be switched on: Teams closes and reopens by itself. If you're in a call, wait until it ends.",
+  // nicknames
+  "Soprannomi": "Nicknames", "+ Aggiungi": "+ Add",
+  "📷 Con la foto, su Teams quella persona ha la tua foto al posto della sua (anche lei la vedi solo tu).": "📷 With a photo, that person has your photo instead of theirs in Teams (only you see it too).",
+  "🔎 Puoi anche cercare per soprannome: scrivilo nella ricerca di Teams in alto e in cima ai risultati compare \"Soprannomi\" (al massimo 2 persone). Cliccane uno e Teams apre quella persona.": "🔎 You can also search by nickname: type it in Teams' search at the top and \"Nicknames\" shows up above the results (at most 2 people). Click one and Teams opens that person.",
+  "Nessun soprannome. Premi \"+ Aggiungi\".": "No nicknames. Press \"+ Add\".", "Cognome Nome, es. Verdi Luna": "Surname Name, e.g. Green Luna",
+  "Nome come appare su Teams": "Name as it shows in Teams", "Soprannome, es. Lunetta": "Nickname, e.g. Moony", "Soprannome": "Nickname", "Togli il soprannome": "Remove the nickname",
+  "Cambia la foto": "Change the photo", "Aggiungi una foto": "Add a photo", "Togli la foto": "Remove the photo", "Carico la foto...": "Uploading the photo...",
+  "Foto non caricata: ": "Photo not uploaded: ", "non è un'immagine": "it's not a picture",
+  "Per vederli su Teams accendi \"Attivo su Teams\" in alto.": "To see them in Teams, switch on \"On in Teams\" at the top.", "Salvo...": "Saving...",
+  "Salvati: li vedi già su Teams.": "Saved: you already see them in Teams.", "Non salvati: ": "Not saved: ",
+  // options
+  "Lingua": "Language", "Automatica (come Windows)": "Automatic (like Windows)",
+  "Avvio": "Start", "Quando accendo il PC, accendi Teams Remix (tema, coinquilini e soprannomi)": "When I start the PC, switch Teams Remix on (theme, housemates and nicknames)",
+  "All'accesso l'app parte da sola in background e aspetta Teams.": "At sign-in the app starts by itself in the background and waits for Teams.",
+  "Animazioni": "Animations", "Rispetta \"riduci animazioni\" di Windows (gli effetti si fermano)": "Respect Windows' \"reduce animations\" (the effects stop)",
+  "Spento: gli effetti partono sempre, perché li scegli tu tema per tema.": "Off: the effects always run, because you pick them theme by theme.",
+  "Windows chiede animazioni ridotte e hai scelto di rispettarlo: gli effetti sono fermi (lo cambi in Opzioni).": "Windows asks for reduced animations and you chose to respect it: the effects are still (change it in Options).",
+  "Windows chiede animazioni ridotte: gli effetti partono lo stesso, perché li hai scelti tu.": "Windows asks for reduced animations: the effects run anyway, because you chose them.",
+  "Call": "Calls", "Durante le call, Teams normale": "During calls, normal Teams",
+  "Per colorare Teams l'app lo riapre con un canale di controllo che funziona solo su questo PC. Finché quel canale è aperto, altri programmi sul PC potrebbero leggere cosa c'è in Teams. Questo pulsante lo chiude e rimette Teams com'è.": "To colour Teams, the app reopens it with a control channel that only works on this PC. While that channel is open, other programs on the PC could read what's in Teams. This button closes it and puts Teams back as it is.",
+  "Riapri Teams com'era": "Reopen Teams as it was", "App": "App",
+  "Teams Remix resta accesa in background per rimettere tema, coinquilini e soprannomi quando Teams si ricarica.": "Teams Remix stays on in the background to put the theme, housemates and nicknames back when Teams reloads.",
+};
+// paragraphs with words in bold: translated whole
+const EN_HTML = {
+  nickhint: 'Type the name as you see it in Teams and the nickname to see instead: chats, lists, notifications. Only <b>you see it, on this PC</b>: nothing changes for the others, and what you write in messages stays as it is. Write <b>Surname Name</b>, without a comma: "Green Luna" changes both "Green, Luna" (colleagues) and "Luna Green" (guests).',
+  callhint: 'When you join a call or a meeting, theme, housemates and nicknames disappear by themselves and come back when the call ends. <b>Teams doesn\'t reopen</b>, so the call doesn\'t drop. Otherwise, at any time just switch off "On in Teams" at the top.',
+};
+const t = (s, vars) => { let r = (LANG === "en" && EN[s]) || s; if (vars) r = r.replace(/\{(\w+)\}/g, (_, k) => vars[k]); return r; };
+const tname = (n) => (n === S.default || S.builtin.includes(n) ? t(n) : n);  // the app's own themes have a name in each language
+function translatePage() {
+  document.documentElement.lang = LANG;
+  if (LANG !== "en") return;
+  const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  for (let n; (n = walk.nextNode());) {
+    if (n.parentElement.closest("script, style, [data-t]")) continue;
+    const key = n.nodeValue.replace(/\s+/g, " ").trim(); if (!EN[key]) continue;
+    const lead = /^\s/.test(n.nodeValue) ? " " : "", tail = /\s$/.test(n.nodeValue) ? " " : "";
+    n.nodeValue = lead + EN[key] + tail;
+  }
+  for (const a of ["placeholder", "aria-label", "title"])
+    document.querySelectorAll(`[${a}]`).forEach((e) => { const v = e.getAttribute(a); if (EN[v]) e.setAttribute(a, EN[v]); });
+  document.querySelectorAll("[data-t]").forEach((e) => { if (EN_HTML[e.dataset.t]) e.innerHTML = EN_HTML[e.dataset.t]; });
+}
+
+const $ = (id) => document.getElementById(id);
+const el = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag); for (const [k, v] of Object.entries(attrs)) { if (k === "class") e.className = v; else if (k.startsWith("on")) e.addEventListener(k.slice(2), v); else e.setAttribute(k, v); } for (const c of kids) e.append(c); return e; };
+const clone = (x) => JSON.parse(JSON.stringify(x));
+const symbols = (s) => [...new Intl.Segmenter("it", { granularity: "grapheme" }).segment(s || "")].map((x) => x.segment).filter((x) => x.trim());
+async function api(path, body) {
+  const r = await fetch(path, { method: body === undefined ? "GET" : "POST", headers: { "X-Token": TOKEN, "Content-Type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || ("HTTP " + r.status));
+  return j;
+}
+const rgb2hex = (c) => "#" + c.map((x) => Math.max(0, Math.min(255, Math.round(x))).toString(16).padStart(2, "0")).join("");
+function hls2rgb(h, l, s) { if (s === 0) return [l * 255, l * 255, l * 255]; const q = l < 0.5 ? l * (1 + s) : l + s - l * s, p = 2 * l - q;
+  const f = (t) => { t = (t + 1) % 1; return t < 1 / 6 ? p + (q - p) * 6 * t : t < 1 / 2 ? q : t < 2 / 3 ? p + (q - p) * (2 / 3 - t) * 6 : p; };
+  return [f(h + 1 / 3) * 255, f(h) * 255, f(h - 1 / 3) * 255]; }
+const brandHex = (p) => rgb2hex(hls2rgb((p.brand_hue % 360) / 360, 0.5, +p.brand_sat));
+
+const isDefault = () => S.selected === S.default;
+const dirty = () => editPending || !!S.drafts[S.selected];
+
+/* ---------- status + power ---------- */
+let pendingOn = null, pendingAt = 0;  // what the user just chose, until the app confirms it
+function shownOn() {
+  const tm = S.teams || {};
+  if (pendingOn !== null && (tm.on === pendingOn || Date.now() - pendingAt > 15000)) pendingOn = null;
+  return pendingOn !== null ? pendingOn : !!tm.on;
+}
+function renderStatus() {
+  const tm = S.teams || {}, st = $("status"), on = shownOn();
+  // shown only while something is happening or when something needs attention; the switch says the rest
+  let cls = "warn", text = "";
+  if (tm.busy) text = tm.busy;
+  else if (tm.on && tm.call) { cls = "ok"; text = t("Sei in call: Teams è normale, a call finita torna tutto da solo"); }
+  else if (tm.on && !tm.running) text = t("Teams è chiuso: tema, coinquilini e soprannomi arrivano quando lo apri");
+  else if (tm.on && !tm.active) text = t("Sto preparando Teams...");
+  st.hidden = !text;
+  st.className = "status " + (tm.busy ? "" : cls);
+  st.replaceChildren(tm.busy ? el("span", { class: "spin" }) : el("span", { class: "dot" }), el("span", {}, text));
+  const pw = el("button", { class: "power", role: "switch", "aria-checked": String(on), onclick: togglePower }, t("Attivo su Teams"), el("span", { class: "knob", "aria-hidden": "true" }));
+  pw.disabled = !!tm.busy;
+  $("actions").replaceChildren(pw);
+  $("msgline").replaceChildren(...(tm.msg ? [el("time", {}, tm.msg_at), tm.msg] : []));
+  $("autostart").checked = !!S.autostart;
+  $("respectrm").checked = !!S.respect_reduced_motion;
+  $("offincall").checked = !!S.off_in_call;
+  segPress("lang", S.lang_pref || "auto");
+  $("rmnote").hidden = !tm.reduced;
+  $("rmnote").textContent = S.respect_reduced_motion ? t("Windows chiede animazioni ridotte e hai scelto di rispettarlo: gli effetti sono fermi (lo cambi in Opzioni).")
+                                                     : t("Windows chiede animazioni ridotte: gli effetti partono lo stesso, perché li hai scelti tu.");
+}
+
+/* ---------- sidebar ---------- */
+function swatch(p) { return el("span", { class: "sw", "aria-hidden": "true", style: `background:${p.background};color:${brandHex(p)}` }, "Aa"); }
+function item(name, p) {
+  const b = el("button", { class: "titem", "aria-current": String(name === S.selected), onclick: () => select(name) }, swatch(p), el("span", { class: "name" }, tname(name)));
+  if (S.drafts[name] || (name === S.selected && editPending)) b.append(el("span", { class: "chip warn", title: t("Modifiche non salvate") }, t("● non salvato")));
+  else if (name === S.selected) b.append(el("span", { class: "chip" }, t("in uso")));
+  return b;
+}
+function renderSidebar() {
+  const list = $("tlist"); list.replaceChildren();
+  const view = (n) => (n === S.selected && E ? E : (S.drafts[n] || S.themes[n] || S.default_theme));
+  list.append(item(S.default, view(S.default)));
+  for (const g of ["seri", "divertenti", "miei"]) {
+    const names = Object.keys(S.themes).filter((n) => (S.themes[n].group || "miei") === g).sort((a, b) => a.localeCompare(b));
+    if (!names.length) continue;
+    list.append(el("div", { class: "lbl-up" }, t(GROUP_LABEL[g])));
+    for (const n of names) list.append(item(n, view(n)));
+  }
+}
+
+/* ---------- head ---------- */
+function renderHead() {
+  const def = isDefault();
+  $("tname").textContent = tname(S.selected);
+  $("defcard").hidden = !def;
+  segPress("defmode", S.default_mode);
+  $("defhint").textContent = dirty() ? t("Stai modificando l'originale: quando salvi diventa un tema nuovo.")
+    : (S.default_mode !== (S.teams.mode || "dark") ? (S.teams.mode === "light" ? t("Teams è in modalità chiara: gli metto i suoi colori originali scuri.") : t("Teams è in modalità scura: gli metto i suoi colori originali chiari.")) + (S.default_mode_real ? "" : t(" (Non ho ancora visto Teams così su questo PC: i colori sono stimati.)"))
+       : t("Questo è Teams com'è. Puoi modificarlo come gli altri: quando salvi diventa un tema nuovo."));
+  $("savebar").hidden = !dirty();
+  $("savetxt").textContent = def ? t("● Hai modificato l'originale: Teams lo mostra già. Salvando diventa un tema nuovo.") : t("● Modifiche non salvate: Teams le mostra già, ma il tema non è ancora salvato.");
+  $("save").textContent = def ? t("Salva come nuovo tema...") : t("Salva");
+  $("reset").hidden = def || !S.builtin.includes(S.selected);
+  $("reset").disabled = !(S.changed.includes(S.selected) || dirty());
+  $("ren").hidden = def; $("del").hidden = def; $("dup").hidden = def;
+}
+
+/* ---------- colours tab ---------- */
+function colorField(key, label, desc) {
+  const p = E, id = "c-" + key;
+  const pick = el("input", { type: "color", id, value: p[key], "aria-label": t("{l} (selettore)", { l: label }) });
+  const hex = el("input", { class: "hex", value: p[key], "aria-label": t("{l} (esadecimale)", { l: label }), spellcheck: "false" });
+  pick.addEventListener("input", () => { hex.value = pick.value; hex.removeAttribute("aria-invalid"); set(key, pick.value); });
+  hex.addEventListener("input", () => { let x = hex.value.trim(); if (!x.startsWith("#")) x = "#" + x;
+    if (/^#[0-9a-fA-F]{6}$/.test(x)) { hex.removeAttribute("aria-invalid"); pick.value = x.toLowerCase(); set(key, x.toLowerCase()); } else hex.setAttribute("aria-invalid", "true"); });
+  const f = el("div", { class: "field" }, el("label", { class: "lbl", for: id }, label), el("div", { class: "color" }, pick, hex));
+  if (desc) f.append(el("div", { class: "desc" }, desc));
+  return f;
+}
+function rangeField(label, min, max, value, fmt, onInput, desc, extraClass) {
+  const r = el("input", { type: "range", min: String(min), max: String(max), value: String(value), "aria-label": label });
+  if (extraClass) r.className = extraClass;
+  const o = el("output", {}, fmt(value));
+  r.addEventListener("input", () => { o.replaceChildren(fmt(+r.value)); onInput(+r.value, r); });
+  const f = el("div", { class: "field" }, el("span", { class: "lbl" }, label), el("span", {}), el("div", { class: "range" }, r, o));
+  if (desc) f.append(el("div", { class: "desc" }, desc));
+  return [f, r];
+}
+function renderColors() {
+  const box = $("colors"); box.replaceChildren();
+  box.append(colorField("background", t("Sfondo"), t("Il tema è uguale con Teams chiaro e scuro: se lo sfondo è chiaro, è un tema chiaro.")), colorField("text", t("Testo")));
+  const [hf, hue] = rangeField(t("Colore principale"), 0, 359, E.brand_hue, (x) => x + "°", (x) => { paintHue(); set("brand_hue", x); }, "", "hue");
+  const [sf, sat] = rangeField(t("Intensità del colore principale"), 0, 100, Math.round(E.brand_sat * 100), (x) => x + "%", (x) => { paintHue(); set("brand_sat", x / 100); },
+    t("Pulsanti, selezioni e menzioni (il viola di Teams)."));
+  const paintHue = () => { hue.style.background = `linear-gradient(90deg, ${[0, 60, 120, 180, 240, 300, 359].map((h) => rgb2hex(hls2rgb(h / 360, 0.5, +sat.value / 100))).join(",")})`;
+    sat.style.accentColor = rgb2hex(hls2rgb(+hue.value / 360, 0.5, 1)); };
+  paintHue();
+  box.append(hf, sf, colorField("link", t("Link"), t("Se si legge male sullo sfondo, lo sistemo da solo.")));
+  const more = $("moreopts"); more.replaceChildren();
+  more.append(colorField("on_brand", t("Scritte sul colore principale"), t("Se si leggono male, le sistemo da solo.")), colorField("glow", t("Alone delle ombre"), t("Le ombre di menu e finestre diventano un alone di questo colore.")));
+  const [rf] = rangeField(t("Arrotondamento degli angoli"), 1, 6, E.radius, (x) => x + "x", (x) => set("radius", x));
+  more.append(rf);
+}
+function renderBackground() {
+  for (const b of $("bgmode").children) b.setAttribute("aria-pressed", String(b.dataset.v === E.bg_mode));
+  const box = $("bgextra"); box.replaceChildren();
+  if (E.bg_mode === "solid") { box.append(el("p", { class: "hint" }, t("Lo sfondo usa il colore \"Sfondo\"."))); return; }
+  const bar = el("div", { class: "gradbar" });
+  const paintBar = () => { bar.style.background = `linear-gradient(${E.flow_angle}deg, ${E.bg_colors.join(",")})`; };
+  paintBar(); box.append(bar);
+  const cols = el("div", { class: "row" }, el("span", { class: "hint" }, t("Colori")));
+  E.bg_colors.forEach((c, i) => { const pick = el("input", { type: "color", value: c, "aria-label": t("Colore {n} del gradiente", { n: i + 1 }) });
+    pick.addEventListener("input", () => { const n = [...E.bg_colors]; n[i] = pick.value; set("bg_colors", n); paintBar(); }); cols.append(el("span", { class: "color" }, pick)); });
+  box.append(cols);
+  const arrow = (a) => { const s = el("span", {}, `${a}° `); s.append(el("span", { class: "arrow", style: `transform: rotate(${a - 90}deg)` }, "➜")); return s; };
+  const [af] = rangeField(t("Direzione"), 0, 359, E.flow_angle, arrow, (x) => { set("flow_angle", x); paintBar(); });
+  box.append(af);
+  if (E.bg_mode === "gradient_anim") {
+    const [sf] = rangeField(t("Un giro ogni"), 2, 30, E.flow_seconds, (x) => `${x} s`, (x) => set("flow_seconds", x), t("Meno secondi = scorre più veloce."));
+    box.append(sf);
+  }
+  const [gf] = rangeField(t("Trasparenza dei pannelli"), 0, 85, E.glass, (x) => x + "%", (x) => set("glass", x), t("Più è alta, più il gradiente si vede attraverso chat ed elenchi."));
+  box.append(gf);
+}
+$("bgmode").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { set("bg_mode", b.dataset.v); renderBackground(); } });
+
+/* font picker: every font shown in itself */
+const fontLabel = (val) => t((FONTS.find(([x]) => x === val) || [val, val])[1]);
+const fontCss = (val) => val || '"Segoe UI Variable Text", "Segoe UI", sans-serif';
+function renderFontPicker() {
+  const btn = $("fontbtn"), list = $("fontlist"), known = FONTS.some(([x]) => x === E.font);
+  btn.textContent = known ? fontLabel(E.font) : E.font; btn.style.fontFamily = fontCss(E.font);
+  $("fontcustom").hidden = known; if (!known) $("fontcustom").value = E.font;
+  list.replaceChildren(...FONTS.map(([val, label], i) => {
+    const li = el("li", { role: "option", id: "fopt-" + i, "aria-selected": String(known ? val === E.font : val === "__custom__") }, el("span", {}, t(label)),
+      el("small", {}, val === "" ? t("predefinito") : val === "__custom__" ? t("scrivi tu") : ""));
+    if (val !== "__custom__") li.style.fontFamily = fontCss(val);
+    li.addEventListener("click", () => chooseFont(val));
+    return li;
+  }));
+}
+function openFonts(open) { const list = $("fontlist"); list.hidden = !open; $("fontbtn").setAttribute("aria-expanded", String(open));
+  if (open) { moveFont(list.querySelector('[aria-selected="true"]') || list.firstChild); list.focus(); } }
+function moveFont(li) { const list = $("fontlist"); list.querySelectorAll("li.active").forEach((x) => x.classList.remove("active"));
+  if (!li) return; li.classList.add("active"); list.setAttribute("aria-activedescendant", li.id); li.scrollIntoView({ block: "nearest" }); }
+function chooseFont(val) { openFonts(false); $("fontbtn").focus();
+  if (val === "__custom__") { $("fontcustom").hidden = false; $("fontcustom").focus(); return; }
+  set("font", val); renderFontPicker(); }
+$("fontbtn").addEventListener("click", () => openFonts($("fontlist").hidden));
+$("fontlist").addEventListener("keydown", (e) => { const items = [...$("fontlist").children], i = items.findIndex((x) => x.classList.contains("active"));
+  if (e.key === "ArrowDown") { e.preventDefault(); moveFont(items[Math.min(items.length - 1, i + 1)]); }
+  else if (e.key === "ArrowUp") { e.preventDefault(); moveFont(items[Math.max(0, i - 1)]); }
+  else if (e.key === "Enter" || e.key === " ") { e.preventDefault(); if (i >= 0) chooseFont(FONTS[i][0]); }
+  else if (e.key === "Escape") { openFonts(false); $("fontbtn").focus(); } });
+document.addEventListener("click", (e) => { if (!e.target.closest(".fpick")) openFonts(false); });
+$("fontcustom").addEventListener("change", () => { set("font", $("fontcustom").value.trim()); renderFontPicker(); });
+
+/* ---------- effects tab ---------- */
+function segPress(id, value) { for (const b of $(id).children) b.setAttribute("aria-pressed", String(b.dataset.v === value)); }
+const ANIMAL_PICKS = PASS_PICKS.filter(([k]) => WALKERS.includes(k));
+const FLY_PICKS = PASS_PICKS.filter(([k]) => !WALKERS.includes(k));
+function renderEffects() {
+  segPress("when", E.when); segPress("canim", E.colors_anim); segPress("fallstyle", E.fall_style); segPress("passfreq", E.pass_freq);
+  $("jiggle").checked = !!E.jiggle; $("trail").checked = !!E.trail;
+  const wx = $("whenextra"); wx.replaceChildren();
+  if (E.when === "click") {
+    const burstable = E.pass.length > 0 || symbols(E.fall).length > 0 || !!E.jiggle;
+    if (!burstable) {
+      wx.append(el("p", { class: "savebar", style: "margin-top:10px" }, el("span", { class: "txt" },
+        t("Il bottone compare su Teams appena accendi qualcosa da far partire: chi passa, cose che cadono o pulsanti ballerini (qui sotto)."))));
+    } else {
+      const walker = E.pass.find((x) => WALKERS.includes(x));
+      const auto = walker ? `${THING[walker][0]} ${t(THING[walker][1])}` : "🎉";
+      const inp = el("input", { class: "emoji-in", value: E.trigger === "bowl" ? "" : (E.trigger || ""), placeholder: t("automatico"), maxlength: "8", "aria-label": t("Emoji del bottone") });
+      inp.addEventListener("input", () => set("trigger", symbols(inp.value)[0] || ""));
+      wx.append(el("p", { class: "hint", style: "margin-top:8px" },
+          t("Il bottone {b} è su Teams in basso a destra, sopra il box dei messaggi: trascinalo dove vuoi. Lo clicchi e partono chi passa, le cose che cadono e i pulsanti ballerini. Lo vedi anche nell'anteprima.", { b: E.trigger || auto })),
+        el("div", { class: "row" }, el("span", { class: "hint" }, t("Emoji del bottone")), inp));
+      if (walker && !E.trigger) {
+        const tb = el("input", { type: "checkbox" }); tb.checked = !!E.to_bowl;
+        tb.addEventListener("change", () => set("to_bowl", tb.checked));
+        wx.append(el("div", { class: "row" }, el("label", { class: "switch" }, tb, t("Gli animali vanno a mangiare alla ciotola, ovunque la metti"))));
+      }
+    }
+  }
+  const fs = symbols(E.fall);
+  $("fallchips").replaceChildren(...FALL_PICKS.map((s) => { const b = el("button", { class: "pick", "aria-pressed": String(fs.includes(s)) }, s);
+    b.addEventListener("click", () => { const cur = symbols(E.fall); const n = cur.includes(s) ? cur.filter((x) => x !== s) : [...cur, s].slice(-8); set("fall", n.join("")); $("fall").value = n.join(""); renderEffects(); }); return b; }));
+  if (document.activeElement !== $("fall")) $("fall").value = E.fall;
+  $("fallstyle-row").hidden = !fs.length;
+  const custom = E.pass.filter((x) => !PASS_PICKS.some(([k]) => k === x));
+  $("passchips").replaceChildren(...FLY_PICKS.map(([k, label]) => { const b = el("button", { class: "pick", "aria-pressed": String(E.pass.includes(k)) }, t(label));
+    b.addEventListener("click", () => togglePass(k)); return b; }),
+    ...custom.map((x) => { const b = el("button", { class: "pick", "aria-pressed": "true", title: t("Togli") }, x + " ✕"); b.addEventListener("click", () => togglePass(x)); return b; }));
+  $("freq-row").hidden = E.when === "click" || !E.pass.length;
+  $("trail").closest(".row").hidden = !E.pass.some((x) => !WALKERS.includes(x));
+}
+function togglePass(k) { const n = E.pass.includes(k) ? E.pass.filter((x) => x !== k) : [...E.pass, k].slice(-3); set("pass", n); renderEffects(); }
+for (const [id, key] of [["when", "when"], ["canim", "colors_anim"], ["fallstyle", "fall_style"], ["passfreq", "pass_freq"]])
+  $(id).addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { set(key, b.dataset.v); renderEffects(); } });
+$("jiggle").addEventListener("change", (e) => set("jiggle", e.target.checked));
+$("trail").addEventListener("change", (e) => set("trail", e.target.checked));
+$("fall").addEventListener("input", () => { set("fall", symbols($("fall").value).slice(0, 8).join("")); renderEffects(); });
+$("fallclear").addEventListener("click", () => { set("fall", ""); renderEffects(); });
+$("passemoji").addEventListener("change", () => { const s = symbols($("passemoji").value)[0]; $("passemoji").value = ""; if (s && !E.pass.includes(s)) togglePass(s); });
+
+/* ---------- tabs ---------- */
+function renderTabs() {
+  for (const [t, id] of [["colors", "tab-colors"], ["fx", "tab-fx"]]) { $(id).setAttribute("aria-selected", String(tab === t)); }
+  $("panel-colors").hidden = tab !== "colors"; $("panel-fx").hidden = tab !== "fx";
+}
+$("tab-colors").addEventListener("click", () => { tab = "colors"; renderTabs(); });
+$("tab-fx").addEventListener("click", () => { tab = "fx"; renderTabs(); });
+
+/* ---------- real preview: a mini Teams with Teams' tokens + the exact CSS Teams gets ---------- */
+const MOCK_CSS = `
+html { height: 100%; background: var(--colorNeutralBackground5); }
+body { margin: 0; height: 100%; overflow: hidden; font-family: var(--fontFamilyBase); font-size: 12px; color: var(--colorNeutralForeground1); }
+.app { display: grid; grid-template-rows: 38px 1fr; grid-template-columns: 46px 170px minmax(0, 1fr); height: 100%; }
+.top { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; padding: 0 12px; }
+.search { flex: 1; max-width: 300px; margin: 0 auto; height: 24px; border-radius: var(--borderRadiusMedium); background: var(--colorNeutralBackground1); color: var(--colorNeutralForeground3);
+  border: 1px solid var(--colorNeutralStroke2); font-size: 11px; display: flex; align-items: center; padding: 0 9px; }
+.rail { display: flex; flex-direction: column; align-items: center; gap: 13px; padding-top: 10px; }
+.rail i { width: 20px; height: 20px; border-radius: var(--borderRadiusMedium); background: var(--colorNeutralForeground3); opacity: .6; display: block; }
+.rail i.on { background: var(--colorBrandForeground1); opacity: 1; }
+.list { background: var(--colorDefaultBackground7, var(--colorNeutralBackground2)); border-top-left-radius: var(--borderRadiusXLarge); padding: 12px 7px; overflow: hidden; }
+.list h4 { margin: 0 7px 10px; font-size: 15px; }
+.row { display: flex; align-items: center; gap: 8px; padding: 7px; border-radius: var(--borderRadiusMedium); color: var(--colorNeutralForeground2); white-space: nowrap; overflow: hidden; }
+.row span { overflow: hidden; text-overflow: ellipsis; }
+.row.sel { background: var(--colorNeutralBackground1Selected); color: var(--colorNeutralForeground1); font-weight: 600; }
+.fui-Avatar { width: 22px; height: 22px; border-radius: 50%; background: var(--colorAvatarBackground, var(--colorBrandBackground)); color: var(--colorAvatar, #fff);
+  font-size: 8px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex: none; position: relative; }
+.fui-Avatar::after { content: ""; position: absolute; right: -2px; bottom: -2px; width: 7px; height: 7px; border-radius: 50%; background: #6bb700; border: 1.5px solid var(--colorNeutralBackground2); }
+.badge { margin-left: auto; background: var(--colorPaletteRedBackground3); color: #fff; border-radius: 999px; padding: 0 5px; font-size: 9px; font-weight: 700; flex: none; }
+.chat { background: var(--colorNeutralBackground3); display: flex; flex-direction: column; min-width: 0; }
+.chead { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--colorNeutralStroke2); }
+.chead b { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
+.fui-Button { border: 0; border-radius: var(--borderRadiusMedium); padding: 5px 12px; font: inherit; font-weight: 600; cursor: pointer; }
+.primary { background: var(--colorBrandBackground); color: var(--colorNeutralForegroundOnBrand); }
+.primary:hover { background: var(--colorBrandBackgroundHover); }
+.secondary { background: var(--colorNeutralBackground1); color: var(--colorNeutralForeground1); border: 1px solid var(--colorNeutralStroke1); }
+.msgs { flex: 1; padding: 14px; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+.msg { max-width: 80%; padding: 8px 11px; border-radius: var(--borderRadiusXLarge); background: var(--colorNeutralBackground1); box-shadow: var(--shadow4); }
+.msg.me { align-self: flex-end; background: var(--colorBrandBackground2); }
+.meta { font-size: 9px; color: var(--colorNeutralForeground3); margin-bottom: 2px; }
+a { color: var(--colorBrandForegroundLink); }
+.ment { color: var(--colorBrandForeground1); font-weight: 700; }
+.compose { margin: 0 14px 14px; padding: 9px 11px; border-radius: var(--borderRadiusMedium); background: var(--colorNeutralBackground1); border: 1px solid var(--colorNeutralStroke1); color: var(--colorNeutralForeground3); }`;
+const mockHtml = () => `<div class="fui-FluentProvider app">
+  <div class="top"><div class="search">${t("Cerca")}</div><span class="fui-Avatar">${t("TU")}</span></div>
+  <div class="rail"><i class="on"></i><i></i><i></i><i></i><i></i></div>
+  <div class="list"><h4>Chat</h4>
+    <div class="row sel"><span class="fui-Avatar">CC</span><span>${t("Club del caffè")}</span><span class="badge">3</span></div>
+    <div class="row"><span class="fui-Avatar">LV</span><span>Luna Verdi</span></div>
+    <div class="row"><span class="fui-Avatar">TB</span><span>Tommaso Blu</span></div>
+    <div class="row"><span class="fui-Avatar">PV</span><span>${t("Pranzo del venerdì")}</span></div>
+    <div class="row"><span class="fui-Avatar">GM</span><span>${t("Gita in montagna")}</span></div></div>
+  <div class="chat">
+    <div class="chead"><b>${t("Club del caffè")}</b><button class="fui-Button secondary">${t("Condividi")}</button><button class="fui-Button primary">${t("Chiama")}</button></div>
+    <div class="msgs">
+      <div class="msg"><div class="meta">Luna Verdi 10:41</div>${t("Ho portato i biscotti, li trovi ")}<a href="#">${t("qui")}</a></div>
+      <div class="msg me"><div class="meta">10:42</div>${t("Perfetto, grazie!")}</div>
+      <div class="msg"><div class="meta">Tommaso Blu 10:44</div><span class="ment">@Club</span>${t(" caffè alle 15?")}</div>
+    </div>
+    <div class="compose">${t("Scrivi un messaggio")}</div>
+  </div>
+</div><div id="tt-fx" aria-hidden="true" style="position:fixed;inset:0;pointer-events:none;z-index:2147483645"><i></i><i></i><i></i></div>`;
+let pvReady = null, pvTimer = null, pvSeq = 0, pvTrig = null, burstT = null, danceT = null;
+const pvDoc = () => $("pvframe").contentDocument;
+function ensureFrame() {
+  if (pvReady) return pvReady;
+  pvReady = new Promise((res) => { const f = $("pvframe"); f.addEventListener("load", () => res(), { once: true });
+    f.srcdoc = `<!doctype html><html><head><meta charset="utf-8"><style>${MOCK_CSS}</style><style id="base"></style><style id="theme"></style></head><body>${mockHtml()}</body></html>`; });
+  return pvReady;
+}
+function burst() {
+  const d = pvDoc(); if (!d) return; const r = d.documentElement;
+  if (pvTrig) { r.classList.remove("tt-go", "tt-dance"); void r.offsetWidth; r.classList.add("tt-go", "tt-dance");
+    clearTimeout(burstT); burstT = setTimeout(() => r.classList.remove("tt-go"), pvTrig.ms); }
+  else { r.classList.remove("tt-now", "tt-dance"); r.classList.add("tt-reset"); void r.offsetWidth; r.classList.remove("tt-reset"); r.classList.add("tt-now", "tt-dance"); }
+  clearTimeout(danceT); danceT = setTimeout(() => r.classList.remove("tt-dance"), 2600);
+}
+function placeTrigger(d, trig) {
+  let b = d.getElementById("tt-trigger");
+  if (!trig) { if (b) b.remove(); d.documentElement.classList.remove("tt-go"); return; }
+  if (!b) { b = d.createElement("button"); b.id = "tt-trigger"; b.type = "button"; b.style.right = "24px"; b.style.bottom = "70px"; b.addEventListener("click", burst); d.body.append(b); }
+  b.setAttribute("aria-label", trig.title); b.textContent = trig.text; b.style.backgroundImage = trig.svg ? `url("${trig.svg}")` : "none";
+  const sz = trig.size || 46; b.style.width = sz + "px"; b.style.height = sz + "px"; b.style.fontSize = Math.round(sz * .65) + "px";
+  const q = b.getBoundingClientRect(), R = d.documentElement.style;
+  R.setProperty("--tt-bowl-x", Math.round(q.left) + "px"); R.setProperty("--tt-bowl-y", Math.round(q.top) + "px"); R.setProperty("--tt-bowl-b", Math.round(q.bottom) + "px");
+}
+function schedulePreview() { clearTimeout(pvTimer); pvTimer = setTimeout(renderPreview, 120); }
+async function renderPreview() {
+  if (!E) return;
+  const seq = ++pvSeq;
+  try {
+    const [r] = await Promise.all([api("/api/preview", { theme: E }), ensureFrame()]);
+    if (seq !== pvSeq) return;
+    const d = pvDoc();
+    // the unedited original: Teams gets no CSS, so neither does the preview
+    const css = isDefault() && !dirty() ? r.default_css : r.css;
+    if (d.getElementById("base").textContent !== r.base_css) d.getElementById("base").textContent = r.base_css;
+    if (d.getElementById("theme").textContent !== css) d.getElementById("theme").textContent = css;
+    pvTrig = css ? r.trigger : null; placeTrigger(d, pvTrig);
+    $("pvnote").textContent = r.real_tokens ? t("Anteprima vera: gli stessi colori del tuo Teams e lo stesso CSS che va su Teams.")
+      : t("Per un tema chiaro i colori di base di Teams chiaro sono stimati (non l'ho ancora visto su questo PC): il risultato su Teams è quello vero.");
+    const bad = r.checks.filter(([, ratio]) => ratio < 4.5);
+    const rb = $("readbtn"); rb.className = "read" + (bad.length ? " bad" : "");
+    rb.textContent = bad.length ? t(bad.length === 1 ? t("! {n} cosa si legge male") : t("! {n} cose si leggono male"), { n: bad.length }) : t("✓ Si legge bene");
+    $("checks").replaceChildren(...r.checks.map(([label, ratio, auto]) => { const ok = ratio >= 4.5;
+      return el("li", { class: ok ? "ok" : "bad" }, el("span", { class: "ico", "aria-hidden": "true" }, ok ? "✓" : "!"), label + (auto ? t(" (sistemato da solo)") : ""),
+        el("span", { class: "val" }, `${ratio.toFixed(1)}:1`)); }));
+  } catch (e) { $("pvnote").textContent = t("Anteprima non disponibile: ") + e.message; }
+}
+$("defmode").addEventListener("click", async (e) => { const b = e.target.closest("button"); if (!b || b.dataset.v === S.default_mode) return;
+  if (dirty() && !confirm(t("Le modifiche all'originale si perdono. Continuo?"))) return;
+  clearTimeout(editTimer); editPending = false; load(await api("/api/default-mode", { mode: b.dataset.v })); });
+$("readbtn").addEventListener("click", () => { const c = $("checks"); c.hidden = !c.hidden; $("readbtn").setAttribute("aria-expanded", String(!c.hidden)); });
+
+/* ---------- render all ---------- */
+function renderAll() {
+  renderSidebar(); renderStatus(); renderHead(); renderTabs();
+  if (!E) return;
+  renderColors(); renderBackground(); renderFontPicker(); renderEffects(); schedulePreview();
+}
+
+/* ---------- editing: live on Teams, saved only with t("Salva") ---------- */
+function set(key, value) {
+  E[key] = value; editPending = true;
+  schedulePreview(); renderSidebar(); renderHead();
+  clearTimeout(editTimer); editTimer = setTimeout(pushEdit, 300);
+}
+async function pushEdit() {
+  clearTimeout(editTimer);
+  if (!editPending) return;
+  try { const st = await api("/api/edit", { name: S.selected, variants: E }); editPending = false; absorb(st); renderSidebar(); renderHead(); schedulePreview(); }
+  catch (e) { $("msgline").textContent = t("Modifica non applicata: ") + e.message; }
+}
+function absorb(st) { const keep = E; S = st; E = keep; }
+function load(st) {
+  S = st; editPending = false;
+  E = clone(S.drafts[S.selected] || (isDefault() ? S.default_theme : S.themes[S.selected]));
+  renderAll();
+}
+async function select(name) { if (name === S.selected) return; await pushEdit(); load(await api("/api/select", { name })); }
+$("save").addEventListener("click", async () => {
+  await pushEdit();
+  if (isDefault()) return ask({ title: t("Salva come nuovo tema"), text: t("L'originale di Teams non cambia: le tue modifiche diventano un tema nuovo, in \"I miei\"."), value: t("Il mio tema"), ok: t("Crea il tema"),
+    run: async (name) => { load(await api("/api/create", { name, from: S.default })); $("msgline").textContent = t("Tema '{n}' creato.", { n: name }); } });
+  load(await api("/api/save", { name: S.selected })); $("msgline").textContent = t("Tema '{n}' salvato.", { n: tname(S.selected) });
+});
+$("discard").addEventListener("click", async () => { clearTimeout(editTimer); editPending = false; load(await api("/api/discard", { name: S.selected })); });
+$("reset").addEventListener("click", () => ask({ title: t("Ripristinare l'originale?"), text: t("'{n}' torna com'era quando è arrivato con l'app. Le tue modifiche a questo tema si perdono.", { n: tname(S.selected) }), ok: t("Ripristina"), danger: true,
+  run: async () => { clearTimeout(editTimer); editPending = false; load(await api("/api/reset", { name: S.selected })); } }));
+
+/* ---------- dialogs + theme management ---------- */
+function ask({ title, text, value = null, ok = "OK", danger = false, run }) {
+  const d = $("dlg"), inp = $("dlg-i"), err = $("dlg-e"), okb = $("dlg-ok");
+  $("dlg-t").textContent = title; $("dlg-p").textContent = text; err.textContent = "";
+  inp.hidden = value === null; inp.value = value ?? "";
+  okb.textContent = ok; okb.className = "btn primary" + (danger ? " danger" : "");
+  okb.onclick = async (ev) => { ev.preventDefault(); err.textContent = ""; try { await run(inp.value.trim()); d.close(); } catch (e) { err.textContent = e.message; } };
+  d.showModal(); if (value !== null) { inp.focus(); inp.select(); } else okb.focus();
+}
+$("new").addEventListener("click", async () => { await pushEdit(); ask({ title: t("Nuovo tema"), text: t("Parte da Teams com'è adesso. Per partire da un altro tema usa \"Duplica\"."), value: t("Nuovo tema"), ok: t("Crea"),
+  run: async (name) => load(await api("/api/create", { name, variants: { ...S.default_theme, group: "miei" } })) }); });
+$("dup").addEventListener("click", async () => { await pushEdit(); ask({ title: t("Duplica tema"), text: t("Copia di '{n}' com'è adesso (modifiche non salvate comprese), in \"I miei\".", { n: tname(S.selected) }), value: tname(S.selected) + t(" copia"), ok: t("Duplica"),
+  run: async (name) => load(await api("/api/create", { name, variants: E })) }); });
+$("ren").addEventListener("click", async () => { await pushEdit(); ask({ title: t("Rinomina tema"), text: t("Nuovo nome:"), value: S.selected, ok: t("Rinomina"),
+  run: async (name) => load(await api("/api/rename", { old: S.selected, new: name })) }); });
+$("del").addEventListener("click", async () => { await pushEdit(); ask({ title: t("Eliminare il tema?"), text: t("'{n}' viene cancellato.", { n: tname(S.selected) }) + (S.builtin.includes(S.selected) ? t(" È un tema dell'app: non si potrà ripristinare.") : ""), ok: t("Elimina"), danger: true,
+  run: async () => load(await api("/api/delete", { name: S.selected })) }); });
+
+/* ---------- Teams actions ---------- */
+async function action(kind) {
+  if (kind === "on" || kind === "off") { pendingOn = kind === "on"; pendingAt = Date.now(); renderStatus(); }
+  try { absorb(await api("/api/action", { kind })); renderStatus(); } catch (e) { $("msgline").textContent = t("Errore: ") + e.message; } }
+const needsReopen = () => S.teams.running && !S.teams.ready;
+async function togglePower() {
+  await pushEdit();
+  if (shownOn()) return action("off");
+  if (needsReopen()) return ask({ title: t("Teams si riapre un attimo"), text: t("Per accendere Teams Remix, Teams si chiude e si riapre da solo, in pochi secondi. Se sei in una call, aspetta che finisca."), ok: t("Va bene"), run: () => action("on") });
+  return action("on");
+}
+$("fxtest").addEventListener("click", async () => {
+  burst(); await pushEdit();
+  if (!S.teams.on && needsReopen()) return ask({ title: t("Teams si riapre un attimo"), text: t("Per provare gli effetti si accende Teams Remix e Teams si riapre da solo, in pochi secondi. Se sei in una call, aspetta che finisca."), ok: t("Va bene"), run: () => action("fxtest") });
+  action("fxtest");
+});
+$("normal").addEventListener("click", () => ask({ title: t("Riaprire Teams com'era?"), text: t("Teams si chiude e si riapre senza Teams Remix: niente tema, coinquilini e soprannomi. Se sei in una call, aspetta che finisca."), ok: t("Riapri Teams"), run: () => action("normal") }));
+$("autostart").addEventListener("change", async (e) => { try { absorb(await api("/api/autostart", { on: e.target.checked })); } catch (err) { $("msgline").textContent = t("Avvio con Windows non cambiato: ") + err.message; } renderStatus(); });
+$("respectrm").addEventListener("change", async (e) => { try { absorb(await api("/api/reduced-motion", { on: e.target.checked })); } catch (err) { $("msgline").textContent = t("Impostazione non cambiata: ") + err.message; } renderStatus(); schedulePreview(); });
+$("offincall").addEventListener("change", async (e) => { try { absorb(await api("/api/off-in-call", { on: e.target.checked })); } catch (err) { $("msgline").textContent = t("Impostazione non cambiata: ") + err.message; } renderStatus(); });
+$("lang").addEventListener("click", async (e) => { const b = e.target.closest("button"); if (!b || b.dataset.v === S.lang_pref) return;
+  try { await pushEdit(); await api("/api/lang", { lang: b.dataset.v }); location.reload(); } catch (err) { $("msgline").textContent = t("Impostazione non cambiata: ") + err.message; } });
+$("quit").addEventListener("click", () => {
+  const unsaved = [...new Set(Object.keys(S.drafts).concat(editPending ? [S.selected] : []))];
+  ask({ title: t("Chiudere l'app?"), text: (unsaved.length ? t("Hai modifiche non salvate in: {l}. Chiudendo si perdono. ", { l: unsaved.map(tname).join(", ") }) : "") + t("Tema, coinquilini e soprannomi restano su Teams finché Teams non si ricarica, ma l'app smette di rimetterli."),
+    ok: t("Chiudi l'app"), danger: unsaved.length > 0,
+    run: async () => { await api("/api/quit", {}); document.body.replaceChildren(el("p", { style: "padding:24px" }, t("App chiusa. Puoi chiudere questa finestra."))); } });
+});
+window.addEventListener("beforeunload", (e) => { if (Object.keys(S.drafts).length || editPending) { e.preventDefault(); e.returnValue = ""; } });
+
+/* ---------- housemates: their own section, whatever the theme ---------- */
+let PETS = null, petsTimer = null, petReady = null, petKey = null;
+function renderPets() {
+  if (!PETS) PETS = clone(S.pets || { who: [], when: "live", freq: "sometimes", bowl: "m", trail: false, hearts: true, nap: false, scale: "m", speed: "normal", names: {} });
+  $("petchips").replaceChildren(...ANIMAL_PICKS.map(([k, label]) => {
+    const b = el("button", { class: "pick", "aria-pressed": String(PETS.who.includes(k)) }, t(label));
+    b.addEventListener("click", () => { PETS.who = PETS.who.includes(k) ? PETS.who.filter((x) => x !== k) : [...PETS.who, k].slice(-4); savePets(); renderPets(); });
+    return b; }));
+  const ax = $("petextra"); ax.replaceChildren();
+  if (!PETS.who.length) { ax.append(el("p", { class: "hint", style: "margin-top:10px" }, t("Scegli chi abita nel tuo Teams: poi decidi come vivono."))); previewPets(); return; }
+  // each one has its own thing: "la ciotola di mandarini del capibara, la scatola di cavi del robot..."
+  const things = PETS.who.map((k) => `${THING[k][0]} ${t(THING[k][1])}`).join(", ");
+  const seg = (label, opts, cur, onPick) => el("div", { class: "row" }, el("span", { class: "hint" }, label),
+    el("div", { class: "seg", role: "group", "aria-label": label }, ...opts.map(([v, txt]) => {
+      const b = el("button", { "aria-pressed": String(v === cur) }, txt); b.addEventListener("click", () => { onPick(v); savePets(); renderPets(); }); return b; })));
+  ax.append(seg(t("Come vivono"), [["live", t("🏠 Vivono su Teams")], ["click", t("🥣 Arrivano quando clicco la loro ciotola")], ["auto", t("Passano ogni tanto")]], PETS.when, (v) => { PETS.when = v; }));
+  const rules = {
+    live: t("Vivono con te: girano per la finestra, si fermano a guardarsi intorno, ogni tanto escono a farsi un giro e poi tornano. La loro ciotola li richiama a mangiare (anche quando sono usciti a farsi un giro) e dopo restano con te per un po'."),
+    click: t("Non ci sono finché non clicchi la ciotola di uno di loro: allora arriva, mangia e se ne va, da un lato a caso."),
+    auto: t("Ogni tanto uno di loro attraversa la finestra in fondo, da un lato o dall'altro, si ferma un attimo e riparte. Niente ciotole."),
+  };
+  ax.append(el("p", { class: "hint", style: "margin-top:10px" }, rules[PETS.when]));
+  ax.append(el("p", { class: "hint", style: "margin-top:6px" }, t("Sempre: cliccane uno per coccolarlo ❤️, trascinalo per spostarlo."))); 
+  if (PETS.when !== "auto") {
+    ax.append(el("p", { class: "hint", style: "margin-top:6px" },
+      t("Ognuno ha la sua: {things}. Stanno su Teams in basso a destra, sopra il box dei messaggi: trascinale dove vuoi. ", { things }) +
+      t("Se sposti una ciotola mentre il suo coinquilino arriva, lui cambia strada; se la sposti mentre mangia (o lo prendi in braccio), si arrabbia 💢⛈️ e se ne va") +
+      (PETS.when === "live" ? t(": si nasconde dietro il bordo e torna da solo quando gli passa. Se lo chiami con la ciotola mentre è ancora arrabbiato, sbuca un po' dal bordo, ti fa vedere che è ancora arrabbiato 💢 e torna a nascondersi: del tuo cibo non gli importa.") : ".")));
+    ax.append(seg(t("Grandezza delle ciotole"), [["s", t("Piccole")], ["m", t("Medie")], ["l", t("Grandi")], ["xl", t("Enormi")]], PETS.bowl || "m", (v) => { PETS.bowl = v; }));
+  } else {
+    ax.append(seg(t("Quanto spesso"), [["rare", t("Raramente")], ["sometimes", t("Ogni tanto")], ["often", t("Spesso")]], PETS.freq, (v) => { PETS.freq = v; }));
+  }
+  // optional ideas: all off by default, the plain version is walk, eat, leave
+  const more = ax;  // all options on the same level
+  const sw = (key, label) => { const c = el("input", { type: "checkbox" }); c.checked = !!PETS[key];
+    c.addEventListener("change", () => { PETS[key] = c.checked; savePets(); previewPets(); });
+    return el("div", { class: "row" }, el("label", { class: "switch" }, c, label)); };
+  more.append(seg(t("Grandezza dei coinquilini"), [["s", t("Piccoli")], ["m", t("Normali")], ["l", t("Grandi")]], PETS.scale, (v) => { PETS.scale = v; }));
+  more.append(seg(t("Velocità"), [["slow", t("Piano")], ["normal", t("Normale")], ["fast", t("Veloce")]], PETS.speed, (v) => { PETS.speed = v; }));
+  more.append(sw("hearts", t("❤️ Cuoricini mentre mangiano")), sw("nap", t("💤 Pisolino dopo aver mangiato")), sw("trail", t("🌈 Scia arcobaleno dietro")));
+  more.append(el("p", { class: "hint", style: "margin:10px 0 4px" }, t("🏷️ Un nome sopra la testa (lascia vuoto per niente):")));
+  for (const k of PETS.who) {
+    const label = t((ANIMAL_PICKS.find(([x]) => x === k) || [k, k])[1]);
+    const inp = el("input", { class: "emoji-in", style: "width:200px;font-size:15px", value: (PETS.names || {})[k] || "", placeholder: t("es. Pippo"), maxlength: "24", "aria-label": t("Nome di {x}", { x: label }) });
+    inp.addEventListener("input", () => { PETS.names = { ...(PETS.names || {}), [k]: inp.value }; if (!inp.value.trim()) delete PETS.names[k]; savePets(); previewPets(); });
+    more.append(el("div", { class: "row" }, el("span", { class: "hint", style: "width:110px" }, label), inp));
+  }
+  previewPets();
+}
+function savePets() {
+  clearTimeout(petsTimer);
+  petsTimer = setTimeout(async () => { try { absorb(await api("/api/pets", { pets: PETS })); } catch (e) { $("msgline").textContent = t("Coinquilini non salvati: ") + e.message; } }, 250);
+}
+function ensurePetFrame() {
+  if (petReady) return petReady;
+  petReady = new Promise((res) => { const f = $("petframe"); f.addEventListener("load", () => res(), { once: true });
+    f.srcdoc = `<!doctype html><html><head><meta charset="utf-8"><style>${MOCK_CSS}</style><style id="base"></style><style id="theme"></style></head><body>${mockHtml()}</body></html>`; });
+  return petReady;
+}
+async function previewPets() {
+  try {
+    const [r] = await Promise.all([api("/api/pets-preview", { pets: PETS }), ensurePetFrame()]);
+    const f = $("petframe"), d = f.contentDocument, w = f.contentWindow;
+    d.getElementById("base").textContent = r.base_css; d.getElementById("theme").textContent = r.css;
+    if (!w.__ttPetsSetup) { const s = d.createElement("script"); s.textContent = r.engine; d.head.append(s); }
+    const key = JSON.stringify(r.cfg);
+    if (key !== petKey) { petKey = key; w.__ttPetsSetup(r.cfg); }
+  } catch (e) { $("petnote").textContent = t("Anteprima non disponibile: ") + e.message; }
+}
+$("petcall").addEventListener("click", async () => {
+  const w = $("petframe").contentWindow; if (w && w.__ttPetsBurst) w.__ttPetsBurst();
+  clearTimeout(petsTimer); try { absorb(await api("/api/pets", { pets: PETS })); } catch (e) {}
+  if (!shownOn() && needsReopen()) return ask({ title: t("Teams si riapre un attimo"), text: t("Per chiamarli su Teams serve accendere \"Attivo su Teams\": Teams si chiude e si riapre da solo. Se sei in una call, aspetta che finisca."), ok: t("Va bene"), run: () => action("pets") });
+  action("pets");
+});
+
+/* ---------- sections + nicknames ---------- */
+let view = "themes", NICK = [], nickTimer = null, nickPending = false;
+function renderView() {
+  for (const b of $("view").children) { b.setAttribute("aria-selected", String(b.dataset.v === view)); b.setAttribute("aria-pressed", String(b.dataset.v === view)); }
+  $("view-themes").hidden = view !== "themes"; $("view-nick").hidden = view !== "nick"; $("view-opts").hidden = view !== "opts";
+  $("view-pets").hidden = view !== "pets"; if (view === "pets") renderPets();
+}
+$("view").addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; view = b.dataset.v; renderView(); if (view === "nick") renderNick(); });
+// alphabetical by the original name, as it is on Teams (then by nickname); rows still being filled in stay at the
+// bottom. Sorted only when the list is drawn, never while typing, so a row never moves under the cursor.
+const abc = (a, b) => a.localeCompare(b, "it", { sensitivity: "base" });
+function sortNick() { NICK.sort((a, b) => (!a.from.trim()) - (!b.from.trim()) || abc(a.from.trim(), b.from.trim()) || abc(a.to, b.to)); }
+function renderNick() {
+  sortNick();
+  const list = $("nicklist"); list.replaceChildren();
+  if (!NICK.length) list.append(el("div", { class: "nickempty" }, t("Nessun soprannome. Premi \"+ Aggiungi\".")));
+  NICK.forEach((it, i) => {
+    const from = el("input", { value: it.from, placeholder: t("Cognome Nome, es. Verdi Luna"), "aria-label": t("Nome come appare su Teams"), maxlength: "80" });
+    const to = el("input", { class: "to", value: it.to, placeholder: t("Soprannome, es. Lunetta"), "aria-label": t("Soprannome"), maxlength: "80" });
+    from.addEventListener("input", () => { NICK[i].from = from.value; saveNick(); });
+    to.addEventListener("input", () => { NICK[i].to = to.value; saveNick(); });
+    const del = el("button", { class: "btn small ghost danger", "aria-label": t("Togli il soprannome") }, "✕");
+    del.addEventListener("click", () => { NICK.splice(i, 1); renderNick(); saveNick(); });
+    list.append(el("div", { class: "nickrow" }, photoCell(it), from, el("span", { class: "arrow", "aria-hidden": "true" }, "→"), to, del));
+  });
+  renderNickNote();
+}
+// a photo for the nickname: on Teams it takes the place of that person's picture (only on this PC)
+function photoCell(it) {
+  const box = el("div", { class: "nickpic" });
+  const input = el("input", { type: "file", accept: "image/png,image/jpeg,image/webp", hidden: "" });
+  const draw = () => {
+    const has = !!it.photo;
+    const pic = el("button", { class: "pic" + (has ? " has" : ""), type: "button", "aria-label": has ? t("Cambia la foto") : t("Aggiungi una foto") },
+      has ? el("img", { src: it._preview || `/photo/${it.photo}?t=${TOKEN}`, alt: "" }) : "📷");
+    pic.addEventListener("click", () => input.click());
+    const kids = [pic, input];
+    if (has) {
+      const un = el("button", { class: "unpic", type: "button", "aria-label": t("Togli la foto") }, "✕");
+      un.addEventListener("click", () => { delete it.photo; delete it._preview; draw(); saveNick(); });
+      kids.push(un);
+    }
+    box.replaceChildren(...kids);
+  };
+  input.addEventListener("change", async () => {
+    const f = input.files && input.files[0]; input.value = ""; if (!f) return;
+    $("nicknote").textContent = t("Carico la foto...");
+    try { const data = await smallPhoto(f); const r = await api("/api/nick-photo", { data }); it.photo = r.photo; it._preview = data; draw(); saveNick(); }
+    catch (e) { $("nicknote").textContent = t("Foto non caricata: ") + e.message; }
+  });
+  draw();
+  return box;
+}
+// square, 160 px, JPEG: sharp in Teams' pictures and small enough to travel with the theme
+async function smallPhoto(file) {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((ok, ko) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => ko(new Error(t("non è un'immagine"))); i.src = url; });
+    const s = Math.min(img.naturalWidth, img.naturalHeight), c = document.createElement("canvas"); c.width = c.height = 160;
+    const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, 160, 160);
+    g.drawImage(img, (img.naturalWidth - s) / 2, (img.naturalHeight - s) / 2, s, s, 0, 0, 160, 160);
+    return c.toDataURL("image/jpeg", 0.86);
+  } finally { URL.revokeObjectURL(url); }
+}
+function renderNickNote() {
+  $("nicknote").textContent = !S.teams.on ? t("Per vederli su Teams accendi \"Attivo su Teams\" in alto.") : nickPending ? t("Salvo...") : NICK.length ? t("Salvati: li vedi già su Teams.") : "";
+}
+function saveNick() {
+  nickPending = true; $("nicknote").textContent = t("Salvo...");
+  clearTimeout(nickTimer);
+  nickTimer = setTimeout(async () => {
+    // only the note changes: re-drawing the rows would take the cursor away from the box being typed in
+    const items = NICK.map(({ from, to, photo }) => (photo ? { from, to, photo } : { from, to }));  // the preview stays here
+    try { absorb(await api("/api/nicknames", { items })); nickPending = false; renderNickNote(); }
+    catch (e) { $("nicknote").textContent = t("Non salvati: ") + e.message; }
+  }, 450);
+}
+$("nickadd").addEventListener("click", () => { NICK.push({ from: "", to: "" }); renderNick(); $("nicklist").querySelectorAll("input")[NICK.length * 2 - 2].focus(); });
+
+/* ---------- boot + polling ---------- */
+async function poll() {
+  try {
+    const st = await api("/api/state");
+    // changed from outside (another window, startup, a helper): reload, unless the user is typing right now
+    const outside = st.selected !== S.selected || JSON.stringify(st.drafts[st.selected] || null) !== JSON.stringify(S.drafts[S.selected] || null);
+    if (outside && !editPending) { load(st); return; }
+    absorb(st); renderStatus(); renderHead();
+  }
+  catch (e) { $("status").hidden = false; $("status").replaceChildren(el("span", { class: "dot" }), el("span", {}, t("App non raggiungibile: è stata chiusa?"))); }
+}
+(async () => { const st = await api("/api/state"); LANG = st.lang === "en" ? "en" : "it"; translatePage(); NICK = clone(st.nicknames || []); load(st); renderView(); setInterval(poll, 1500); })();
+</script>
+</body>
+</html>

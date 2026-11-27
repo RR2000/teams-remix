@@ -300,7 +300,8 @@ class AppServer:
                 "check_updates": bool(self.cfg.get("check_updates", True)),
                 "update": {k: self.update[k] for k in ("version", "notes", "page")} if self.update else None,
                 "respect_reduced_motion": bool(self.cfg.get("respect_reduced_motion")),
-                "off_in_call": bool(self.cfg.get("off_in_call")), **self.store.listing(),
+                "off_in_call": bool(self.cfg.get("off_in_call")), "sections": teams.sections_of(self.cfg),
+                **self.store.listing(),
                 "default_mode": dmode, "default_mode_real": self.worker.base_is_real(dmode),
                 "nicknames": list(self.cfg.get("nicknames") or []),
                 "pets": theme.clean_pets(self.cfg.get("pets")),
@@ -404,6 +405,8 @@ class AppServer:
             teams.save_config(self.cfg)
             i18n.set_lang(self.cfg["lang"])
             self.worker.submit("apply")  # the labels on Teams follow
+        elif path == "/api/section":  # themes, housemates or nicknames on or off, under "Attivo su Teams"
+            w.set_section(body.get("name"), bool(body.get("on")))
         elif path == "/api/off-in-call":
             self.cfg["off_in_call"] = bool(body["on"])
             teams.save_config(self.cfg)

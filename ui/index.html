@@ -50,6 +50,12 @@ button, input, select { font: inherit; color: inherit; }
 .power[aria-checked="true"] .knob { background: var(--accent); }
 .power[aria-checked="true"] .knob::after { left: 25px; background: var(--on-accent); }
 .power:disabled { opacity: .6; cursor: progress; }
+/* the three parts under "Attivo su Teams": the same switch, smaller */
+.power.mini { gap: 8px; padding: 3px 4px 3px 12px; font-weight: 500; font-size: 14px; }
+.power.mini .knob { width: 36px; height: 22px; }
+.power.mini .knob::after { top: 3px; left: 3px; width: 16px; height: 16px; }
+.power.mini[aria-checked="true"] .knob::after { left: 17px; }
+.top .actions { flex-wrap: wrap; justify-content: flex-end; }
 
 .btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border-strong); background: var(--surface); padding: 7px 14px; border-radius: var(--radius-s); cursor: pointer; white-space: nowrap; }
 .btn:hover { background: var(--surface-2); }
@@ -446,6 +452,7 @@ const EN = {
   "Teams è chiuso: tema, coinquilini e soprannomi arrivano quando lo apri": "Teams is closed: theme, housemates and nicknames arrive when you open it",
   "Sto preparando Teams...": "Getting Teams ready...",
   "App non raggiungibile: è stata chiusa?": "The app can't be reached: was it closed?", "non raggiungibile": "can't be reached",
+  "Temi ed effetti": "Themes and effects", "Coinquilini": "Housemates",
   // themes list and head
   "Temi": "Themes", "+ Nuovo": "+ New", "Ripristina originale": "Restore original", "Duplica": "Duplicate", "Rinomina": "Rename", "Elimina": "Delete",
   "Seri": "Serious", "Divertenti": "Fun", "I miei": "Mine",
@@ -634,7 +641,14 @@ function renderStatus() {
   st.replaceChildren(tm.busy ? el("span", { class: "spin" }) : el("span", { class: "dot" }), el("span", {}, text));
   const pw = el("button", { class: "power", role: "switch", "aria-checked": String(on), onclick: togglePower }, t("Attivo su Teams"), el("span", { class: "knob", "aria-hidden": "true" }));
   pw.disabled = !!tm.busy;
-  $("actions").replaceChildren(pw);
+  // with Teams Remix on, its three parts can be switched one by one (the same three switches are in Teams)
+  const parts = !on ? [] : [["themes", t("Temi ed effetti")], ["pets", t("Coinquilini")], ["nicknames", t("Soprannomi")]].map(([k, label]) => {
+    const v = !(S.sections && S.sections[k] === false);
+    const b = el("button", { class: "power mini", role: "switch", "aria-checked": String(v), onclick: () => toggleSection(k, !v) }, label, el("span", { class: "knob", "aria-hidden": "true" }));
+    b.disabled = !!tm.busy;
+    return b;
+  });
+  $("actions").replaceChildren(pw, ...parts);
   $("msgline").replaceChildren(...(tm.msg ? [el("time", {}, tm.msg_at), tm.msg] : []));
   $("autostart").checked = !!S.autostart;
   $("respectrm").checked = !!S.respect_reduced_motion;
@@ -997,6 +1011,10 @@ async function action(kind) {
   if (kind === "on" || kind === "off") { pendingOn = kind === "on"; pendingAt = Date.now(); renderStatus(); }
   try { absorb(await api("/api/action", { kind })); renderStatus(); } catch (e) { $("msgline").textContent = t("Errore: ") + e.message; } }
 const needsReopen = () => S.teams.running && !S.teams.ready;
+async function toggleSection(name, on) {
+  try { absorb(await api("/api/section", { name, on })); } catch (e) { $("msgline").textContent = t("Impostazione non cambiata: ") + e.message; }
+  renderStatus();
+}
 async function togglePower() {
   await pushEdit();
   if (shownOn()) return action("off");

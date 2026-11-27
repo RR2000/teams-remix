@@ -124,9 +124,9 @@ class Worker(threading.Thread):
 
     # ---------- the switch inside Teams ----------
     def _show_toggle(self, port, hidden=False):
-        """The switch in Teams shows the same choice as "Attivo su Teams" in the app; a click on it is kept for
-        do_tick. Hidden while Teams has to be normal for a call: nothing of Teams Remix during a call."""
-        asked = teams.toggle_sync(port, None if hidden else teams.toggle_config(self.want_on))
+        """The switches in Teams show the same choices as the app ("Attivo su Teams" and its three parts); a click on
+        one is kept for do_tick. Hidden while Teams has to be normal for a call: nothing of Teams Remix during a call."""
+        asked = teams.toggle_sync(port, None if hidden else teams.toggle_config(self.want_on, self.cfg.get("sections")))
         if asked is not None:
             self._asked = asked
 
@@ -135,6 +135,16 @@ class Worker(threading.Thread):
         port = teams.live_port(self.cfg)
         if port:
             self._show_toggle(port, bool(self.cfg.get("off_in_call")) and teams.teams_in_call())
+
+    def set_section(self, name, on):
+        """Themes (with their effects), housemates or nicknames on or off, under "Attivo su Teams": from the app or from
+        Teams, the same choice in the same file."""
+        if name not in teams.SECTIONS:
+            raise ValueError("unknown section")
+        self.cfg["sections"] = {**teams.sections_of(self.cfg), name: bool(on)}
+        teams.save_config(self.cfg)
+        what = tr(teams.TOGGLE_TEXTS["label_" + name])
+        self.say(tr("{what}: accesi su Teams.", what=what) if on else tr("{what}: spenti su Teams.", what=what))
 
     # ---------- core ----------
     def _call_pause(self, port):
@@ -172,26 +182,33 @@ class Worker(threading.Thread):
         self._remember(mode, base)
         name, params = self.store.current()
         respect = bool(self.cfg.get("respect_reduced_motion"))
+        sec = teams.sections_of(self.cfg)  # the three parts that can be switched off one by one
         # 'Originale di Teams': an empty sheet = Teams' own colours, the channel stays open for the next theme.
-        if params is None:
+        if not sec["themes"]:  # themes and their effects off: Teams' own colours, as with the unedited original
+            css, popup_css, trig = "/* Teams Remix: themes off */\n", "/* Teams Remix: themes off */\n", None
+        elif params is None:
             # 'Originale di Teams' unedited: nothing in Teams' own mode, the original colours of the other mode if chosen
             want = self.default_mode(mode)
             css = "/* Teams default */\n" if want == mode else theme.pin_css(self.base_for(want))
-            trig = None
+            trig, popup_css = None, None
         else:
             # the theme looks the same whatever mode Teams is in: generate on the tokens of the theme's own mode
             native = theme.native_mode(params)
             gbase = base if native == mode else self.base_for(native)
             css = theme.generate(gbase, params, name, respect, pin_all=native != mode)
             trig = theme.trigger_config(params)
-        # notification toasts: colours only (see theme.for_popups)
-        popup_css = css if params is None else theme.generate(gbase, theme.for_popups(params), name, respect, pin_all=native != mode)
-        nick = teams.nickname_pairs(self.cfg.get("nicknames"))
-        # housemates: whatever the theme, also with Teams' original look
-        pets = theme.pets_config(self.cfg.get("pets"), respect)
-        css = css + theme.pets_css(self.cfg.get("pets"), respect)
+            # notification toasts: colours only (see theme.for_popups)
+            popup_css = theme.generate(gbase, theme.for_popups(params), name, respect, pin_all=native != mode)
+        if popup_css is None:
+            popup_css = css
+        # nicknames (with their group in the search and their photos), unless switched off
+        nick = teams.nickname_pairs(self.cfg.get("nicknames")) if sec["nicknames"] else []
+        # housemates: whatever the theme, also with Teams' original look, unless switched off
+        pets = theme.pets_config(self.cfg.get("pets"), respect) if sec["pets"] else None
+        if sec["pets"]:
+            css = css + theme.pets_css(self.cfg.get("pets"), respect)
         # nickname photos instead of those people's pictures, also in the notifications
-        photos = teams.photo_css(self.cfg.get("nicknames"))
+        photos = teams.photo_css(self.cfg.get("nicknames")) if sec["nicknames"] else ""
         css, popup_css = css + photos, popup_css + photos
         self._set(reduced=reduced, mode=mode)
         ver = hashlib.sha1((css + popup_css + json.dumps(trig) + json.dumps(nick) + json.dumps(pets)).encode()).hexdigest()[:12]
@@ -229,10 +246,16 @@ class Worker(threading.Thread):
             hidden = bool(self.cfg.get("off_in_call")) and teams.teams_in_call()
             self._show_toggle(port, hidden)
             asked, self._asked = self._asked, None
-            if asked is not None and not hidden and asked != self.want_on:
-                # clicked in Teams: exactly as if "Attivo su Teams" had been switched in the app (same file, same steps)
-                (self.do_on if asked else self.do_off)()
-                return
+            if asked and not hidden:  # clicked in Teams: exactly as if switched in the app (same file, same steps)
+                what, on = asked["what"], asked["on"]
+                if what == "all" and on != self.want_on:
+                    (self.do_on if on else self.do_off)()
+                    return
+                if what in teams.SECTIONS and self.want_on and teams.sections_of(self.cfg)[what] != on:
+                    self.set_section(what, on)
+                    self._sync(port)
+                    self._toggle_now()
+                    return
             if self.want_on:
                 if self._call_pause(port):
                     return
@@ -286,7 +309,9 @@ class Worker(threading.Thread):
         self._sync(port)
         teams.test_effects(port)
         name, params = self.store.current()
-        if params is None:
+        if not teams.sections_of(self.cfg)["themes"]:
+            self.say(tr("Temi ed effetti sono spenti: accendili in alto."))
+        elif params is None:
             self.say(tr("Il tema originale di Teams non ha effetti: scegli un altro tema."))
         elif theme.has_effects(params):
             self.say(tr("Effetti partiti su Teams: guarda la finestra di Teams!"))
@@ -301,6 +326,9 @@ class Worker(threading.Thread):
         if port:
             self._sync(port)
             teams.call_pets(port)
+            if not teams.sections_of(self.cfg)["pets"]:
+                self.say(tr("I coinquilini sono spenti: accendili in alto."))
+                return
             self.say(tr("Coinquilini chiamati: guarda Teams!") if (self.cfg.get("pets") or {}).get("who") else tr("Scegli prima almeno un coinquilino."))
 
     def do_off(self):

@@ -35,6 +35,10 @@ It only changes how *you* see Teams, on your PC: nothing changes for anybody els
 agree). Full sparkle = on, empty crossed-out sparkle = off. It goes away during calls with "normal Teams during calls",
 and when the app is closed.
 
+**One part at a time**: with **On in Teams** on, **Themes and effects**, **Housemates** and **Nicknames** (with their
+group in the search) can be switched off and on one by one, under the main switch in the app and with three more
+buttons next to the sparkle in Teams (palette, paw, tag). They are all on unless you switch them off.
+
 **Updates**: when a new version is out, the app says so at the top; **Update** installs it with one click (Teams doesn't
 close, your themes and nicknames stay). Every change pushed here becomes a release by itself, numbered by date
 (`2026.11.26`, `2026.11.26.2`...). A copy made with `git clone` updates with `git pull` instead.
@@ -100,6 +104,10 @@ Cambia solo come vedi Teams tu, sul tuo PC: per gli altri non cambia niente.
 accanto al pulsante che comprime la barra delle app: un clic spegne o riaccende Teams Remix, come **Attivo su Teams** nell'app (i due
 vanno sempre d'accordo). Scintilla piena = attivo, scintilla vuota e barrata = spento. Sparisce durante le call con
 "durante le call Teams normale", e quando l'app è chiusa.
+
+**Una parte alla volta**: con **Attivo su Teams** acceso, **Temi ed effetti**, **Coinquilini** e **Soprannomi** (con la
+loro sezione nella ricerca) si spengono e si riaccendono uno per uno, sotto l'interruttore principale nell'app e con tre
+pulsanti in più accanto alla scintilla su Teams (tavolozza, zampa, etichetta). Sono tutti accesi finché non li spegni.
 
 **Aggiornamenti**: quando esce una versione nuova l'app lo dice in alto; **Aggiorna** la installa con un clic (Teams non
 si chiude, temi e soprannomi restano). Ogni modifica caricata qui diventa da sola una release, numerata con la data

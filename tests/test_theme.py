@@ -163,7 +163,7 @@ class HousematesTest(unittest.TestCase):
         for animal, mark in (("cat", "1c7ed6"), ("dog", "adb5bd"), ("capybara", "ff922b"), ("robot", "8a5a2f")):
             b = theme.pets_trigger({"who": [animal]})
             self.assertIn(mark, urllib.parse.unquote(b["svg"]), animal)
-        self.assertEqual(theme.pets_trigger({"who": ["robot"]})["title"], "Chiama il robot")
+        self.assertEqual(theme.pets_trigger({"who": ["robot"]})["title"], "Call the robot")
         things = {k: theme.pets_bowls({"who": [k]})[k]["svg"] for k in theme.WALKERS}  # every housemate has its own thing
         self.assertEqual(sorted(things), sorted(["capybara", "cat", "dog", "sheep", "bull", "ghost", "robot", "truck", "dude"]))
         self.assertEqual(len(set(things.values())), len(things))
@@ -334,9 +334,9 @@ class NicknameTest(unittest.TestCase):
 
 
 class LanguagesTest(unittest.TestCase):
-    """Italian in the code, English in a table: every text that goes through the table has its English."""
+    """English in the code, Italian in a table: every text that goes through the table has its Italian."""
 
-    def test_python_texts_have_english(self):
+    def test_python_texts_have_italian(self):
         import re
         import i18n
         missing = []
@@ -344,30 +344,30 @@ class LanguagesTest(unittest.TestCase):
             src = (ROOT / f).read_text(encoding="utf-8")
             for m in re.finditer(r'\btr\("((?:[^"\\]|\\.)*)"', src):
                 key = json.loads('"' + m.group(1) + '"')
-                if key not in i18n.EN:
+                if key not in i18n.IT:
                     missing.append((f, key))
-            for label in re.findall(r'"(Chiama [^"]+)"', src):  # the bowl labels are translated where they are used
-                if label not in i18n.EN:
+            for label in re.findall(r'"(Call the [^"]+)"', src):  # the bowl labels are translated where they are used
+                if label not in i18n.IT:
                     missing.append((f, label))
         self.assertEqual(missing, [])
 
-    def test_window_texts_have_english(self):
+    def test_window_texts_have_italian(self):
         import re
         html = (ROOT / "ui" / "index.html").read_text(encoding="utf-8")
-        table = html[html.index("const EN = {"):html.index("};", html.index("const EN = {"))]
-        en = {json.loads('"' + k + '"') for k in re.findall(r'"((?:[^"\\]|\\.)*)":\s*"', table)}
+        table = html[html.index("const IT = {"):html.index("};", html.index("const IT = {"))]
+        it = {json.loads('"' + k + '"') for k in re.findall(r'"((?:[^"\\]|\\.)*)":\s*"', table)}
         used = {json.loads('"' + k + '"') for k in re.findall(r'\bt\("((?:[^"\\]|\\.)*)"', html)}
-        self.assertEqual(sorted(used - en), [])
+        self.assertEqual(sorted(used - it), [])
 
     def test_switch_language(self):
         import i18n
         try:
-            i18n.set_lang("en")
-            self.assertEqual(i18n.tr("Fatto! Teams Remix e' attivo (tema '{name}').", name="notte"), "Done! Teams Remix is on (theme 'notte').")
-            self.assertEqual(theme.pets_trigger({"who": ["robot"]})["title"], "Call the robot")  # labels on Teams follow
-            self.assertEqual(i18n.tr("non in tabella"), "non in tabella")                         # missing: stays Italian
-        finally:
             i18n.set_lang("it")
+            self.assertEqual(i18n.tr("Done! Teams Remix is on (theme '{name}').", name="notte"), "Fatto! Teams Remix e' attivo (tema 'notte').")
+            self.assertEqual(theme.pets_trigger({"who": ["robot"]})["title"], "Chiama il robot")  # labels on Teams follow
+            self.assertEqual(i18n.tr("not in the table"), "not in the table")                    # missing: stays English
+        finally:
+            i18n.set_lang("en")
         self.assertEqual(i18n.resolve("auto"), i18n.windows_lang())
 
 
@@ -461,7 +461,7 @@ class ThemesFolderTest(unittest.TestCase):
 
 
 class CallTest(unittest.TestCase):
-    """'Durante le call, Teams normale': everything off while Teams uses the microphone, back by itself after."""
+    """'During calls, normal Teams': everything off while Teams uses the microphone, back by itself after."""
 
     def setUp(self):
         import teams
@@ -513,7 +513,7 @@ class CallTest(unittest.TestCase):
 
 
 class TeamsSwitchTest(unittest.TestCase):
-    """The switches inside Teams, next to 'Collapse app bar': 'Attivo su Teams' and, under it, themes (with effects),
+    """The switches inside Teams, next to 'Collapse app bar': 'On in Teams' and, under it, themes (with effects),
     housemates and nicknames, the same choices as in the app."""
 
     def setUp(self):
@@ -584,7 +584,7 @@ class TeamsSwitchTest(unittest.TestCase):
         w.do_tick()
         self.assertFalse(w.cfg["theme_on"])                   # the same choice the app saves
         self.assertFalse(self.saves[-1]["theme_on"])          # saved in the same file
-        self.assertFalse(w.snapshot()["on"])                  # "Attivo su Teams" in the app follows
+        self.assertFalse(w.snapshot()["on"])                  # "On in Teams" in the app follows
         self.assertEqual(self.removed, [9])                   # Teams Remix goes away from Teams...
         self.assertEqual(self.shown[-1]["on"], False)         # ...the sparkle stays, showing off
 
@@ -612,7 +612,7 @@ class TeamsSwitchTest(unittest.TestCase):
         self.assertTrue(w.cfg["theme_on"])                    # the rest stays on
         self.assertEqual(w._synced[-1]["pets"], False)        # Teams follows at once
         self.assertEqual(self.shown[-1]["sections"]["pets"], False)
-        self.assertIn("Coinquilini", w.snapshot()["msg"])
+        self.assertIn("Housemates", w.snapshot()["msg"])
 
     def test_a_part_clicked_while_all_is_off_does_nothing(self):
         w = self.make(False)
@@ -627,7 +627,7 @@ class TeamsSwitchTest(unittest.TestCase):
         w.set_section("nicknames", False)                    # a part switched off in the app
         w.do_tick()
         self.assertEqual(self.shown[-1]["sections"]["nicknames"], False)
-        w._want(False)                                        # "Attivo su Teams" switched off in the app
+        w._want(False)                                        # "On in Teams" switched off in the app
         w.do_off()
         self.assertEqual(self.shown[-1]["on"], False)         # at once, not at the next check
         with self.assertRaises(ValueError):
@@ -835,8 +835,8 @@ class OneWindowTest(unittest.TestCase):
         import re
         html = (ROOT / "ui" / "index.html").read_text(encoding="utf-8")
         self.assertEqual(re.search(r"<title>(.*?)</title>", html).group(1), self.server.APP_TITLE)
-        self.assertIn('document.title = "Teams Remix (" + t("non raggiungibile") + ")"', html)
-        self.assertIn('"non raggiungibile": "can\'t be reached"', html)
+        self.assertIn('document.title = "Teams Remix (" + t("can\'t be reached") + ")"', html)
+        self.assertIn('"can\'t be reached": "non raggiungibile"', html)
         self.assertEqual(self.server.DEAD_TITLES, ("Teams Remix (non raggiungibile)", "Teams Remix (can't be reached)"))
         self.assertIn("++FAILS >= 3) closeWindow()", html)      # a few seconds without the app, not one slow answer
         self.assertIn("window.close()", html)
@@ -875,11 +875,11 @@ class BackgroundTest(unittest.TestCase):
 class PreviewTest(unittest.TestCase):
     def test_readability(self):
         rows = {r[0]: r for r in theme.readability(BASE, dict(D), theme.generate(BASE, dict(D)))}
-        self.assertGreater(rows["Testo sullo sfondo"][1], 7)
+        self.assertGreater(rows["Text on the background"][1], 7)
         p = {**D, "colors_anim": "text"}
         rows = theme.readability(BASE, p, theme.generate(BASE, p))
-        self.assertEqual(sum(r[0].startswith("Scritte sul pulsante") for r in rows), 6)
-        self.assertEqual(sum(r[0].startswith("Testo arcobaleno") for r in rows), 6)
+        self.assertEqual(sum(r[0].startswith("Text on the #") and r[0].endswith(" button") for r in rows), 6)
+        self.assertEqual(sum(r[0].startswith("Rainbow text") for r in rows), 6)
 
     def test_light_fallback_is_light(self):
         light = theme.light_from_dark(json.loads((ROOT / "assets" / "base-dark.json").read_text(encoding="utf-8")))

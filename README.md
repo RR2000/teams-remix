@@ -61,8 +61,8 @@ PC) lives in `%APPDATA%\teams-remix\`, so updating the app never touches it.
 - Release zip by hand: `python tools/package.py <version> teams-remix.zip`
 - Icon: `python tools/make_icon.py` (needs Pillow, only there).
 - `theme.py` makes the CSS (deterministic), `teams.py` talks to Teams, `worker.py` keeps it up to date,
-  `server.py` + `ui/index.html` are the app's window, `i18n.py` and the table in `ui/index.html` hold the English.
-  Texts are written in Italian in the code; a text with no English simply shows in Italian.
+  `server.py` + `ui/index.html` are the app's window, `i18n.py` and the table in `ui/index.html` hold the Italian.
+  Texts are written in English in the code; a text with no Italian simply shows in English.
 
 A personal project, not affiliated with Microsoft. Teams is a trademark of Microsoft.
 

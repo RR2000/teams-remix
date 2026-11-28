@@ -306,7 +306,7 @@ if (window.__ttPetsEngine !== ENGINE_V) (function(){
 })();
 """.replace("ENGINE_V", str(ENGINE_VERSION))
 
-# Search by nickname: a normal Teams search with one small extra group on top of Teams' own list, "Soprannomi" (in
+# Search by nickname: a normal Teams search with one small extra group on top of Teams' own list, "Nicknames" (in
 # Teams' language), with at most 2 people whose nickname matches what is typed. Teams' list is left as it is (a person
 # may be in both). A click on a nickname opens that person as a click on Teams' own result would. Keys stay Teams' own.
 # Only the typed text decides the rows, so the group does not jump; any error only drops these rows. A text box without
@@ -654,7 +654,7 @@ _JS_BASE = """(function(){
   return o;
 })()"""
 
-# The switches inside Teams, next to Teams' own "Collapse app bar" button at the top left. The sparkle is "Attivo su
+# The switches inside Teams, next to Teams' own "Collapse app bar" button at the top left. The sparkle is "On in
 # Teams" of the app; while it is on, three more follow it: themes (with their effects), housemates, nicknames (also
 # their group in the search), the same as the three switches under it in the app. Each is a copy of Teams' button
 # (same size, colours, hover, focus, light and dark) with an icon of its own: full when on, empty and crossed out when
@@ -983,11 +983,11 @@ def save_photo(data_url):
     import re
     m = re.fullmatch(r"data:image/(jpeg|png|webp);base64,([A-Za-z0-9+/=]+)", str(data_url or ""))
     if not m:
-        raise ValueError(tr("Foto non valida: usa un'immagine JPG o PNG."))
+        raise ValueError(tr("Invalid photo: use a JPG or PNG picture."))
     raw = base64.b64decode(m.group(2))
     ext, magic = PHOTO_TYPES[m.group(1)]
     if len(raw) > PHOTO_MAX or not raw.startswith(magic):
-        raise ValueError(tr("Foto non valida o troppo grande."))
+        raise ValueError(tr("Invalid or too large photo."))
     name = hashlib.sha1(raw).hexdigest()[:16] + ext
     PHOTOS_DIR.mkdir(parents=True, exist_ok=True)
     (PHOTOS_DIR / name).write_bytes(raw)
@@ -1076,7 +1076,7 @@ def ensure_css(port, css, ver, trigger=None, popup_css=None, nick=None, pets=Non
 
 
 def call_pets(port):
-    """'Chiamali ora': the same as clicking their bowl."""
+    """'Call them now': the same as clicking their bowl."""
     for t in cdp.pages(port):
         if is_popup(t):
             continue
@@ -1108,25 +1108,25 @@ def remove_css(port):
 
 # ---------- the switch inside Teams ----------
 
-# what the switches in Teams say, in Italian here and in English in i18n.EN
+# what the switches in Teams say, in English here and in Italian in i18n.IT
 TOGGLE_TEXTS = {
     "label_all": "Teams Remix",
-    "tip_on_all": "Teams Remix attivo: clic per spegnerlo", "tip_off_all": "Teams Remix spento: clic per accenderlo",
-    "wait_on_all": "Accendo Teams Remix...", "wait_off_all": "Spengo Teams Remix...",
-    "label_themes": "Temi ed effetti",
-    "tip_on_themes": "Temi ed effetti attivi: clic per spegnerli", "tip_off_themes": "Temi ed effetti spenti: clic per accenderli",
-    "wait_on_themes": "Accendo temi ed effetti...", "wait_off_themes": "Spengo temi ed effetti...",
-    "label_pets": "Coinquilini",
-    "tip_on_pets": "Coinquilini attivi: clic per spegnerli", "tip_off_pets": "Coinquilini spenti: clic per accenderli",
-    "wait_on_pets": "Accendo i coinquilini...", "wait_off_pets": "Spengo i coinquilini...",
-    "label_nicknames": "Soprannomi",
-    "tip_on_nicknames": "Soprannomi attivi: clic per spegnerli", "tip_off_nicknames": "Soprannomi spenti: clic per accenderli",
-    "wait_on_nicknames": "Accendo i soprannomi...", "wait_off_nicknames": "Spengo i soprannomi...",
+    "tip_on_all": "Teams Remix is on: click to switch it off", "tip_off_all": "Teams Remix is off: click to switch it on",
+    "wait_on_all": "Switching Teams Remix on...", "wait_off_all": "Switching Teams Remix off...",
+    "label_themes": "Themes and effects",
+    "tip_on_themes": "Themes and effects are on: click to switch them off", "tip_off_themes": "Themes and effects are off: click to switch them on",
+    "wait_on_themes": "Switching themes and effects on...", "wait_off_themes": "Switching themes and effects off...",
+    "label_pets": "Housemates",
+    "tip_on_pets": "Housemates are on: click to switch them off", "tip_off_pets": "Housemates are off: click to switch them on",
+    "wait_on_pets": "Switching the housemates on...", "wait_off_pets": "Switching the housemates off...",
+    "label_nicknames": "Nicknames",
+    "tip_on_nicknames": "Nicknames are on: click to switch them off", "tip_off_nicknames": "Nicknames are off: click to switch them on",
+    "wait_on_nicknames": "Switching the nicknames on...", "wait_off_nicknames": "Switching the nicknames off...",
 }
 
 
 def sections_of(cfg):
-    """Which parts of Teams Remix are on, under "Attivo su Teams": all of them unless switched off (older settings
+    """Which parts of Teams Remix are on, under "On in Teams": all of them unless switched off (older settings
     have none of this, so everything stays as it was)."""
     saved = (cfg or {}).get("sections")
     saved = saved if isinstance(saved, dict) else {}
@@ -1138,7 +1138,7 @@ def toggle_config(on, sections=None):
     own buttons, so they speak Teams' language (like the nickname group in the search), whatever the app's language."""
     import i18n
     return {"on": bool(on), "sections": sections_of({"sections": sections}),
-            "texts": {"it": dict(TOGGLE_TEXTS), "en": {k: i18n.EN.get(v, v) for k, v in TOGGLE_TEXTS.items()}}}
+            "texts": {"it": {k: i18n.IT.get(v, v) for k, v in TOGGLE_TEXTS.items()}, "en": dict(TOGGLE_TEXTS)}}
 
 
 def _toggle_call(cfg):

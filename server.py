@@ -27,7 +27,7 @@ UI = HERE / "ui" / "index.html"
 ASSETS = HERE / "assets"
 NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9 _-]{0,39}$")
 HEX6 = re.compile(r"^#[0-9a-fA-F]{6}$")
-DEFAULT = "Originale di Teams"  # built in: Teams' own colours, the debug channel stays open
+DEFAULT = "Originale di Teams"  # built in: Teams' own colours, the debug channel stays open (a saved name: kept as it is)
 ALIVE_WAIT = 50  # seconds the app holds the window's /api/alive request before it answers "still here"
 
 
@@ -36,7 +36,7 @@ def clean_theme(params):
     c = {**theme.DEFAULTS, **{k: v for k, v in (params or {}).items() if k in theme.KEYS}}
     for k in ("background", "text", "glow", "link", "on_brand"):
         if not HEX6.match(str(c[k])):
-            raise ValueError(tr("Colore non valido in {k}: {v}", k=k, v=c[k]))
+            raise ValueError(tr("Invalid colour in {k}: {v}", k=k, v=c[k]))
     c["brand_hue"] = int(c["brand_hue"]) % 360
     c["brand_sat"] = max(0.0, min(1.0, float(c["brand_sat"])))
     c["radius"] = max(1, min(6, int(c["radius"])))
@@ -44,10 +44,10 @@ def clean_theme(params):
     for k, allowed in (("bg_mode", theme.BG_MODES), ("colors_anim", theme.COLORS_ANIM), ("fall_style", theme.FALL_STYLES),
                        ("pass_freq", theme.PASS_FREQ), ("when", theme.WHEN), ("group", theme.GROUPS)):
         if c[k] not in allowed:
-            raise ValueError(tr("Valore non valido per {k}: {v}", k=k, v=c[k]))
+            raise ValueError(tr("Invalid value for {k}: {v}", k=k, v=c[k]))
     cols = [str(x) for x in (c["bg_colors"] or [])][:3]
     if len(cols) < 2 or not all(HEX6.match(x) for x in cols):
-        raise ValueError(tr("Il gradiente vuole 2 o 3 colori #rrggbb."))
+        raise ValueError(tr("The gradient takes 2 or 3 #rrggbb colours."))
     c["bg_colors"] = cols
     c["glass"] = max(0, min(85, int(c["glass"])))
     c["flow_angle"] = int(c["flow_angle"]) % 360
@@ -82,7 +82,7 @@ class ThemeStore:
 
     # ---------- reads ----------
     def current(self):
-        """(name, theme); theme is None for an unedited 'Originale di Teams' (Teams gets no CSS)."""
+        """(name, theme); theme is None for an unedited 'Teams original' (Teams gets no CSS)."""
         with self.lock:
             n = self.cfg["theme"]
             if n == DEFAULT:
@@ -99,15 +99,15 @@ class ThemeStore:
     # ---------- helpers ----------
     def _check_new(self, name):
         if not NAME_RE.match(name or ""):
-            raise ValueError(tr("Nome non valido: lettere, numeri, spazi, - e _, massimo 40 caratteri."))
+            raise ValueError(tr("Invalid name: letters, digits, spaces, - and _, at most 40 characters."))
         if name.lower() == DEFAULT.lower() or any(n.lower() == name.lower() for n in self.themes):
-            raise ValueError(tr("Esiste gia' un tema '{name}'.", name=name))
+            raise ValueError(tr("There is already a theme '{name}'.", name=name))
 
     def _editable(self, name):
         if name == DEFAULT:
-            raise ValueError(tr("Il tema originale di Teams non si modifica: crea un tema tuo."))
+            raise ValueError(tr("Teams' original theme can't be changed: create a theme of your own."))
         if name not in self.themes:
-            raise ValueError(tr("Tema '{name}' non trovato.", name=name))
+            raise ValueError(tr("Theme '{name}' not found.", name=name))
 
     def _select(self, name):
         self.cfg["theme"] = name
@@ -117,12 +117,12 @@ class ThemeStore:
     def select(self, name):
         with self.lock:
             if name != DEFAULT and name not in self.themes:
-                raise ValueError(tr("Tema '{name}' non trovato.", name=name))
+                raise ValueError(tr("Theme '{name}' not found.", name=name))
             self._select(name)
 
     def edit(self, name, variants):
         """Unsaved change: Teams shows it, the file does not change.
-        'Originale di Teams' can be edited too: saving it means creating a new theme (create(..., source=DEFAULT))."""
+        'Teams original' can be edited too: saving it means creating a new theme (create(..., source=DEFAULT))."""
         with self.lock:
             clean = clean_theme(variants)
             if name == DEFAULT:
@@ -154,7 +154,7 @@ class ThemeStore:
         with self.lock:
             self._editable(name)
             if name not in self.defaults:
-                raise ValueError(tr("'{name}' non e' un tema dell'app: non c'e' un originale da ripristinare.", name=name))
+                raise ValueError(tr("'{name}' is not one of the app's themes: there is no original to restore.", name=name))
             self.themes[name] = copy.deepcopy(self.defaults[name])
             self.drafts.pop(name, None)
             theme.save_theme(self.folder, name, self.themes[name])
@@ -183,7 +183,7 @@ class ThemeStore:
             if new.lower() != old.lower():
                 self._check_new(new)
             elif not NAME_RE.match(new):
-                raise ValueError(tr("Nome non valido."))
+                raise ValueError(tr("Invalid name."))
             self.themes[new] = self.themes.pop(old)
             if old in self.drafts:
                 self.drafts[new] = self.drafts.pop(old)
@@ -197,7 +197,7 @@ class ThemeStore:
         with self.lock:
             self._editable(name)
             if len(self.themes) == 1:
-                raise ValueError(tr("E' l'ultimo tema: creane un altro prima di eliminarlo."))
+                raise ValueError(tr("It's the last theme: create another one before deleting it."))
             del self.themes[name]
             self.drafts.pop(name, None)
             (self.folder / f"{name}.json").unlink(missing_ok=True)
@@ -354,8 +354,8 @@ class AppServer:
         elif path == "/api/delete":
             self.store.delete(body["name"])
         elif path == "/api/action":
-            kinds = {"on": "Accendo Teams Remix...", "off": "Spengo Teams Remix...", "normal": "Riapro Teams com'era...",
-                     "fxtest": "Faccio partire gli effetti...", "pets": "Chiamo i coinquilini..."}
+            kinds = {"on": "Switching Teams Remix on...", "off": "Switching Teams Remix off...", "normal": "Reopening Teams as it was...",
+                     "fxtest": "Starting the effects...", "pets": "Calling the housemates..."}
             if body["kind"] not in kinds:
                 raise ValueError("unknown action")
             if body["kind"] in ("on", "off"):  # the choice counts at once, so the switches never jump back
@@ -383,7 +383,7 @@ class AppServer:
             return {"photo": teams.save_photo(body.get("data"))}
         elif path == "/api/default-mode":
             if body.get("mode") not in theme.MODES:
-                raise ValueError(tr("Modalita' non valida."))
+                raise ValueError(tr("Invalid mode."))
             self.cfg["default_mode"] = body["mode"]
             teams.save_config(self.cfg)
             self.store.discard(DEFAULT)  # a new starting point: the old edits of the original no longer apply
@@ -405,7 +405,7 @@ class AppServer:
             teams.save_config(self.cfg)
             i18n.set_lang(self.cfg["lang"])
             self.worker.submit("apply")  # the labels on Teams follow
-        elif path == "/api/section":  # themes, housemates or nicknames on or off, under "Attivo su Teams"
+        elif path == "/api/section":  # themes, housemates or nicknames on or off, under "On in Teams"
             w.set_section(body.get("name"), bool(body.get("on")))
         elif path == "/api/off-in-call":
             self.cfg["off_in_call"] = bool(body["on"])
@@ -437,11 +437,11 @@ class AppServer:
 
     def _install_update(self):
         if not self.update:
-            raise ValueError(tr("Non c'è nessun aggiornamento da fare."))
+            raise ValueError(tr("There is no update to install."))
         try:
             version = updater.download_and_install(self.update["zip"])
         except (OSError, ValueError) as e:
-            raise ValueError(tr("Aggiornamento non riuscito ({e}). Niente è cambiato: riprova piu' tardi.", e=e))
+            raise ValueError(tr("Update failed ({e}). Nothing changed: try again later.", e=e))
         # the new app starts as soon as this one is gone, and opens its window
         subprocess.Popen([sys.executable, str(HERE / "teams_theme.pyw"), "--restart"], cwd=str(HERE), creationflags=teams.NO_WINDOW)
         threading.Timer(0.5, self.closing.set).start()  # after this answer: the old window closes, the new one opens

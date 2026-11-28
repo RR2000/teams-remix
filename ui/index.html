@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="it">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -50,7 +50,7 @@ button, input, select { font: inherit; color: inherit; }
 .power[aria-checked="true"] .knob { background: var(--accent); }
 .power[aria-checked="true"] .knob::after { left: 25px; background: var(--on-accent); }
 .power:disabled { opacity: .6; cursor: progress; }
-/* the three parts under "Attivo su Teams": the same switch, smaller */
+/* the three parts under "On in Teams": the same switch, smaller */
 .power.mini { gap: 8px; padding: 3px 4px 3px 12px; font-weight: 500; font-size: 14px; }
 .power.mini .knob { width: 36px; height: 22px; }
 .power.mini .knob::after { top: 3px; left: 3px; width: 16px; height: 16px; }
@@ -209,15 +209,15 @@ dialog .btn.primary.danger { background: var(--danger); border-color: var(--dang
 <body>
 <header class="top">
   <div class="brand"><img class="logo" src="/icon.svg" alt="" width="30" height="30">Teams Remix</div>
-  <div class="seg" role="tablist" aria-label="Sezione" id="view"><button data-v="themes">🎨 Temi</button><button data-v="pets">🐾 Coinquilini</button><button data-v="nick">🏷️ Soprannomi</button><button data-v="opts">⚙️ Opzioni</button></div>
-  <div id="status" class="status" role="status" aria-live="polite"><span class="dot"></span><span>Controllo Teams...</span></div>
+  <div class="seg" role="tablist" aria-label="Section" id="view"><button data-v="themes">🎨 Themes</button><button data-v="pets">🐾 Housemates</button><button data-v="nick">🏷️ Nicknames</button><button data-v="opts">⚙️ Options</button></div>
+  <div id="status" class="status" role="status" aria-live="polite"><span class="dot"></span><span>Checking Teams...</span></div>
   <div class="actions" id="actions"></div>
 </header>
 <div class="updbar" id="updbar" role="status" aria-live="polite" hidden></div>
 
 <div class="layout" id="view-themes">
-  <nav class="side" aria-label="Temi">
-    <div class="side-head"><span class="lbl-up" style="margin:0">Temi</span><button class="btn small" id="new">+ Nuovo</button></div>
+  <nav class="side" aria-label="Themes">
+    <div class="side-head"><span class="lbl-up" style="margin:0">Themes</span><button class="btn small" id="new">+ New</button></div>
     <div id="tlist"></div>
   </nav>
 
@@ -225,44 +225,44 @@ dialog .btn.primary.danger { background: var(--danger); border-color: var(--dang
     <div class="head">
       <h1 id="tname"></h1>
       <div class="tools">
-        <button class="btn ghost" id="reset">Ripristina originale</button>
-        <button class="btn ghost" id="dup">Duplica</button>
-        <button class="btn ghost" id="ren">Rinomina</button>
-        <button class="btn ghost danger" id="del">Elimina</button>
+        <button class="btn ghost" id="reset">Restore original</button>
+        <button class="btn ghost" id="dup">Duplicate</button>
+        <button class="btn ghost" id="ren">Rename</button>
+        <button class="btn ghost danger" id="del">Delete</button>
       </div>
     </div>
     <section class="card" id="defcard" hidden>
-      <div class="cardhead"><h3>Teams originale</h3>
-        <div class="seg" role="group" aria-label="Originale chiaro o scuro" id="defmode"><button data-v="light">☀️ Chiaro</button><button data-v="dark">🌙 Scuro</button></div></div>
-      <p class="hint" id="defhint">Questo è Teams com'è. Puoi modificarlo come gli altri: quando salvi diventa un tema nuovo.</p>
+      <div class="cardhead"><h3>Original Teams</h3>
+        <div class="seg" role="group" aria-label="Original light or dark" id="defmode"><button data-v="light">☀️ Light</button><button data-v="dark">🌙 Dark</button></div></div>
+      <p class="hint" id="defhint">This is Teams as it is. You can change it like the others: when you save, it becomes a new theme.</p>
     </section>
     <div class="savebar" id="savebar" hidden>
       <span class="txt" id="savetxt"></span>
-      <button class="btn" id="discard">Annulla modifiche</button>
-      <button class="btn primary" id="save">Salva</button>
+      <button class="btn" id="discard">Discard changes</button>
+      <button class="btn primary" id="save">Save</button>
     </div>
 
 
     <div class="work">
     <div class="editor">
       <div class="tabs" role="tablist">
-        <button role="tab" id="tab-colors" aria-controls="panel-colors">🎨 Colori</button>
-        <button role="tab" id="tab-fx" aria-controls="panel-fx">✨ Effetti</button>
+        <button role="tab" id="tab-colors" aria-controls="panel-colors">🎨 Colours</button>
+        <button role="tab" id="tab-fx" aria-controls="panel-fx">✨ Effects</button>
       </div>
 
       <div class="panel" id="panel-colors" role="tabpanel" aria-labelledby="tab-colors">
         <div class="grid2">
-          <section class="card"><div class="cardhead"><h3>Colori</h3></div><div id="colors"></div></section>
+          <section class="card"><div class="cardhead"><h3>Colours</h3></div><div id="colors"></div></section>
           <section class="card">
-            <div class="cardhead"><h3>Sfondo della finestra</h3></div>
-            <div class="seg" role="group" aria-label="Tipo di sfondo" id="bgmode">
-              <button data-v="solid">Tinta unita</button><button data-v="gradient">Gradiente</button><button data-v="gradient_anim">Gradiente che scorre</button>
+            <div class="cardhead"><h3>Window background</h3></div>
+            <div class="seg" role="group" aria-label="Background type" id="bgmode">
+              <button data-v="solid">Solid</button><button data-v="gradient">Gradient</button><button data-v="gradient_anim">Flowing gradient</button>
             </div>
             <div id="bgextra" style="margin-top:12px"></div>
           </section>
         </div>
         <section class="card">
-          <div class="cardhead"><h3>Testo e forme</h3></div>
+          <div class="cardhead"><h3>Text and shapes</h3></div>
           <div class="field">
             <span class="lbl" id="font-l">Font</span><span></span>
             <div class="full">
@@ -270,11 +270,11 @@ dialog .btn.primary.danger { background: var(--danger); border-color: var(--dang
                 <button class="fbtn" id="fontbtn" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="font-l fontbtn"></button>
                 <ul class="flist" id="fontlist" role="listbox" aria-labelledby="font-l" tabindex="-1" hidden></ul>
               </div>
-              <input class="fontcustom" id="fontcustom" placeholder="Nome del font, es. Papyrus" aria-label="Altro font" hidden>
+              <input class="fontcustom" id="fontcustom" placeholder="Font name, e.g. Papyrus" aria-label="Other font" hidden>
             </div>
           </div>
           <details class="more-opts">
-            <summary>Altre opzioni</summary>
+            <summary>More options</summary>
             <div id="moreopts"></div>
           </details>
         </section>
@@ -283,40 +283,40 @@ dialog .btn.primary.danger { background: var(--danger); border-color: var(--dang
       <div class="panel" id="panel-fx" role="tabpanel" aria-labelledby="tab-fx" hidden>
         <p class="hint" id="rmnote" hidden></p>
         <section class="card fx-block" id="whenblock">
-          <div class="blockhead"><span class="e" aria-hidden="true">⏱️</span><b>Quando partono</b></div>
-          <div class="seg" role="group" aria-label="Quando partono gli effetti" id="when">
-            <button data-v="auto">Da soli, ogni tanto</button><button data-v="click">Quando clicco il bottone su Teams</button>
+          <div class="blockhead"><span class="e" aria-hidden="true">⏱️</span><b>When they start</b></div>
+          <div class="seg" role="group" aria-label="When the effects start" id="when">
+            <button data-v="auto">By themselves, now and then</button><button data-v="click">When I click the button in Teams</button>
           </div>
           <div id="whenextra"></div>
         </section>
         <div class="grid2">
           <section class="card fx-block">
-            <div class="blockhead"><span class="e" aria-hidden="true">🌈</span><b>Colori che cambiano</b></div>
-            <div class="seg" role="group" aria-label="Colori che cambiano" id="canim">
-              <button data-v="off">Spenti</button><button data-v="buttons">Pulsanti</button><button data-v="text">Pulsanti e testo</button><button data-v="all">Tutto 🪩</button>
+            <div class="blockhead"><span class="e" aria-hidden="true">🌈</span><b>Changing colours</b></div>
+            <div class="seg" role="group" aria-label="Changing colours" id="canim">
+              <button data-v="off">Off</button><button data-v="buttons">Buttons</button><button data-v="text">Buttons and text</button><button data-v="all">Everything 🪩</button>
             </div>
-            <p class="hint" style="margin-top:8px">"Tutto" fa cambiare colore a tutta la finestra, foto comprese.</p>
+            <p class="hint" style="margin-top:8px">"Everything" changes the colour of the whole window, photos included.</p>
           </section>
           <section class="card fx-block">
-            <div class="blockhead"><span class="e" aria-hidden="true">🕺</span><b>Pulsanti ballerini</b></div>
-            <label class="switch"><input type="checkbox" id="jiggle"> Passando con il mouse i pulsanti si dimenano e le foto fanno una giravolta</label>
+            <div class="blockhead"><span class="e" aria-hidden="true">🕺</span><b>Dancing buttons</b></div>
+            <label class="switch"><input type="checkbox" id="jiggle"> Under the mouse, buttons wiggle and photos do a twirl</label>
           </section>
           <section class="card fx-block">
-            <div class="blockhead"><span class="e" aria-hidden="true">🌧️</span><b>Cose che cadono</b></div>
+            <div class="blockhead"><span class="e" aria-hidden="true">🌧️</span><b>Things that fall</b></div>
             <div class="chips" id="fallchips"></div>
-            <div class="row"><input class="emoji-in" id="fall" placeholder="o scrivi le tue" aria-label="Cosa cade (emoji o lettere)" maxlength="40">
-              <button class="btn small ghost" id="fallclear">Niente</button></div>
-            <div class="row" id="fallstyle-row"><div class="seg" role="group" aria-label="Come cadono" id="fallstyle">
-              <button data-v="snow">Neve (piano, ondeggia)</button><button data-v="rain">Pioggia</button><button data-v="storm">Diluvio</button></div></div>
+            <div class="row"><input class="emoji-in" id="fall" placeholder="or type your own" aria-label="What falls (emoji or letters)" maxlength="40">
+              <button class="btn small ghost" id="fallclear">Nothing</button></div>
+            <div class="row" id="fallstyle-row"><div class="seg" role="group" aria-label="How they fall" id="fallstyle">
+              <button data-v="snow">Snow (slow, swaying)</button><button data-v="rain">Rain</button><button data-v="storm">Downpour</button></div></div>
           </section>
           <section class="card fx-block">
-            <div class="blockhead"><span class="e" aria-hidden="true">🚀</span><b>Chi vola</b></div>
+            <div class="blockhead"><span class="e" aria-hidden="true">🚀</span><b>Who flies</b></div>
             <div class="chips" id="passchips"></div>
-            <div class="row"><input class="emoji-in" id="passemoji" placeholder="+ un'emoji" aria-label="Aggiungi un'emoji che vola" maxlength="8">
-              <span class="hint">animali e chi vola: fino a 3 insieme</span></div>
-            <div class="row" id="freq-row"><span class="hint">Quanto spesso</span><div class="seg" role="group" aria-label="Quanto spesso passano" id="passfreq">
-              <button data-v="rare">Raramente</button><button data-v="sometimes">Ogni tanto</button><button data-v="often">Spesso</button></div></div>
-            <div class="row"><label class="switch"><input type="checkbox" id="trail"> Scia arcobaleno</label></div>
+            <div class="row"><input class="emoji-in" id="passemoji" placeholder="+ an emoji" aria-label="Add a flying emoji" maxlength="8">
+              <span class="hint">animals and flyers: up to 3 together</span></div>
+            <div class="row" id="freq-row"><span class="hint">How often</span><div class="seg" role="group" aria-label="How often they pass" id="passfreq">
+              <button data-v="rare">Rarely</button><button data-v="sometimes">Now and then</button><button data-v="often">Often</button></div></div>
+            <div class="row"><label class="switch"><input type="checkbox" id="trail"> Rainbow trail</label></div>
           </section>
         </div>
       </div>
@@ -324,10 +324,10 @@ dialog .btn.primary.danger { background: var(--danger); border-color: var(--dang
     <div class="pvcol">
     <section class="card" aria-labelledby="h-pv">
       <div class="cardhead">
-        <h3 id="h-pv">Anteprima</h3>
-        <button class="btn small primary" id="fxtest">▶ Prova gli effetti</button>
+        <h3 id="h-pv">Preview</h3>
+        <button class="btn small primary" id="fxtest">▶ Try the effects</button>
       </div>
-      <iframe class="pvframe" id="pvframe" title="Anteprima del tema"></iframe>
+      <iframe class="pvframe" id="pvframe" title="Theme preview"></iframe>
       <div class="pvfoot">
         <button class="read" id="readbtn" aria-expanded="false" aria-controls="checks"></button>
         <span class="pvnote" id="pvnote"></span>
@@ -342,27 +342,24 @@ dialog .btn.primary.danger { background: var(--danger); border-color: var(--dang
 <div class="layout1" id="view-pets" hidden>
   <div class="petsgrid">
     <section class="card">
-      <div class="cardhead"><h3>🐾 Coinquilini</h3></div>
-      <p class="hint">Abitano nel tuo Teams, con qualunque tema (anche con l'originale). Ognuno ha la sua cosa: una ciotola, una balla di fieno per il toro, una zucca per il fantasma, una scatola di cavi per il robot, un pacchetto per il camion, il latte per il Drugo.</p>
+      <div class="cardhead"><h3>🐾 Housemates</h3></div>
+      <p class="hint">They live in your Teams, with any theme (the original too). Each one has its thing: a bowl, a hay bale for the bull, a pumpkin for the ghost, a box of cables for the robot, a parcel for the truck, milk for the Dude.</p>
       <div class="chips" id="petchips" style="margin-top:12px"></div>
       <div id="petextra"></div>
     </section>
     <section class="card">
-      <div class="cardhead"><h3>Anteprima</h3><button class="btn small primary" id="petcall">▶ Chiamali ora</button></div>
-      <iframe class="pvframe" id="petframe" title="Anteprima dei coinquilini"></iframe>
-      <p class="pvnote" id="petnote" style="margin-top:8px">Nell'anteprima funziona come su Teams: clicca e trascina le ciotole, clicca i coinquilini per coccolarli.</p>
+      <div class="cardhead"><h3>Preview</h3><button class="btn small primary" id="petcall">▶ Call them now</button></div>
+      <iframe class="pvframe" id="petframe" title="Housemates preview"></iframe>
+      <p class="pvnote" id="petnote" style="margin-top:8px">The preview works like Teams: click and drag the bowls, click the housemates to cuddle them.</p>
     </section>
   </div>
 </div>
 <div class="nickview" id="view-nick" hidden>
   <section class="card">
-    <div class="cardhead"><h3>Soprannomi</h3><button class="btn small primary" id="nickadd">+ Aggiungi</button></div>
-    <p class="hint" data-t="nickhint">Scrivi il nome come lo vedi su Teams e il soprannome da vedere al suo posto: chat, elenchi, notifiche.
-      Lo vedi <b>solo tu, su questo PC</b>: per gli altri non cambia niente, e quello che scrivi nei messaggi resta com'è.
-      Scrivi <b>Cognome Nome</b>, senza virgola: "Verdi Luna" cambia sia "Verdi, Luna" (colleghi) sia "Luna Verdi" (esterni).</p>
-    <p class="hint" style="margin-top:8px">📷 Con la foto, su Teams quella persona ha la tua foto al posto della sua (anche lei la vedi solo tu).</p>
-    <p class="hint" style="margin-top:8px">🔎 Puoi anche cercare per soprannome: scrivilo nella ricerca di Teams in alto e in cima ai risultati
-      compare "Soprannomi" (al massimo 2 persone). Cliccane uno e Teams apre quella persona.</p>
+    <div class="cardhead"><h3>Nicknames</h3><button class="btn small primary" id="nickadd">+ Add</button></div>
+    <p class="hint" data-t="nickhint">Type the name as you see it in Teams and the nickname to see instead: chats, lists, notifications. Only <b>you see it, on this PC</b>: nothing changes for the others, and what you write in messages stays as it is. Write <b>Surname Name</b>, without a comma: "Green Luna" changes both "Green, Luna" (colleagues) and "Luna Green" (guests).</p>
+    <p class="hint" style="margin-top:8px">📷 With a photo, that person has your photo instead of theirs in Teams (only you see it too).</p>
+    <p class="hint" style="margin-top:8px">🔎 You can also search by nickname: type it in Teams' search at the top and "Nicknames" shows up above the results (at most 2 people). Click one and Teams opens that person.</p>
     <div id="nicklist" class="nicklist"></div>
     <p class="hint" id="nicknote" style="margin-top:12px"></p>
   </section>
@@ -370,39 +367,38 @@ dialog .btn.primary.danger { background: var(--danger); border-color: var(--dang
 
 <div class="nickview" id="view-opts" hidden>
   <section class="card">
-    <div class="cardhead"><h3>Lingua</h3></div>
-    <div class="seg" role="group" aria-label="Lingua" id="lang"><button data-v="auto">Automatica (come Windows)</button><button data-v="it">Italiano</button><button data-v="en">English</button></div>
+    <div class="cardhead"><h3>Language</h3></div>
+    <div class="seg" role="group" aria-label="Language" id="lang"><button data-v="auto">Automatic (like Windows)</button><button data-v="it">Italiano</button><button data-v="en">English</button></div>
   </section>
   <section class="card" style="margin-top:14px">
-    <div class="cardhead"><h3>Avvio</h3></div>
-    <label class="switch"><input type="checkbox" id="autostart"> Quando accendo il PC, accendi Teams Remix (tema, coinquilini e soprannomi)</label>
-    <p class="hint" style="margin-top:8px">All'accesso l'app parte da sola in background e aspetta Teams.</p>
+    <div class="cardhead"><h3>Start</h3></div>
+    <label class="switch"><input type="checkbox" id="autostart"> When I start the PC, switch Teams Remix on (theme, housemates and nicknames)</label>
+    <p class="hint" style="margin-top:8px">At sign-in the app starts by itself in the background and waits for Teams.</p>
   </section>
   <section class="card" style="margin-top:14px">
-    <div class="cardhead"><h3>Animazioni</h3></div>
-    <label class="switch"><input type="checkbox" id="respectrm"> Rispetta "riduci animazioni" di Windows (gli effetti si fermano)</label>
-    <p class="hint" style="margin-top:8px">Spento: gli effetti partono sempre, perché li scegli tu tema per tema.</p>
+    <div class="cardhead"><h3>Animations</h3></div>
+    <label class="switch"><input type="checkbox" id="respectrm"> Respect Windows' "reduce animations" (the effects stop)</label>
+    <p class="hint" style="margin-top:8px">Off: the effects always run, because you pick them theme by theme.</p>
   </section>
   <section class="card" style="margin-top:14px">
-    <div class="cardhead"><h3>Call</h3></div>
-    <label class="switch"><input type="checkbox" id="offincall"> Durante le call, Teams normale</label>
-    <p class="hint" style="margin-top:8px" data-t="callhint">Quando entri in una call o in una riunione, tema, coinquilini e soprannomi spariscono da soli e tornano quando la call finisce.
-      <b>Teams non si riapre</b>, quindi la call non cade. Se no, in qualunque momento basta spegnere "Attivo su Teams" in alto.</p>
+    <div class="cardhead"><h3>Calls</h3></div>
+    <label class="switch"><input type="checkbox" id="offincall"> During calls, normal Teams</label>
+    <p class="hint" style="margin-top:8px" data-t="callhint">When you join a call or a meeting, theme, housemates and nicknames disappear by themselves and come back when the call ends. <b>Teams doesn't reopen</b>, so the call doesn't drop. Otherwise, at any time just switch off "On in Teams" at the top.</p>
   </section>
   <section class="card" style="margin-top:14px">
-    <div class="cardhead"><h3>Aggiornamenti</h3></div>
-    <label class="switch"><input type="checkbox" id="checkupd"> Controlla da solo se c'è una versione nuova (su GitHub)</label>
+    <div class="cardhead"><h3>Updates</h3></div>
+    <label class="switch"><input type="checkbox" id="checkupd"> Check by itself for a new version (on GitHub)</label>
     <p class="hint" style="margin-top:8px" id="vernote"></p>
   </section>
   <section class="card" style="margin-top:14px">
     <div class="cardhead"><h3>Teams</h3></div>
-    <p class="hint">Per colorare Teams l'app lo riapre con un canale di controllo che funziona solo su questo PC. Finché quel canale è aperto, altri programmi sul PC potrebbero leggere cosa c'è in Teams. Questo pulsante lo chiude e rimette Teams com'è.</p>
-    <div class="row"><button class="btn" id="normal">Riapri Teams com'era</button></div>
+    <p class="hint">To colour Teams, the app reopens it with a control channel that only works on this PC. While that channel is open, other programs on the PC could read what's in Teams. This button closes it and puts Teams back as it is.</p>
+    <div class="row"><button class="btn" id="normal">Reopen Teams as it was</button></div>
   </section>
   <section class="card" style="margin-top:14px">
     <div class="cardhead"><h3>App</h3></div>
-    <p class="hint">Teams Remix resta accesa in background per rimettere tema, coinquilini e soprannomi quando Teams si ricarica.</p>
-    <div class="row"><button class="btn" id="quit">Chiudi l'app</button></div>
+    <p class="hint">Teams Remix stays on in the background to put the theme, housemates and nicknames back when Teams reloads.</p>
+    <div class="row"><button class="btn" id="quit">Close the app</button></div>
   </section>
 </div>
 
@@ -416,7 +412,7 @@ dialog .btn.primary.danger { background: var(--danger); border-color: var(--dang
     <p id="dlg-p"></p>
     <input id="dlg-i" autocomplete="off" maxlength="40">
     <div class="err" id="dlg-e" role="alert"></div>
-    <div class="btns"><button class="btn" value="cancel">Annulla</button><button class="btn primary" id="dlg-ok">OK</button></div>
+    <div class="btns"><button class="btn" value="cancel">Cancel</button><button class="btn primary" id="dlg-ok">OK</button></div>
   </form>
 </dialog>
 
@@ -424,182 +420,182 @@ dialog .btn.primary.danger { background: var(--danger); border-color: var(--dang
 "use strict";
 const TOKEN = "__TOKEN__";
 const FONTS = [
-  ["", "Font di Teams"], ["'Cascadia Mono', Consolas, monospace", "Cascadia Mono (terminale)"], ["'Comic Sans MS', 'Comic Sans', cursive", "Comic Sans"],
-  ["Consolas, monospace", "Consolas"], ["'Courier New', monospace", "Courier New (macchina da scrivere)"], ["Georgia, serif", "Georgia (libro)"],
-  ["'Segoe Script', cursive", "Segoe Script (corsivo)"], ["Impact, sans-serif", "Impact"], ["'Lucida Console', monospace", "Lucida Console"], ["__custom__", "Altro font..."],
+  ["", "Teams font"], ["'Cascadia Mono', Consolas, monospace", "Cascadia Mono (terminal)"], ["'Comic Sans MS', 'Comic Sans', cursive", "Comic Sans"],
+  ["Consolas, monospace", "Consolas"], ["'Courier New', monospace", "Courier New (typewriter)"], ["Georgia, serif", "Georgia (book)"],
+  ["'Segoe Script', cursive", "Segoe Script (handwriting)"], ["Impact, sans-serif", "Impact"], ["'Lucida Console', monospace", "Lucida Console"], ["__custom__", "Other font..."],
 ];
 const FALL_PICKS = ["🌸", "⭐", "❄️", "💸", "🍊", "🍕", "🪩", "❤️", "🎉"];
-const PASS_PICKS = [["capybara", "🍊 Capibara"], ["cat", "🐱 Gatto"], ["dog", "🐶 Cane"], ["sheep", "🐑 Pecora"], ["bull", "🐂 Toro"], ["ghost", "👻 Fantasma"], ["robot", "🤖 Robot"], ["truck", "🚚 Camion"], ["dude", "🕶️ Drugo"], ["pizza", "🍕 Pizza"], ["comet", "☄️ Cometa"]];
+const PASS_PICKS = [["capybara", "🍊 Capybara"], ["cat", "🐱 Cat"], ["dog", "🐶 Dog"], ["sheep", "🐑 Sheep"], ["bull", "🐂 Bull"], ["ghost", "👻 Ghost"], ["robot", "🤖 Robot"], ["truck", "🚚 Truck"], ["dude", "🕶️ The Dude"], ["pizza", "🍕 Pizza"], ["comet", "☄️ Comet"]];
 const WALKERS = ["capybara", "cat", "dog", "sheep", "bull", "ghost", "robot", "truck", "dude"];
 // each housemate has its thing on Teams: [icon, name, what it does there]
-const THING = { capybara: ["🥣", "ciotola di mandarini", "mangiare"], cat: ["🥣", "ciotola col pesce", "mangiare"],
-                dog: ["🥣", "ciotola con l'osso", "mangiare"], sheep: ["🥣", "ciotola d'erba", "mangiare"], bull: ["🌾", "balla di fieno", "mangiare"],
-                ghost: ["🎃", "zucca", "giocare"], truck: ["📦", "pacchetto", "caricare il pacchetto"], robot: ["📦", "scatola di cavi", "prendere i cavi"],
-                dude: ["🥛", "cartone del latte", "bere il latte"] };
+const THING = { capybara: ["🥣", "bowl of tangerines", "eat"], cat: ["🥣", "bowl with fish", "eat"],
+                dog: ["🥣", "bowl with a bone", "eat"], sheep: ["🥣", "bowl of grass", "eat"], bull: ["🌾", "hay bale", "eat"],
+                ghost: ["🎃", "pumpkin", "play"], truck: ["📦", "parcel", "load the parcel"], robot: ["📦", "box of cables", "take the cables"],
+                dude: ["🥛", "carton of milk", "drink the milk"] };
 const FOOD = Object.fromEntries(Object.entries(THING).map(([k, [i, n]]) => [k, `${i} ${n}`]));
-const GROUP_LABEL = { seri: "Seri", divertenti: "Divertenti", miei: "I miei" };
+const GROUP_LABEL = { seri: "Serious", divertenti: "Fun", miei: "Mine" };
 
 let S = { themes: {}, drafts: {}, builtin: [], changed: [], selected: "", default: "", default_theme: {}, teams: {} };
 let E = null, editTimer = null, editPending = false, tab = "colors";
 
-/* ---------- languages: Italian in the code, English here; a missing text stays in Italian ---------- */
-let LANG = "it";
-const EN = {
+/* ---------- languages: English in the code, Italian here; a missing text stays in English ---------- */
+let LANG = "en";
+const IT = {
   // header, sections
-  "Sezione": "Section", "🎨 Temi": "🎨 Themes", "🐾 Coinquilini": "🐾 Housemates", "🏷️ Soprannomi": "🏷️ Nicknames", "⚙️ Opzioni": "⚙️ Options",
-  "Controllo Teams...": "Checking Teams...", "Attivo su Teams": "On in Teams",
-  "Sei in call: Teams è normale, a call finita torna tutto da solo": "You're in a call: Teams is normal, everything comes back by itself afterwards",
-  "Teams è chiuso: tema, coinquilini e soprannomi arrivano quando lo apri": "Teams is closed: theme, housemates and nicknames arrive when you open it",
-  "Sto preparando Teams...": "Getting Teams ready...",
-  "App non raggiungibile: è stata chiusa?": "The app can't be reached: was it closed?", "non raggiungibile": "can't be reached",
-  "Temi ed effetti": "Themes and effects", "Coinquilini": "Housemates",
+  "Section": "Sezione", "🎨 Themes": "🎨 Temi", "🐾 Housemates": "🐾 Coinquilini", "🏷️ Nicknames": "🏷️ Soprannomi", "⚙️ Options": "⚙️ Opzioni",
+  "Checking Teams...": "Controllo Teams...", "On in Teams": "Attivo su Teams",
+  "You're in a call: Teams is normal, everything comes back by itself afterwards": "Sei in call: Teams è normale, a call finita torna tutto da solo",
+  "Teams is closed: theme, housemates and nicknames arrive when you open it": "Teams è chiuso: tema, coinquilini e soprannomi arrivano quando lo apri",
+  "Getting Teams ready...": "Sto preparando Teams...",
+  "The app can't be reached: was it closed?": "App non raggiungibile: è stata chiusa?", "can't be reached": "non raggiungibile",
+  "Themes and effects": "Temi ed effetti", "Housemates": "Coinquilini",
   // themes list and head
-  "Temi": "Themes", "+ Nuovo": "+ New", "Ripristina originale": "Restore original", "Duplica": "Duplicate", "Rinomina": "Rename", "Elimina": "Delete",
-  "Seri": "Serious", "Divertenti": "Fun", "I miei": "Mine",
-  "Modifiche non salvate": "Unsaved changes", "● non salvato": "● not saved", "in uso": "in use",
-  "Originale di Teams": "Teams original", "arcobaleno": "rainbow", "bosco": "forest", "capibara": "capybara", "carta": "paper",
-  "discoteca": "disco", "grafite": "graphite", "notte": "night", "prato": "meadow", "synthwave": "synthwave",
-  "Teams originale": "Original Teams", "Originale chiaro o scuro": "Original light or dark", "☀️ Chiaro": "☀️ Light", "🌙 Scuro": "🌙 Dark",
-  "Questo è Teams com'è. Puoi modificarlo come gli altri: quando salvi diventa un tema nuovo.": "This is Teams as it is. You can change it like the others: when you save, it becomes a new theme.",
-  "Stai modificando l'originale: quando salvi diventa un tema nuovo.": "You're changing the original: when you save, it becomes a new theme.",
-  "Teams è in modalità chiara: gli metto i suoi colori originali scuri.": "Teams is in light mode: I give it its original dark colours.",
-  "Teams è in modalità scura: gli metto i suoi colori originali chiari.": "Teams is in dark mode: I give it its original light colours.",
-  " (Non ho ancora visto Teams così su questo PC: i colori sono stimati.)": " (I haven't seen Teams like this on this PC yet: the colours are estimated.)",
-  "● Hai modificato l'originale: Teams lo mostra già. Salvando diventa un tema nuovo.": "● You changed the original: Teams already shows it. Saving makes it a new theme.",
-  "● Modifiche non salvate: Teams le mostra già, ma il tema non è ancora salvato.": "● Unsaved changes: Teams already shows them, but the theme isn't saved yet.",
-  "Salva come nuovo tema...": "Save as new theme...", "Salva": "Save", "Annulla modifiche": "Discard changes",
+  "Themes": "Temi", "+ New": "+ Nuovo", "Restore original": "Ripristina originale", "Duplicate": "Duplica", "Rename": "Rinomina", "Delete": "Elimina",
+  "Serious": "Seri", "Fun": "Divertenti", "Mine": "I miei",
+  "Unsaved changes": "Modifiche non salvate", "● not saved": "● non salvato", "in use": "in uso",
+  "Original Teams": "Teams originale", "Original light or dark": "Originale chiaro o scuro", "☀️ Light": "☀️ Chiaro", "🌙 Dark": "🌙 Scuro",
+  "This is Teams as it is. You can change it like the others: when you save, it becomes a new theme.": "Questo è Teams com'è. Puoi modificarlo come gli altri: quando salvi diventa un tema nuovo.",
+  "You're changing the original: when you save, it becomes a new theme.": "Stai modificando l'originale: quando salvi diventa un tema nuovo.",
+  "Teams is in light mode: I give it its original dark colours.": "Teams è in modalità chiara: gli metto i suoi colori originali scuri.",
+  "Teams is in dark mode: I give it its original light colours.": "Teams è in modalità scura: gli metto i suoi colori originali chiari.",
+  " (I haven't seen Teams like this on this PC yet: the colours are estimated.)": " (Non ho ancora visto Teams così su questo PC: i colori sono stimati.)",
+  "● You changed the original: Teams already shows it. Saving makes it a new theme.": "● Hai modificato l'originale: Teams lo mostra già. Salvando diventa un tema nuovo.",
+  "● Unsaved changes: Teams already shows them, but the theme isn't saved yet.": "● Modifiche non salvate: Teams le mostra già, ma il tema non è ancora salvato.",
+  "Save as new theme...": "Salva come nuovo tema...", "Save": "Salva", "Discard changes": "Annulla modifiche",
   // colours
-  "🎨 Colori": "🎨 Colours", "✨ Effetti": "✨ Effects", "Colori": "Colours", "Sfondo della finestra": "Window background", "Tipo di sfondo": "Background type",
-  "Tinta unita": "Solid", "Gradiente": "Gradient", "Gradiente che scorre": "Flowing gradient", "Testo e forme": "Text and shapes", "Font": "Font",
-  "Nome del font, es. Papyrus": "Font name, e.g. Papyrus", "Altro font": "Other font", "Altre opzioni": "More options",
-  "Sfondo": "Background", "Testo": "Text", "Colore principale": "Main colour", "Intensità del colore principale": "Main colour strength", "Link": "Links",
-  "Il tema è uguale con Teams chiaro e scuro: se lo sfondo è chiaro, è un tema chiaro.": "The theme looks the same with Teams light and dark: a light background makes a light theme.",
-  "Pulsanti, selezioni e menzioni (il viola di Teams).": "Buttons, selections and mentions (Teams' purple).",
-  "Se si legge male sullo sfondo, lo sistemo da solo.": "If it's hard to read on the background, I fix it myself.",
-  "Scritte sul colore principale": "Text on the main colour", "Se si leggono male, le sistemo da solo.": "If they're hard to read, I fix them myself.",
-  "Alone delle ombre": "Shadow glow", "Le ombre di menu e finestre diventano un alone di questo colore.": "Shadows of menus and windows become a glow of this colour.",
-  "Arrotondamento degli angoli": "Corner rounding", "{l} (selettore)": "{l} (picker)", "{l} (esadecimale)": "{l} (hex)",
-  "Lo sfondo usa il colore \"Sfondo\".": "The background uses the \"Background\" colour.", "Colore {n} del gradiente": "Gradient colour {n}",
-  "Direzione": "Direction", "Un giro ogni": "One loop every", "Meno secondi = scorre più veloce.": "Fewer seconds = flows faster.",
-  "Trasparenza dei pannelli": "Panel transparency", "Più è alta, più il gradiente si vede attraverso chat ed elenchi.": "The higher it is, the more the gradient shows through chats and lists.",
-  "Font di Teams": "Teams font", "Cascadia Mono (terminale)": "Cascadia Mono (terminal)", "Courier New (macchina da scrivere)": "Courier New (typewriter)",
-  "Georgia (libro)": "Georgia (book)", "Segoe Script (corsivo)": "Segoe Script (handwriting)", "Altro font...": "Other font...",
-  "predefinito": "default", "scrivi tu": "type it",
+  "🎨 Colours": "🎨 Colori", "✨ Effects": "✨ Effetti", "Colours": "Colori", "Window background": "Sfondo della finestra", "Background type": "Tipo di sfondo",
+  "Solid": "Tinta unita", "Gradient": "Gradiente", "Flowing gradient": "Gradiente che scorre", "Text and shapes": "Testo e forme", "Font": "Font",
+  "Font name, e.g. Papyrus": "Nome del font, es. Papyrus", "Other font": "Altro font", "More options": "Altre opzioni",
+  "Background": "Sfondo", "Text": "Testo", "Main colour": "Colore principale", "Main colour strength": "Intensità del colore principale", "Links": "Link",
+  "The theme looks the same with Teams light and dark: a light background makes a light theme.": "Il tema è uguale con Teams chiaro e scuro: se lo sfondo è chiaro, è un tema chiaro.",
+  "Buttons, selections and mentions (Teams' purple).": "Pulsanti, selezioni e menzioni (il viola di Teams).",
+  "If it's hard to read on the background, I fix it myself.": "Se si legge male sullo sfondo, lo sistemo da solo.",
+  "Text on the main colour": "Scritte sul colore principale", "If they're hard to read, I fix them myself.": "Se si leggono male, le sistemo da solo.",
+  "Shadow glow": "Alone delle ombre", "Shadows of menus and windows become a glow of this colour.": "Le ombre di menu e finestre diventano un alone di questo colore.",
+  "Corner rounding": "Arrotondamento degli angoli", "{l} (picker)": "{l} (selettore)", "{l} (hex)": "{l} (esadecimale)",
+  "The background uses the \"Background\" colour.": "Lo sfondo usa il colore \"Sfondo\".", "Gradient colour {n}": "Colore {n} del gradiente",
+  "Direction": "Direzione", "One loop every": "Un giro ogni", "Fewer seconds = flows faster.": "Meno secondi = scorre più veloce.",
+  "Panel transparency": "Trasparenza dei pannelli", "The higher it is, the more the gradient shows through chats and lists.": "Più è alta, più il gradiente si vede attraverso chat ed elenchi.",
+  "Teams font": "Font di Teams", "Cascadia Mono (terminal)": "Cascadia Mono (terminale)", "Courier New (typewriter)": "Courier New (macchina da scrivere)",
+  "Georgia (book)": "Georgia (libro)", "Segoe Script (handwriting)": "Segoe Script (corsivo)", "Other font...": "Altro font...",
+  "default": "predefinito", "type it": "scrivi tu",
   // effects
-  "Quando partono": "When they start", "Quando partono gli effetti": "When the effects start", "Da soli, ogni tanto": "By themselves, now and then",
-  "Quando clicco il bottone su Teams": "When I click the button in Teams", "Colori che cambiano": "Changing colours", "Spenti": "Off", "Pulsanti": "Buttons",
-  "Pulsanti e testo": "Buttons and text", "Tutto 🪩": "Everything 🪩", "\"Tutto\" fa cambiare colore a tutta la finestra, foto comprese.": "\"Everything\" changes the colour of the whole window, photos included.",
-  "Pulsanti ballerini": "Dancing buttons", "Passando con il mouse i pulsanti si dimenano e le foto fanno una giravolta": "Under the mouse, buttons wiggle and photos do a twirl",
-  "Cose che cadono": "Things that fall", "o scrivi le tue": "or type your own", "Cosa cade (emoji o lettere)": "What falls (emoji or letters)", "Niente": "Nothing",
-  "Come cadono": "How they fall", "Neve (piano, ondeggia)": "Snow (slow, swaying)", "Pioggia": "Rain", "Diluvio": "Downpour", "Chi vola": "Who flies",
-  "+ un'emoji": "+ an emoji", "Aggiungi un'emoji che vola": "Add a flying emoji", "animali e chi vola: fino a 3 insieme": "animals and flyers: up to 3 together",
-  "Quanto spesso": "How often", "Quanto spesso passano": "How often they pass", "Raramente": "Rarely", "Ogni tanto": "Now and then", "Spesso": "Often",
-  "Scia arcobaleno": "Rainbow trail",
-  "Il bottone compare su Teams appena accendi qualcosa da far partire: chi passa, cose che cadono o pulsanti ballerini (qui sotto).": "The button shows up in Teams as soon as you switch on something to start: flyers, falling things or dancing buttons (below).",
-  "automatico": "automatic", "Emoji del bottone": "Button emoji",
-  "Il bottone {b} è su Teams in basso a destra, sopra il box dei messaggi: trascinalo dove vuoi. Lo clicchi e partono chi passa, le cose che cadono e i pulsanti ballerini. Lo vedi anche nell'anteprima.": "The {b} button is in Teams at the bottom right, above the message box: drag it wherever you like. Click it and the flyers, falling things and dancing buttons start. You see it in the preview too.",
-  "Gli animali vanno a mangiare alla ciotola, ovunque la metti": "The animals go and eat at the bowl, wherever you put it", "Togli": "Remove",
-  "🍊 Capibara": "🍊 Capybara", "🐱 Gatto": "🐱 Cat", "🐶 Cane": "🐶 Dog", "🐑 Pecora": "🐑 Sheep", "🐂 Toro": "🐂 Bull", "👻 Fantasma": "👻 Ghost",
-  "🤖 Robot": "🤖 Robot", "🚚 Camion": "🚚 Truck", "🕶️ Drugo": "🕶️ The Dude", "🍕 Pizza": "🍕 Pizza", "☄️ Cometa": "☄️ Comet",
+  "When they start": "Quando partono", "When the effects start": "Quando partono gli effetti", "By themselves, now and then": "Da soli, ogni tanto",
+  "When I click the button in Teams": "Quando clicco il bottone su Teams", "Changing colours": "Colori che cambiano", "Off": "Spenti", "Buttons": "Pulsanti",
+  "Buttons and text": "Pulsanti e testo", "Everything 🪩": "Tutto 🪩", "\"Everything\" changes the colour of the whole window, photos included.": "\"Tutto\" fa cambiare colore a tutta la finestra, foto comprese.",
+  "Dancing buttons": "Pulsanti ballerini", "Under the mouse, buttons wiggle and photos do a twirl": "Passando con il mouse i pulsanti si dimenano e le foto fanno una giravolta",
+  "Things that fall": "Cose che cadono", "or type your own": "o scrivi le tue", "What falls (emoji or letters)": "Cosa cade (emoji o lettere)", "Nothing": "Niente",
+  "How they fall": "Come cadono", "Snow (slow, swaying)": "Neve (piano, ondeggia)", "Rain": "Pioggia", "Downpour": "Diluvio", "Who flies": "Chi vola",
+  "+ an emoji": "+ un'emoji", "Add a flying emoji": "Aggiungi un'emoji che vola", "animals and flyers: up to 3 together": "animali e chi vola: fino a 3 insieme",
+  "How often": "Quanto spesso", "How often they pass": "Quanto spesso passano", "Rarely": "Raramente", "Now and then": "Ogni tanto", "Often": "Spesso",
+  "Rainbow trail": "Scia arcobaleno",
+  "The button shows up in Teams as soon as you switch on something to start: flyers, falling things or dancing buttons (below).": "Il bottone compare su Teams appena accendi qualcosa da far partire: chi passa, cose che cadono o pulsanti ballerini (qui sotto).",
+  "automatic": "automatico", "Button emoji": "Emoji del bottone",
+  "The {b} button is in Teams at the bottom right, above the message box: drag it wherever you like. Click it and the flyers, falling things and dancing buttons start. You see it in the preview too.": "Il bottone {b} è su Teams in basso a destra, sopra il box dei messaggi: trascinalo dove vuoi. Lo clicchi e partono chi passa, le cose che cadono e i pulsanti ballerini. Lo vedi anche nell'anteprima.",
+  "The animals go and eat at the bowl, wherever you put it": "Gli animali vanno a mangiare alla ciotola, ovunque la metti", "Remove": "Togli",
+  "🍊 Capybara": "🍊 Capibara", "🐱 Cat": "🐱 Gatto", "🐶 Dog": "🐶 Cane", "🐑 Sheep": "🐑 Pecora", "🐂 Bull": "🐂 Toro", "👻 Ghost": "👻 Fantasma",
+  "🤖 Robot": "🤖 Robot", "🚚 Truck": "🚚 Camion", "🕶️ The Dude": "🕶️ Drugo", "🍕 Pizza": "🍕 Pizza", "☄️ Comet": "☄️ Cometa",
   // preview
-  "Anteprima": "Preview", "▶ Prova gli effetti": "▶ Try the effects", "Anteprima del tema": "Theme preview",
-  "Anteprima vera: gli stessi colori del tuo Teams e lo stesso CSS che va su Teams.": "Real preview: the same colours as your Teams and the same CSS that goes to Teams.",
-  "Per un tema chiaro i colori di base di Teams chiaro sono stimati (non l'ho ancora visto su questo PC): il risultato su Teams è quello vero.": "For a light theme, light Teams' base colours are estimated (not seen on this PC yet): the result in Teams is the real one.",
-  "! {n} cosa si legge male": "! {n} thing is hard to read", "! {n} cose si leggono male": "! {n} things are hard to read", "✓ Si legge bene": "✓ Easy to read",
-  " (sistemato da solo)": " (fixed automatically)", "Anteprima non disponibile: ": "Preview not available: ",
-  "Le modifiche all'originale si perdono. Continuo?": "Changes to the original will be lost. Go on?", "Modifica non applicata: ": "Change not applied: ",
+  "Preview": "Anteprima", "▶ Try the effects": "▶ Prova gli effetti", "Theme preview": "Anteprima del tema",
+  "Real preview: the same colours as your Teams and the same CSS that goes to Teams.": "Anteprima vera: gli stessi colori del tuo Teams e lo stesso CSS che va su Teams.",
+  "For a light theme, light Teams' base colours are estimated (not seen on this PC yet): the result in Teams is the real one.": "Per un tema chiaro i colori di base di Teams chiaro sono stimati (non l'ho ancora visto su questo PC): il risultato su Teams è quello vero.",
+  "! {n} thing is hard to read": "! {n} cosa si legge male", "! {n} things are hard to read": "! {n} cose si leggono male", "✓ Easy to read": "✓ Si legge bene",
+  " (fixed automatically)": " (sistemato da solo)", "Preview not available: ": "Anteprima non disponibile: ",
+  "Changes to the original will be lost. Go on?": "Le modifiche all'originale si perdono. Continuo?", "Change not applied: ": "Modifica non applicata: ",
   // mock Teams in the preview
-  "Cerca": "Search", "Club del caffè": "Coffee club", "Pranzo del venerdì": "Friday lunch", "Gita in montagna": "Mountain trip", "Condividi": "Share", "Chiama": "Call",
-  "Ho portato i biscotti, li trovi ": "I brought cookies, you'll find them ", "qui": "here", "Perfetto, grazie!": "Perfect, thanks!", " caffè alle 15?": " coffee at 3?",
-  "Scrivi un messaggio": "Type a message", "TU": "ME",
+  "Search": "Cerca", "Coffee club": "Club del caffè", "Friday lunch": "Pranzo del venerdì", "Mountain trip": "Gita in montagna", "Share": "Condividi", "Call": "Chiama",
+  "I brought cookies, you'll find them ": "Ho portato i biscotti, li trovi ", "here": "qui", "Perfect, thanks!": "Perfetto, grazie!", " coffee at 3?": " caffè alle 15?",
+  "Type a message": "Scrivi un messaggio", "ME": "TU",
   // dialogs
-  "Annulla": "Cancel", "Salva come nuovo tema": "Save as new theme",
-  "L'originale di Teams non cambia: le tue modifiche diventano un tema nuovo, in \"I miei\".": "Teams' original doesn't change: your changes become a new theme, in \"Mine\".",
-  "Il mio tema": "My theme", "Crea il tema": "Create the theme", "Tema '{n}' creato.": "Theme '{n}' created.", "Tema '{n}' salvato.": "Theme '{n}' saved.",
-  "Ripristinare l'originale?": "Restore the original?", "'{n}' torna com'era quando è arrivato con l'app. Le tue modifiche a questo tema si perdono.": "'{n}' goes back to how it came with the app. Your changes to this theme are lost.",
-  "Ripristina": "Restore", "Nuovo tema": "New theme", "Parte da Teams com'è adesso. Per partire da un altro tema usa \"Duplica\".": "Starts from Teams as it is now. To start from another theme use \"Duplicate\".",
-  "Crea": "Create", "Duplica tema": "Duplicate theme", "Copia di '{n}' com'è adesso (modifiche non salvate comprese), in \"I miei\".": "Copy of '{n}' as it is now (unsaved changes included), in \"Mine\".",
-  " copia": " copy", "Rinomina tema": "Rename theme", "Nuovo nome:": "New name:", "Eliminare il tema?": "Delete the theme?", "'{n}' viene cancellato.": "'{n}' will be deleted.",
-  " È un tema dell'app: non si potrà ripristinare.": " It's one of the app's themes: it can't be restored.", "Errore: ": "Error: ",
-  "Teams si riapre un attimo": "Teams reopens for a moment", "Va bene": "OK",
-  "Per accendere Teams Remix, Teams si chiude e si riapre da solo, in pochi secondi. Se sei in una call, aspetta che finisca.": "To switch Teams Remix on, Teams closes and reopens by itself, in a few seconds. If you're in a call, wait until it ends.",
-  "Per provare gli effetti si accende Teams Remix e Teams si riapre da solo, in pochi secondi. Se sei in una call, aspetta che finisca.": "To try the effects, Teams Remix switches on and Teams reopens by itself, in a few seconds. If you're in a call, wait until it ends.",
-  "Riaprire Teams com'era?": "Reopen Teams as it was?", "Teams si chiude e si riapre senza Teams Remix: niente tema, coinquilini e soprannomi. Se sei in una call, aspetta che finisca.": "Teams closes and reopens without Teams Remix: no theme, housemates or nicknames. If you're in a call, wait until it ends.",
-  "Riapri Teams": "Reopen Teams", "Avvio con Windows non cambiato: ": "Start with Windows not changed: ", "Impostazione non cambiata: ": "Setting not changed: ",
-  "Chiudere l'app?": "Close the app?", "Hai modifiche non salvate in: {l}. Chiudendo si perdono. ": "You have unsaved changes in: {l}. Closing loses them. ",
-  "Tema, coinquilini e soprannomi restano su Teams finché Teams non si ricarica, ma l'app smette di rimetterli.": "Theme, housemates and nicknames stay in Teams until Teams reloads, but the app stops putting them back.",
-  "Chiudi l'app": "Close the app", "App chiusa. Puoi chiudere questa finestra.": "App closed. You can close this window.",
+  "Cancel": "Annulla", "Save as new theme": "Salva come nuovo tema",
+  "Teams' original doesn't change: your changes become a new theme, in \"Mine\".": "L'originale di Teams non cambia: le tue modifiche diventano un tema nuovo, in \"I miei\".",
+  "My theme": "Il mio tema", "Create the theme": "Crea il tema", "Theme '{n}' created.": "Tema '{n}' creato.", "Theme '{n}' saved.": "Tema '{n}' salvato.",
+  "Restore the original?": "Ripristinare l'originale?", "'{n}' goes back to how it came with the app. Your changes to this theme are lost.": "'{n}' torna com'era quando è arrivato con l'app. Le tue modifiche a questo tema si perdono.",
+  "Restore": "Ripristina", "New theme": "Nuovo tema", "Starts from Teams as it is now. To start from another theme use \"Duplicate\".": "Parte da Teams com'è adesso. Per partire da un altro tema usa \"Duplica\".",
+  "Create": "Crea", "Duplicate theme": "Duplica tema", "Copy of '{n}' as it is now (unsaved changes included), in \"Mine\".": "Copia di '{n}' com'è adesso (modifiche non salvate comprese), in \"I miei\".",
+  " copy": " copia", "Rename theme": "Rinomina tema", "New name:": "Nuovo nome:", "Delete the theme?": "Eliminare il tema?", "'{n}' will be deleted.": "'{n}' viene cancellato.",
+  " It's one of the app's themes: it can't be restored.": " È un tema dell'app: non si potrà ripristinare.", "Error: ": "Errore: ",
+  "Teams reopens for a moment": "Teams si riapre un attimo", "OK": "Va bene",
+  "To switch Teams Remix on, Teams closes and reopens by itself, in a few seconds. If you're in a call, wait until it ends.": "Per accendere Teams Remix, Teams si chiude e si riapre da solo, in pochi secondi. Se sei in una call, aspetta che finisca.",
+  "To try the effects, Teams Remix switches on and Teams reopens by itself, in a few seconds. If you're in a call, wait until it ends.": "Per provare gli effetti si accende Teams Remix e Teams si riapre da solo, in pochi secondi. Se sei in una call, aspetta che finisca.",
+  "Reopen Teams as it was?": "Riaprire Teams com'era?", "Teams closes and reopens without Teams Remix: no theme, housemates or nicknames. If you're in a call, wait until it ends.": "Teams si chiude e si riapre senza Teams Remix: niente tema, coinquilini e soprannomi. Se sei in una call, aspetta che finisca.",
+  "Reopen Teams": "Riapri Teams", "Start with Windows not changed: ": "Avvio con Windows non cambiato: ", "Setting not changed: ": "Impostazione non cambiata: ",
+  "Close the app?": "Chiudere l'app?", "You have unsaved changes in: {l}. Closing loses them. ": "Hai modifiche non salvate in: {l}. Chiudendo si perdono. ",
+  "Theme, housemates and nicknames stay in Teams until Teams reloads, but the app stops putting them back.": "Tema, coinquilini e soprannomi restano su Teams finché Teams non si ricarica, ma l'app smette di rimetterli.",
+  "Close the app": "Chiudi l'app", "App closed. You can close this window.": "App chiusa. Puoi chiudere questa finestra.",
   // housemates
-  "🐾 Coinquilini": "🐾 Housemates", "▶ Chiamali ora": "▶ Call them now", "Anteprima dei coinquilini": "Housemates preview",
-  "Abitano nel tuo Teams, con qualunque tema (anche con l'originale). Ognuno ha la sua cosa: una ciotola, una balla di fieno per il toro, una zucca per il fantasma, una scatola di cavi per il robot, un pacchetto per il camion, il latte per il Drugo.": "They live in your Teams, with any theme (the original too). Each one has its thing: a bowl, a hay bale for the bull, a pumpkin for the ghost, a box of cables for the robot, a parcel for the truck, milk for the Dude.",
-  "Nell'anteprima funziona come su Teams: clicca e trascina le ciotole, clicca i coinquilini per coccolarli.": "The preview works like Teams: click and drag the bowls, click the housemates to cuddle them.",
-  "Scegli chi abita nel tuo Teams: poi decidi come vivono.": "Pick who lives in your Teams: then decide how they live.",
-  "ciotola di mandarini": "bowl of tangerines", "ciotola col pesce": "bowl with fish", "ciotola con l'osso": "bowl with a bone", "ciotola d'erba": "bowl of grass",
-  "balla di fieno": "hay bale", "zucca": "pumpkin", "pacchetto": "parcel", "scatola di cavi": "box of cables", "cartone del latte": "carton of milk",
-  "Come vivono": "How they live", "🏠 Vivono su Teams": "🏠 They live in Teams", "🥣 Arrivano quando clicco la loro ciotola": "🥣 They come when I click their bowl", "Passano ogni tanto": "They pass by now and then",
-  "Vivono con te: girano per la finestra, si fermano a guardarsi intorno, ogni tanto escono a farsi un giro e poi tornano. La loro ciotola li richiama a mangiare (anche quando sono usciti a farsi un giro) e dopo restano con te per un po'.": "They live with you: they wander around the window, stop to look around, now and then go out for a walk and come back. Their bowl calls them to eat (even when they're out for a walk) and afterwards they stay with you for a while.",
-  "Non ci sono finché non clicchi la ciotola di uno di loro: allora arriva, mangia e se ne va, da un lato a caso.": "They aren't there until you click one of their bowls: then that one comes, eats and leaves, on a random side.",
-  "Ogni tanto uno di loro attraversa la finestra in fondo, da un lato o dall'altro, si ferma un attimo e riparte. Niente ciotole.": "Now and then one of them crosses the bottom of the window, from one side or the other, stops a moment and goes on. No bowls.",
-  "Sempre: cliccane uno per coccolarlo ❤️, trascinalo per spostarlo.": "Always: click one to cuddle it ❤️, drag it to move it.",
-  "Ognuno ha la sua: {things}. Stanno su Teams in basso a destra, sopra il box dei messaggi: trascinale dove vuoi. ": "Each one has its own: {things}. They're in Teams at the bottom right, above the message box: drag them wherever you like. ",
-  "Se sposti una ciotola mentre il suo coinquilino arriva, lui cambia strada; se la sposti mentre mangia (o lo prendi in braccio), si arrabbia 💢⛈️ e se ne va": "If you move a bowl while its housemate is coming, it changes its way; if you move it while it's eating (or pick it up), it gets angry 💢⛈️ and leaves",
-  ": si nasconde dietro il bordo e torna da solo quando gli passa. Se lo chiami con la ciotola mentre è ancora arrabbiato, sbuca un po' dal bordo, ti fa vedere che è ancora arrabbiato 💢 e torna a nascondersi: del tuo cibo non gli importa.": ": it hides behind the edge and comes back by itself when it's over it. If you call it with the bowl while it's still angry, it peeks out from the edge, shows you it's still angry 💢 and hides again: it doesn't care about your food.",
-  "Grandezza delle ciotole": "Bowl size", "Piccole": "Small", "Medie": "Medium", "Grandi": "Large", "Enormi": "Huge",
-  "Grandezza dei coinquilini": "Housemate size", "Piccoli": "Small", "Normali": "Normal", "Velocità": "Speed", "Piano": "Slow", "Normale": "Normal", "Veloce": "Fast",
-  "❤️ Cuoricini mentre mangiano": "❤️ Little hearts while they eat", "💤 Pisolino dopo aver mangiato": "💤 A nap after eating", "🌈 Scia arcobaleno dietro": "🌈 Rainbow trail behind",
-  "🏷️ Un nome sopra la testa (lascia vuoto per niente):": "🏷️ A name above the head (leave empty for none):", "es. Pippo": "e.g. Rex", "Nome di {x}": "Name of {x}",
-  "Coinquilini non salvati: ": "Housemates not saved: ",
-  "Per chiamarli su Teams serve accendere \"Attivo su Teams\": Teams si chiude e si riapre da solo. Se sei in una call, aspetta che finisca.": "To call them in Teams, \"On in Teams\" has to be switched on: Teams closes and reopens by itself. If you're in a call, wait until it ends.",
+  "🐾 Housemates": "🐾 Coinquilini", "▶ Call them now": "▶ Chiamali ora", "Housemates preview": "Anteprima dei coinquilini",
+  "They live in your Teams, with any theme (the original too). Each one has its thing: a bowl, a hay bale for the bull, a pumpkin for the ghost, a box of cables for the robot, a parcel for the truck, milk for the Dude.": "Abitano nel tuo Teams, con qualunque tema (anche con l'originale). Ognuno ha la sua cosa: una ciotola, una balla di fieno per il toro, una zucca per il fantasma, una scatola di cavi per il robot, un pacchetto per il camion, il latte per il Drugo.",
+  "The preview works like Teams: click and drag the bowls, click the housemates to cuddle them.": "Nell'anteprima funziona come su Teams: clicca e trascina le ciotole, clicca i coinquilini per coccolarli.",
+  "Pick who lives in your Teams: then decide how they live.": "Scegli chi abita nel tuo Teams: poi decidi come vivono.",
+  "bowl of tangerines": "ciotola di mandarini", "bowl with fish": "ciotola col pesce", "bowl with a bone": "ciotola con l'osso", "bowl of grass": "ciotola d'erba",
+  "hay bale": "balla di fieno", "pumpkin": "zucca", "parcel": "pacchetto", "box of cables": "scatola di cavi", "carton of milk": "cartone del latte",
+  "How they live": "Come vivono", "🏠 They live in Teams": "🏠 Vivono su Teams", "🥣 They come when I click their bowl": "🥣 Arrivano quando clicco la loro ciotola", "They pass by now and then": "Passano ogni tanto",
+  "They live with you: they wander around the window, stop to look around, now and then go out for a walk and come back. Their bowl calls them to eat (even when they're out for a walk) and afterwards they stay with you for a while.": "Vivono con te: girano per la finestra, si fermano a guardarsi intorno, ogni tanto escono a farsi un giro e poi tornano. La loro ciotola li richiama a mangiare (anche quando sono usciti a farsi un giro) e dopo restano con te per un po'.",
+  "They aren't there until you click one of their bowls: then that one comes, eats and leaves, on a random side.": "Non ci sono finché non clicchi la ciotola di uno di loro: allora arriva, mangia e se ne va, da un lato a caso.",
+  "Now and then one of them crosses the bottom of the window, from one side or the other, stops a moment and goes on. No bowls.": "Ogni tanto uno di loro attraversa la finestra in fondo, da un lato o dall'altro, si ferma un attimo e riparte. Niente ciotole.",
+  "Always: click one to cuddle it ❤️, drag it to move it.": "Sempre: cliccane uno per coccolarlo ❤️, trascinalo per spostarlo.",
+  "Each one has its own: {things}. They're in Teams at the bottom right, above the message box: drag them wherever you like. ": "Ognuno ha la sua: {things}. Stanno su Teams in basso a destra, sopra il box dei messaggi: trascinale dove vuoi. ",
+  "If you move a bowl while its housemate is coming, it changes its way; if you move it while it's eating (or pick it up), it gets angry 💢⛈️ and leaves": "Se sposti una ciotola mentre il suo coinquilino arriva, lui cambia strada; se la sposti mentre mangia (o lo prendi in braccio), si arrabbia 💢⛈️ e se ne va",
+  ": it hides behind the edge and comes back by itself when it's over it. If you call it with the bowl while it's still angry, it peeks out from the edge, shows you it's still angry 💢 and hides again: it doesn't care about your food.": ": si nasconde dietro il bordo e torna da solo quando gli passa. Se lo chiami con la ciotola mentre è ancora arrabbiato, sbuca un po' dal bordo, ti fa vedere che è ancora arrabbiato 💢 e torna a nascondersi: del tuo cibo non gli importa.",
+  "Bowl size": "Grandezza delle ciotole", "Small": "Piccole", "Medium": "Medie", "Large": "Grandi", "Huge": "Enormi",
+  "Housemate size": "Grandezza dei coinquilini", "Little": "Piccoli", "Regular": "Normali", "Speed": "Velocità", "Slow": "Piano", "Normal": "Normale", "Fast": "Veloce",
+  "❤️ Little hearts while they eat": "❤️ Cuoricini mentre mangiano", "💤 A nap after eating": "💤 Pisolino dopo aver mangiato", "🌈 Rainbow trail behind": "🌈 Scia arcobaleno dietro",
+  "🏷️ A name above the head (leave empty for none):": "🏷️ Un nome sopra la testa (lascia vuoto per niente):", "e.g. Rex": "es. Pippo", "Name of {x}": "Nome di {x}",
+  "Housemates not saved: ": "Coinquilini non salvati: ",
+  "To call them in Teams, \"On in Teams\" has to be switched on: Teams closes and reopens by itself. If you're in a call, wait until it ends.": "Per chiamarli su Teams serve accendere \"Attivo su Teams\": Teams si chiude e si riapre da solo. Se sei in una call, aspetta che finisca.",
   // nicknames
-  "Soprannomi": "Nicknames", "+ Aggiungi": "+ Add",
-  "📷 Con la foto, su Teams quella persona ha la tua foto al posto della sua (anche lei la vedi solo tu).": "📷 With a photo, that person has your photo instead of theirs in Teams (only you see it too).",
-  "🔎 Puoi anche cercare per soprannome: scrivilo nella ricerca di Teams in alto e in cima ai risultati compare \"Soprannomi\" (al massimo 2 persone). Cliccane uno e Teams apre quella persona.": "🔎 You can also search by nickname: type it in Teams' search at the top and \"Nicknames\" shows up above the results (at most 2 people). Click one and Teams opens that person.",
-  "Nessun soprannome. Premi \"+ Aggiungi\".": "No nicknames. Press \"+ Add\".", "Cognome Nome, es. Verdi Luna": "Surname Name, e.g. Green Luna",
-  "Nome come appare su Teams": "Name as it shows in Teams", "Soprannome, es. Lunetta": "Nickname, e.g. Moony", "Soprannome": "Nickname", "Togli il soprannome": "Remove the nickname",
-  "Cambia la foto": "Change the photo", "Aggiungi una foto": "Add a photo", "Togli la foto": "Remove the photo", "Carico la foto...": "Uploading the photo...",
-  "Foto non caricata: ": "Photo not uploaded: ", "non è un'immagine": "it's not a picture",
-  "Per vederli su Teams accendi \"Attivo su Teams\" in alto.": "To see them in Teams, switch on \"On in Teams\" at the top.", "Salvo...": "Saving...",
-  "Salvati: li vedi già su Teams.": "Saved: you already see them in Teams.", "Non salvati: ": "Not saved: ",
+  "Nicknames": "Soprannomi", "+ Add": "+ Aggiungi",
+  "📷 With a photo, that person has your photo instead of theirs in Teams (only you see it too).": "📷 Con la foto, su Teams quella persona ha la tua foto al posto della sua (anche lei la vedi solo tu).",
+  "🔎 You can also search by nickname: type it in Teams' search at the top and \"Nicknames\" shows up above the results (at most 2 people). Click one and Teams opens that person.": "🔎 Puoi anche cercare per soprannome: scrivilo nella ricerca di Teams in alto e in cima ai risultati compare \"Soprannomi\" (al massimo 2 persone). Cliccane uno e Teams apre quella persona.",
+  "No nicknames. Press \"+ Add\".": "Nessun soprannome. Premi \"+ Aggiungi\".", "Surname Name, e.g. Green Luna": "Cognome Nome, es. Verdi Luna",
+  "Name as it shows in Teams": "Nome come appare su Teams", "Nickname, e.g. Moony": "Soprannome, es. Lunetta", "Nickname": "Soprannome", "Remove the nickname": "Togli il soprannome",
+  "Change the photo": "Cambia la foto", "Add a photo": "Aggiungi una foto", "Remove the photo": "Togli la foto", "Uploading the photo...": "Carico la foto...",
+  "Photo not uploaded: ": "Foto non caricata: ", "it's not a picture": "non è un'immagine",
+  "To see them in Teams, switch on \"On in Teams\" at the top.": "Per vederli su Teams accendi \"Attivo su Teams\" in alto.", "Saving...": "Salvo...",
+  "Saved: you already see them in Teams.": "Salvati: li vedi già su Teams.", "Not saved: ": "Non salvati: ",
   // options
-  "Lingua": "Language", "Automatica (come Windows)": "Automatic (like Windows)",
-  "Avvio": "Start", "Quando accendo il PC, accendi Teams Remix (tema, coinquilini e soprannomi)": "When I start the PC, switch Teams Remix on (theme, housemates and nicknames)",
-  "All'accesso l'app parte da sola in background e aspetta Teams.": "At sign-in the app starts by itself in the background and waits for Teams.",
-  "Animazioni": "Animations", "Rispetta \"riduci animazioni\" di Windows (gli effetti si fermano)": "Respect Windows' \"reduce animations\" (the effects stop)",
-  "Spento: gli effetti partono sempre, perché li scegli tu tema per tema.": "Off: the effects always run, because you pick them theme by theme.",
-  "Windows chiede animazioni ridotte e hai scelto di rispettarlo: gli effetti sono fermi (lo cambi in Opzioni).": "Windows asks for reduced animations and you chose to respect it: the effects are still (change it in Options).",
-  "Windows chiede animazioni ridotte: gli effetti partono lo stesso, perché li hai scelti tu.": "Windows asks for reduced animations: the effects run anyway, because you chose them.",
-  "Call": "Calls", "Durante le call, Teams normale": "During calls, normal Teams",
-  "Per colorare Teams l'app lo riapre con un canale di controllo che funziona solo su questo PC. Finché quel canale è aperto, altri programmi sul PC potrebbero leggere cosa c'è in Teams. Questo pulsante lo chiude e rimette Teams com'è.": "To colour Teams, the app reopens it with a control channel that only works on this PC. While that channel is open, other programs on the PC could read what's in Teams. This button closes it and puts Teams back as it is.",
-  "Riapri Teams com'era": "Reopen Teams as it was", "App": "App",
-  "Aggiornamenti": "Updates", "Controlla da solo se c'è una versione nuova (su GitHub)": "Check by itself for a new version (on GitHub)",
-  "Questa copia viene da git: si aggiorna con git pull.": "This copy comes from git: it updates with git pull.",
-  "Versione installata: {v}.": "Installed version: {v}.", "Versione installata: non indicata.": "Installed version: not given.",
-  "Aggiorna": "Update", "C'è una versione nuova di Teams Remix: {v}.": "A new version of Teams Remix is out: {v}.", "Cosa cambia": "What changes",
-  "Aggiornare adesso?": "Update now?", "Hai modifiche non salvate in: {l}. Aggiornando si perdono.": "You have unsaved changes in: {l}. Updating loses them.",
-  "Aggiorno Teams Remix... Teams non si chiude.": "Updating Teams Remix... Teams doesn't close.",
-  "Aggiornato alla versione {v}: la finestra nuova si apre da sola, puoi chiudere questa.": "Updated to version {v}: the new window opens by itself, you can close this one.",
-  "Teams Remix resta accesa in background per rimettere tema, coinquilini e soprannomi quando Teams si ricarica.": "Teams Remix stays on in the background to put the theme, housemates and nicknames back when Teams reloads.",
+  "Language": "Lingua", "Automatic (like Windows)": "Automatica (come Windows)",
+  "Start": "Avvio", "When I start the PC, switch Teams Remix on (theme, housemates and nicknames)": "Quando accendo il PC, accendi Teams Remix (tema, coinquilini e soprannomi)",
+  "At sign-in the app starts by itself in the background and waits for Teams.": "All'accesso l'app parte da sola in background e aspetta Teams.",
+  "Animations": "Animazioni", "Respect Windows' \"reduce animations\" (the effects stop)": "Rispetta \"riduci animazioni\" di Windows (gli effetti si fermano)",
+  "Off: the effects always run, because you pick them theme by theme.": "Spento: gli effetti partono sempre, perché li scegli tu tema per tema.",
+  "Windows asks for reduced animations and you chose to respect it: the effects are still (change it in Options).": "Windows chiede animazioni ridotte e hai scelto di rispettarlo: gli effetti sono fermi (lo cambi in Opzioni).",
+  "Windows asks for reduced animations: the effects run anyway, because you chose them.": "Windows chiede animazioni ridotte: gli effetti partono lo stesso, perché li hai scelti tu.",
+  "Calls": "Call", "During calls, normal Teams": "Durante le call, Teams normale",
+  "To colour Teams, the app reopens it with a control channel that only works on this PC. While that channel is open, other programs on the PC could read what's in Teams. This button closes it and puts Teams back as it is.": "Per colorare Teams l'app lo riapre con un canale di controllo che funziona solo su questo PC. Finché quel canale è aperto, altri programmi sul PC potrebbero leggere cosa c'è in Teams. Questo pulsante lo chiude e rimette Teams com'è.",
+  "Reopen Teams as it was": "Riapri Teams com'era", "App": "App",
+  "Updates": "Aggiornamenti", "Check by itself for a new version (on GitHub)": "Controlla da solo se c'è una versione nuova (su GitHub)",
+  "This copy comes from git: it updates with git pull.": "Questa copia viene da git: si aggiorna con git pull.",
+  "Installed version: {v}.": "Versione installata: {v}.", "Installed version: not given.": "Versione installata: non indicata.",
+  "Update": "Aggiorna", "A new version of Teams Remix is out: {v}.": "C'è una versione nuova di Teams Remix: {v}.", "What changes": "Cosa cambia",
+  "Update now?": "Aggiornare adesso?", "You have unsaved changes in: {l}. Updating loses them.": "Hai modifiche non salvate in: {l}. Aggiornando si perdono.",
+  "Updating Teams Remix... Teams doesn't close.": "Aggiorno Teams Remix... Teams non si chiude.",
+  "Updated to version {v}: the new window opens by itself, you can close this one.": "Aggiornato alla versione {v}: la finestra nuova si apre da sola, puoi chiudere questa.",
+  "Teams Remix stays on in the background to put the theme, housemates and nicknames back when Teams reloads.": "Teams Remix resta accesa in background per rimettere tema, coinquilini e soprannomi quando Teams si ricarica.",
 };
+// the app's own themes: their names are saved in the settings, so they stay as they are and get an English name to show
+const THEME_EN = { "Originale di Teams": "Teams original", arcobaleno: "rainbow", bosco: "forest", capibara: "capybara", carta: "paper", discoteca: "disco", grafite: "graphite", notte: "night", prato: "meadow", synthwave: "synthwave" };
 // paragraphs with words in bold: translated whole
-const EN_HTML = {
-  nickhint: 'Type the name as you see it in Teams and the nickname to see instead: chats, lists, notifications. Only <b>you see it, on this PC</b>: nothing changes for the others, and what you write in messages stays as it is. Write <b>Surname Name</b>, without a comma: "Green Luna" changes both "Green, Luna" (colleagues) and "Luna Green" (guests).',
-  callhint: 'When you join a call or a meeting, theme, housemates and nicknames disappear by themselves and come back when the call ends. <b>Teams doesn\'t reopen</b>, so the call doesn\'t drop. Otherwise, at any time just switch off "On in Teams" at the top.',
+const IT_HTML = {
+  nickhint: 'Scrivi il nome come lo vedi su Teams e il soprannome da vedere al suo posto: chat, elenchi, notifiche. Lo vedi <b>solo tu, su questo PC</b>: per gli altri non cambia niente, e quello che scrivi nei messaggi resta com\'è. Scrivi <b>Cognome Nome</b>, senza virgola: "Verdi Luna" cambia sia "Verdi, Luna" (colleghi) sia "Luna Verdi" (esterni).',
+  callhint: 'Quando entri in una call o in una riunione, tema, coinquilini e soprannomi spariscono da soli e tornano quando la call finisce. <b>Teams non si riapre</b>, quindi la call non cade. Se no, in qualunque momento basta spegnere "Attivo su Teams" in alto.',
 };
-const t = (s, vars) => { let r = (LANG === "en" && EN[s]) || s; if (vars) r = r.replace(/\{(\w+)\}/g, (_, k) => vars[k]); return r; };
-const tname = (n) => (n === S.default || S.builtin.includes(n) ? t(n) : n);  // the app's own themes have a name in each language
+const t = (s, vars) => { let r = (LANG === "it" && IT[s]) || s; if (vars) r = r.replace(/\{(\w+)\}/g, (_, k) => vars[k]); return r; };
+const tname = (n) => (LANG === "en" && (n === S.default || S.builtin.includes(n)) && THEME_EN[n]) || n;  // the app's own themes have a name in each language
 function translatePage() {
   document.documentElement.lang = LANG;
-  if (LANG !== "en") return;
+  if (LANG !== "it") return;
   const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   for (let n; (n = walk.nextNode());) {
     if (n.parentElement.closest("script, style, [data-t]")) continue;
-    const key = n.nodeValue.replace(/\s+/g, " ").trim(); if (!EN[key]) continue;
+    const key = n.nodeValue.replace(/\s+/g, " ").trim(); if (!IT[key]) continue;
     const lead = /^\s/.test(n.nodeValue) ? " " : "", tail = /\s$/.test(n.nodeValue) ? " " : "";
-    n.nodeValue = lead + EN[key] + tail;
+    n.nodeValue = lead + IT[key] + tail;
   }
   for (const a of ["placeholder", "aria-label", "title"])
-    document.querySelectorAll(`[${a}]`).forEach((e) => { const v = e.getAttribute(a); if (EN[v]) e.setAttribute(a, EN[v]); });
-  document.querySelectorAll("[data-t]").forEach((e) => { if (EN_HTML[e.dataset.t]) e.innerHTML = EN_HTML[e.dataset.t]; });
+    document.querySelectorAll(`[${a}]`).forEach((e) => { const v = e.getAttribute(a); if (IT[v]) e.setAttribute(a, IT[v]); });
+  document.querySelectorAll("[data-t]").forEach((e) => { if (IT_HTML[e.dataset.t]) e.innerHTML = IT_HTML[e.dataset.t]; });
 }
 
 const $ = (id) => document.getElementById(id);
@@ -633,16 +629,16 @@ function renderStatus() {
   // shown only while something is happening or when something needs attention; the switch says the rest
   let cls = "warn", text = "";
   if (tm.busy) text = tm.busy;
-  else if (tm.on && tm.call) { cls = "ok"; text = t("Sei in call: Teams è normale, a call finita torna tutto da solo"); }
-  else if (tm.on && !tm.running) text = t("Teams è chiuso: tema, coinquilini e soprannomi arrivano quando lo apri");
-  else if (tm.on && !tm.active) text = t("Sto preparando Teams...");
+  else if (tm.on && tm.call) { cls = "ok"; text = t("You're in a call: Teams is normal, everything comes back by itself afterwards"); }
+  else if (tm.on && !tm.running) text = t("Teams is closed: theme, housemates and nicknames arrive when you open it");
+  else if (tm.on && !tm.active) text = t("Getting Teams ready...");
   st.hidden = !text;
   st.className = "status " + (tm.busy ? "" : cls);
   st.replaceChildren(tm.busy ? el("span", { class: "spin" }) : el("span", { class: "dot" }), el("span", {}, text));
-  const pw = el("button", { class: "power", role: "switch", "aria-checked": String(on), onclick: togglePower }, t("Attivo su Teams"), el("span", { class: "knob", "aria-hidden": "true" }));
+  const pw = el("button", { class: "power", role: "switch", "aria-checked": String(on), onclick: togglePower }, t("On in Teams"), el("span", { class: "knob", "aria-hidden": "true" }));
   pw.disabled = !!tm.busy;
   // with Teams Remix on, its three parts can be switched one by one (the same three switches are in Teams)
-  const parts = !on ? [] : [["themes", t("Temi ed effetti")], ["pets", t("Coinquilini")], ["nicknames", t("Soprannomi")]].map(([k, label]) => {
+  const parts = !on ? [] : [["themes", t("Themes and effects")], ["pets", t("Housemates")], ["nicknames", t("Nicknames")]].map(([k, label]) => {
     const v = !(S.sections && S.sections[k] === false);
     const b = el("button", { class: "power mini", role: "switch", "aria-checked": String(v), onclick: () => toggleSection(k, !v) }, label, el("span", { class: "knob", "aria-hidden": "true" }));
     b.disabled = !!tm.busy;
@@ -655,20 +651,20 @@ function renderStatus() {
   $("offincall").checked = !!S.off_in_call;
   segPress("lang", S.lang_pref || "auto");
   $("checkupd").checked = !!S.check_updates;
-  $("vernote").textContent = S.git_copy ? t("Questa copia viene da git: si aggiorna con git pull.")
-    : S.version ? t("Versione installata: {v}.", { v: S.version }) : t("Versione installata: non indicata.");
+  $("vernote").textContent = S.git_copy ? t("This copy comes from git: it updates with git pull.")
+    : S.version ? t("Installed version: {v}.", { v: S.version }) : t("Installed version: not given.");
   renderUpdate();
   $("rmnote").hidden = !tm.reduced;
-  $("rmnote").textContent = S.respect_reduced_motion ? t("Windows chiede animazioni ridotte e hai scelto di rispettarlo: gli effetti sono fermi (lo cambi in Opzioni).")
-                                                     : t("Windows chiede animazioni ridotte: gli effetti partono lo stesso, perché li hai scelti tu.");
+  $("rmnote").textContent = S.respect_reduced_motion ? t("Windows asks for reduced animations and you chose to respect it: the effects are still (change it in Options).")
+                                                     : t("Windows asks for reduced animations: the effects run anyway, because you chose them.");
 }
 
 /* ---------- sidebar ---------- */
 function swatch(p) { return el("span", { class: "sw", "aria-hidden": "true", style: `background:${p.background};color:${brandHex(p)}` }, "Aa"); }
 function item(name, p) {
   const b = el("button", { class: "titem", "aria-current": String(name === S.selected), onclick: () => select(name) }, swatch(p), el("span", { class: "name" }, tname(name)));
-  if (S.drafts[name] || (name === S.selected && editPending)) b.append(el("span", { class: "chip warn", title: t("Modifiche non salvate") }, t("● non salvato")));
-  else if (name === S.selected) b.append(el("span", { class: "chip" }, t("in uso")));
+  if (S.drafts[name] || (name === S.selected && editPending)) b.append(el("span", { class: "chip warn", title: t("Unsaved changes") }, t("● not saved")));
+  else if (name === S.selected) b.append(el("span", { class: "chip" }, t("in use")));
   return b;
 }
 function renderSidebar() {
@@ -689,12 +685,12 @@ function renderHead() {
   $("tname").textContent = tname(S.selected);
   $("defcard").hidden = !def;
   segPress("defmode", S.default_mode);
-  $("defhint").textContent = dirty() ? t("Stai modificando l'originale: quando salvi diventa un tema nuovo.")
-    : (S.default_mode !== (S.teams.mode || "dark") ? (S.teams.mode === "light" ? t("Teams è in modalità chiara: gli metto i suoi colori originali scuri.") : t("Teams è in modalità scura: gli metto i suoi colori originali chiari.")) + (S.default_mode_real ? "" : t(" (Non ho ancora visto Teams così su questo PC: i colori sono stimati.)"))
-       : t("Questo è Teams com'è. Puoi modificarlo come gli altri: quando salvi diventa un tema nuovo."));
+  $("defhint").textContent = dirty() ? t("You're changing the original: when you save, it becomes a new theme.")
+    : (S.default_mode !== (S.teams.mode || "dark") ? (S.teams.mode === "light" ? t("Teams is in light mode: I give it its original dark colours.") : t("Teams is in dark mode: I give it its original light colours.")) + (S.default_mode_real ? "" : t(" (I haven't seen Teams like this on this PC yet: the colours are estimated.)"))
+       : t("This is Teams as it is. You can change it like the others: when you save, it becomes a new theme."));
   $("savebar").hidden = !dirty();
-  $("savetxt").textContent = def ? t("● Hai modificato l'originale: Teams lo mostra già. Salvando diventa un tema nuovo.") : t("● Modifiche non salvate: Teams le mostra già, ma il tema non è ancora salvato.");
-  $("save").textContent = def ? t("Salva come nuovo tema...") : t("Salva");
+  $("savetxt").textContent = def ? t("● You changed the original: Teams already shows it. Saving makes it a new theme.") : t("● Unsaved changes: Teams already shows them, but the theme isn't saved yet.");
+  $("save").textContent = def ? t("Save as new theme...") : t("Save");
   $("reset").hidden = def || !S.builtin.includes(S.selected);
   $("reset").disabled = !(S.changed.includes(S.selected) || dirty());
   $("ren").hidden = def; $("del").hidden = def; $("dup").hidden = def;
@@ -703,8 +699,8 @@ function renderHead() {
 /* ---------- colours tab ---------- */
 function colorField(key, label, desc) {
   const p = E, id = "c-" + key;
-  const pick = el("input", { type: "color", id, value: p[key], "aria-label": t("{l} (selettore)", { l: label }) });
-  const hex = el("input", { class: "hex", value: p[key], "aria-label": t("{l} (esadecimale)", { l: label }), spellcheck: "false" });
+  const pick = el("input", { type: "color", id, value: p[key], "aria-label": t("{l} (picker)", { l: label }) });
+  const hex = el("input", { class: "hex", value: p[key], "aria-label": t("{l} (hex)", { l: label }), spellcheck: "false" });
   pick.addEventListener("input", () => { hex.value = pick.value; hex.removeAttribute("aria-invalid"); set(key, pick.value); });
   hex.addEventListener("input", () => { let x = hex.value.trim(); if (!x.startsWith("#")) x = "#" + x;
     if (/^#[0-9a-fA-F]{6}$/.test(x)) { hex.removeAttribute("aria-invalid"); pick.value = x.toLowerCase(); set(key, x.toLowerCase()); } else hex.setAttribute("aria-invalid", "true"); });
@@ -723,38 +719,38 @@ function rangeField(label, min, max, value, fmt, onInput, desc, extraClass) {
 }
 function renderColors() {
   const box = $("colors"); box.replaceChildren();
-  box.append(colorField("background", t("Sfondo"), t("Il tema è uguale con Teams chiaro e scuro: se lo sfondo è chiaro, è un tema chiaro.")), colorField("text", t("Testo")));
-  const [hf, hue] = rangeField(t("Colore principale"), 0, 359, E.brand_hue, (x) => x + "°", (x) => { paintHue(); set("brand_hue", x); }, "", "hue");
-  const [sf, sat] = rangeField(t("Intensità del colore principale"), 0, 100, Math.round(E.brand_sat * 100), (x) => x + "%", (x) => { paintHue(); set("brand_sat", x / 100); },
-    t("Pulsanti, selezioni e menzioni (il viola di Teams)."));
+  box.append(colorField("background", t("Background"), t("The theme looks the same with Teams light and dark: a light background makes a light theme.")), colorField("text", t("Text")));
+  const [hf, hue] = rangeField(t("Main colour"), 0, 359, E.brand_hue, (x) => x + "°", (x) => { paintHue(); set("brand_hue", x); }, "", "hue");
+  const [sf, sat] = rangeField(t("Main colour strength"), 0, 100, Math.round(E.brand_sat * 100), (x) => x + "%", (x) => { paintHue(); set("brand_sat", x / 100); },
+    t("Buttons, selections and mentions (Teams' purple)."));
   const paintHue = () => { hue.style.background = `linear-gradient(90deg, ${[0, 60, 120, 180, 240, 300, 359].map((h) => rgb2hex(hls2rgb(h / 360, 0.5, +sat.value / 100))).join(",")})`;
     sat.style.accentColor = rgb2hex(hls2rgb(+hue.value / 360, 0.5, 1)); };
   paintHue();
-  box.append(hf, sf, colorField("link", t("Link"), t("Se si legge male sullo sfondo, lo sistemo da solo.")));
+  box.append(hf, sf, colorField("link", t("Links"), t("If it's hard to read on the background, I fix it myself.")));
   const more = $("moreopts"); more.replaceChildren();
-  more.append(colorField("on_brand", t("Scritte sul colore principale"), t("Se si leggono male, le sistemo da solo.")), colorField("glow", t("Alone delle ombre"), t("Le ombre di menu e finestre diventano un alone di questo colore.")));
-  const [rf] = rangeField(t("Arrotondamento degli angoli"), 1, 6, E.radius, (x) => x + "x", (x) => set("radius", x));
+  more.append(colorField("on_brand", t("Text on the main colour"), t("If they're hard to read, I fix them myself.")), colorField("glow", t("Shadow glow"), t("Shadows of menus and windows become a glow of this colour.")));
+  const [rf] = rangeField(t("Corner rounding"), 1, 6, E.radius, (x) => x + "x", (x) => set("radius", x));
   more.append(rf);
 }
 function renderBackground() {
   for (const b of $("bgmode").children) b.setAttribute("aria-pressed", String(b.dataset.v === E.bg_mode));
   const box = $("bgextra"); box.replaceChildren();
-  if (E.bg_mode === "solid") { box.append(el("p", { class: "hint" }, t("Lo sfondo usa il colore \"Sfondo\"."))); return; }
+  if (E.bg_mode === "solid") { box.append(el("p", { class: "hint" }, t("The background uses the \"Background\" colour."))); return; }
   const bar = el("div", { class: "gradbar" });
   const paintBar = () => { bar.style.background = `linear-gradient(${E.flow_angle}deg, ${E.bg_colors.join(",")})`; };
   paintBar(); box.append(bar);
-  const cols = el("div", { class: "row" }, el("span", { class: "hint" }, t("Colori")));
-  E.bg_colors.forEach((c, i) => { const pick = el("input", { type: "color", value: c, "aria-label": t("Colore {n} del gradiente", { n: i + 1 }) });
+  const cols = el("div", { class: "row" }, el("span", { class: "hint" }, t("Colours")));
+  E.bg_colors.forEach((c, i) => { const pick = el("input", { type: "color", value: c, "aria-label": t("Gradient colour {n}", { n: i + 1 }) });
     pick.addEventListener("input", () => { const n = [...E.bg_colors]; n[i] = pick.value; set("bg_colors", n); paintBar(); }); cols.append(el("span", { class: "color" }, pick)); });
   box.append(cols);
   const arrow = (a) => { const s = el("span", {}, `${a}° `); s.append(el("span", { class: "arrow", style: `transform: rotate(${a - 90}deg)` }, "➜")); return s; };
-  const [af] = rangeField(t("Direzione"), 0, 359, E.flow_angle, arrow, (x) => { set("flow_angle", x); paintBar(); });
+  const [af] = rangeField(t("Direction"), 0, 359, E.flow_angle, arrow, (x) => { set("flow_angle", x); paintBar(); });
   box.append(af);
   if (E.bg_mode === "gradient_anim") {
-    const [sf] = rangeField(t("Un giro ogni"), 2, 30, E.flow_seconds, (x) => `${x} s`, (x) => set("flow_seconds", x), t("Meno secondi = scorre più veloce."));
+    const [sf] = rangeField(t("One loop every"), 2, 30, E.flow_seconds, (x) => `${x} s`, (x) => set("flow_seconds", x), t("Fewer seconds = flows faster."));
     box.append(sf);
   }
-  const [gf] = rangeField(t("Trasparenza dei pannelli"), 0, 85, E.glass, (x) => x + "%", (x) => set("glass", x), t("Più è alta, più il gradiente si vede attraverso chat ed elenchi."));
+  const [gf] = rangeField(t("Panel transparency"), 0, 85, E.glass, (x) => x + "%", (x) => set("glass", x), t("The higher it is, the more the gradient shows through chats and lists."));
   box.append(gf);
 }
 $("bgmode").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { set("bg_mode", b.dataset.v); renderBackground(); } });
@@ -768,7 +764,7 @@ function renderFontPicker() {
   $("fontcustom").hidden = known; if (!known) $("fontcustom").value = E.font;
   list.replaceChildren(...FONTS.map(([val, label], i) => {
     const li = el("li", { role: "option", id: "fopt-" + i, "aria-selected": String(known ? val === E.font : val === "__custom__") }, el("span", {}, t(label)),
-      el("small", {}, val === "" ? t("predefinito") : val === "__custom__" ? t("scrivi tu") : ""));
+      el("small", {}, val === "" ? t("default") : val === "__custom__" ? t("type it") : ""));
     if (val !== "__custom__") li.style.fontFamily = fontCss(val);
     li.addEventListener("click", () => chooseFont(val));
     return li;
@@ -802,19 +798,19 @@ function renderEffects() {
     const burstable = E.pass.length > 0 || symbols(E.fall).length > 0 || !!E.jiggle;
     if (!burstable) {
       wx.append(el("p", { class: "savebar", style: "margin-top:10px" }, el("span", { class: "txt" },
-        t("Il bottone compare su Teams appena accendi qualcosa da far partire: chi passa, cose che cadono o pulsanti ballerini (qui sotto)."))));
+        t("The button shows up in Teams as soon as you switch on something to start: flyers, falling things or dancing buttons (below)."))));
     } else {
       const walker = E.pass.find((x) => WALKERS.includes(x));
       const auto = walker ? `${THING[walker][0]} ${t(THING[walker][1])}` : "🎉";
-      const inp = el("input", { class: "emoji-in", value: E.trigger === "bowl" ? "" : (E.trigger || ""), placeholder: t("automatico"), maxlength: "8", "aria-label": t("Emoji del bottone") });
+      const inp = el("input", { class: "emoji-in", value: E.trigger === "bowl" ? "" : (E.trigger || ""), placeholder: t("automatic"), maxlength: "8", "aria-label": t("Button emoji") });
       inp.addEventListener("input", () => set("trigger", symbols(inp.value)[0] || ""));
       wx.append(el("p", { class: "hint", style: "margin-top:8px" },
-          t("Il bottone {b} è su Teams in basso a destra, sopra il box dei messaggi: trascinalo dove vuoi. Lo clicchi e partono chi passa, le cose che cadono e i pulsanti ballerini. Lo vedi anche nell'anteprima.", { b: E.trigger || auto })),
-        el("div", { class: "row" }, el("span", { class: "hint" }, t("Emoji del bottone")), inp));
+          t("The {b} button is in Teams at the bottom right, above the message box: drag it wherever you like. Click it and the flyers, falling things and dancing buttons start. You see it in the preview too.", { b: E.trigger || auto })),
+        el("div", { class: "row" }, el("span", { class: "hint" }, t("Button emoji")), inp));
       if (walker && !E.trigger) {
         const tb = el("input", { type: "checkbox" }); tb.checked = !!E.to_bowl;
         tb.addEventListener("change", () => set("to_bowl", tb.checked));
-        wx.append(el("div", { class: "row" }, el("label", { class: "switch" }, tb, t("Gli animali vanno a mangiare alla ciotola, ovunque la metti"))));
+        wx.append(el("div", { class: "row" }, el("label", { class: "switch" }, tb, t("The animals go and eat at the bowl, wherever you put it"))));
       }
     }
   }
@@ -826,7 +822,7 @@ function renderEffects() {
   const custom = E.pass.filter((x) => !PASS_PICKS.some(([k]) => k === x));
   $("passchips").replaceChildren(...FLY_PICKS.map(([k, label]) => { const b = el("button", { class: "pick", "aria-pressed": String(E.pass.includes(k)) }, t(label));
     b.addEventListener("click", () => togglePass(k)); return b; }),
-    ...custom.map((x) => { const b = el("button", { class: "pick", "aria-pressed": "true", title: t("Togli") }, x + " ✕"); b.addEventListener("click", () => togglePass(x)); return b; }));
+    ...custom.map((x) => { const b = el("button", { class: "pick", "aria-pressed": "true", title: t("Remove") }, x + " ✕"); b.addEventListener("click", () => togglePass(x)); return b; }));
   $("freq-row").hidden = E.when === "click" || !E.pass.length;
   $("trail").closest(".row").hidden = !E.pass.some((x) => !WALKERS.includes(x));
 }
@@ -882,22 +878,22 @@ a { color: var(--colorBrandForegroundLink); }
 .ment { color: var(--colorBrandForeground1); font-weight: 700; }
 .compose { margin: 0 14px 14px; padding: 9px 11px; border-radius: var(--borderRadiusMedium); background: var(--colorNeutralBackground1); border: 1px solid var(--colorNeutralStroke1); color: var(--colorNeutralForeground3); }`;
 const mockHtml = () => `<div class="fui-FluentProvider app">
-  <div class="top"><div class="search">${t("Cerca")}</div><span class="fui-Avatar">${t("TU")}</span></div>
+  <div class="top"><div class="search">${t("Search")}</div><span class="fui-Avatar">${t("ME")}</span></div>
   <div class="rail"><i class="on"></i><i></i><i></i><i></i><i></i></div>
   <div class="list"><h4>Chat</h4>
-    <div class="row sel"><span class="fui-Avatar">CC</span><span>${t("Club del caffè")}</span><span class="badge">3</span></div>
+    <div class="row sel"><span class="fui-Avatar">CC</span><span>${t("Coffee club")}</span><span class="badge">3</span></div>
     <div class="row"><span class="fui-Avatar">LV</span><span>Luna Verdi</span></div>
     <div class="row"><span class="fui-Avatar">TB</span><span>Tommaso Blu</span></div>
-    <div class="row"><span class="fui-Avatar">PV</span><span>${t("Pranzo del venerdì")}</span></div>
-    <div class="row"><span class="fui-Avatar">GM</span><span>${t("Gita in montagna")}</span></div></div>
+    <div class="row"><span class="fui-Avatar">PV</span><span>${t("Friday lunch")}</span></div>
+    <div class="row"><span class="fui-Avatar">GM</span><span>${t("Mountain trip")}</span></div></div>
   <div class="chat">
-    <div class="chead"><b>${t("Club del caffè")}</b><button class="fui-Button secondary">${t("Condividi")}</button><button class="fui-Button primary">${t("Chiama")}</button></div>
+    <div class="chead"><b>${t("Coffee club")}</b><button class="fui-Button secondary">${t("Share")}</button><button class="fui-Button primary">${t("Call")}</button></div>
     <div class="msgs">
-      <div class="msg"><div class="meta">Luna Verdi 10:41</div>${t("Ho portato i biscotti, li trovi ")}<a href="#">${t("qui")}</a></div>
-      <div class="msg me"><div class="meta">10:42</div>${t("Perfetto, grazie!")}</div>
-      <div class="msg"><div class="meta">Tommaso Blu 10:44</div><span class="ment">@Club</span>${t(" caffè alle 15?")}</div>
+      <div class="msg"><div class="meta">Luna Verdi 10:41</div>${t("I brought cookies, you'll find them ")}<a href="#">${t("here")}</a></div>
+      <div class="msg me"><div class="meta">10:42</div>${t("Perfect, thanks!")}</div>
+      <div class="msg"><div class="meta">Tommaso Blu 10:44</div><span class="ment">@Club</span>${t(" coffee at 3?")}</div>
     </div>
-    <div class="compose">${t("Scrivi un messaggio")}</div>
+    <div class="compose">${t("Type a message")}</div>
   </div>
 </div><div id="tt-fx" aria-hidden="true" style="position:fixed;inset:0;pointer-events:none;z-index:2147483645"><i></i><i></i><i></i></div>`;
 let pvReady = null, pvTimer = null, pvSeq = 0, pvTrig = null, burstT = null, danceT = null;
@@ -937,18 +933,18 @@ async function renderPreview() {
     if (d.getElementById("base").textContent !== r.base_css) d.getElementById("base").textContent = r.base_css;
     if (d.getElementById("theme").textContent !== css) d.getElementById("theme").textContent = css;
     pvTrig = css ? r.trigger : null; placeTrigger(d, pvTrig);
-    $("pvnote").textContent = r.real_tokens ? t("Anteprima vera: gli stessi colori del tuo Teams e lo stesso CSS che va su Teams.")
-      : t("Per un tema chiaro i colori di base di Teams chiaro sono stimati (non l'ho ancora visto su questo PC): il risultato su Teams è quello vero.");
+    $("pvnote").textContent = r.real_tokens ? t("Real preview: the same colours as your Teams and the same CSS that goes to Teams.")
+      : t("For a light theme, light Teams' base colours are estimated (not seen on this PC yet): the result in Teams is the real one.");
     const bad = r.checks.filter(([, ratio]) => ratio < 4.5);
     const rb = $("readbtn"); rb.className = "read" + (bad.length ? " bad" : "");
-    rb.textContent = bad.length ? t(bad.length === 1 ? t("! {n} cosa si legge male") : t("! {n} cose si leggono male"), { n: bad.length }) : t("✓ Si legge bene");
+    rb.textContent = bad.length ? t(bad.length === 1 ? t("! {n} thing is hard to read") : t("! {n} things are hard to read"), { n: bad.length }) : t("✓ Easy to read");
     $("checks").replaceChildren(...r.checks.map(([label, ratio, auto]) => { const ok = ratio >= 4.5;
-      return el("li", { class: ok ? "ok" : "bad" }, el("span", { class: "ico", "aria-hidden": "true" }, ok ? "✓" : "!"), label + (auto ? t(" (sistemato da solo)") : ""),
+      return el("li", { class: ok ? "ok" : "bad" }, el("span", { class: "ico", "aria-hidden": "true" }, ok ? "✓" : "!"), label + (auto ? t(" (fixed automatically)") : ""),
         el("span", { class: "val" }, `${ratio.toFixed(1)}:1`)); }));
-  } catch (e) { $("pvnote").textContent = t("Anteprima non disponibile: ") + e.message; }
+  } catch (e) { $("pvnote").textContent = t("Preview not available: ") + e.message; }
 }
 $("defmode").addEventListener("click", async (e) => { const b = e.target.closest("button"); if (!b || b.dataset.v === S.default_mode) return;
-  if (dirty() && !confirm(t("Le modifiche all'originale si perdono. Continuo?"))) return;
+  if (dirty() && !confirm(t("Changes to the original will be lost. Go on?"))) return;
   clearTimeout(editTimer); editPending = false; load(await api("/api/default-mode", { mode: b.dataset.v })); });
 $("readbtn").addEventListener("click", () => { const c = $("checks"); c.hidden = !c.hidden; $("readbtn").setAttribute("aria-expanded", String(!c.hidden)); });
 
@@ -959,7 +955,7 @@ function renderAll() {
   renderColors(); renderBackground(); renderFontPicker(); renderEffects(); schedulePreview();
 }
 
-/* ---------- editing: live on Teams, saved only with t("Salva") ---------- */
+/* ---------- editing: live on Teams, saved only with t("Save") ---------- */
 function set(key, value) {
   E[key] = value; editPending = true;
   schedulePreview(); renderSidebar(); renderHead();
@@ -969,7 +965,7 @@ async function pushEdit() {
   clearTimeout(editTimer);
   if (!editPending) return;
   try { const st = await api("/api/edit", { name: S.selected, variants: E }); editPending = false; absorb(st); renderSidebar(); renderHead(); schedulePreview(); }
-  catch (e) { $("msgline").textContent = t("Modifica non applicata: ") + e.message; }
+  catch (e) { $("msgline").textContent = t("Change not applied: ") + e.message; }
 }
 function absorb(st) { const keep = E; S = st; E = keep; }
 function load(st) {
@@ -980,12 +976,12 @@ function load(st) {
 async function select(name) { if (name === S.selected) return; await pushEdit(); load(await api("/api/select", { name })); }
 $("save").addEventListener("click", async () => {
   await pushEdit();
-  if (isDefault()) return ask({ title: t("Salva come nuovo tema"), text: t("L'originale di Teams non cambia: le tue modifiche diventano un tema nuovo, in \"I miei\"."), value: t("Il mio tema"), ok: t("Crea il tema"),
-    run: async (name) => { load(await api("/api/create", { name, from: S.default })); $("msgline").textContent = t("Tema '{n}' creato.", { n: name }); } });
-  load(await api("/api/save", { name: S.selected })); $("msgline").textContent = t("Tema '{n}' salvato.", { n: tname(S.selected) });
+  if (isDefault()) return ask({ title: t("Save as new theme"), text: t("Teams' original doesn't change: your changes become a new theme, in \"Mine\"."), value: t("My theme"), ok: t("Create the theme"),
+    run: async (name) => { load(await api("/api/create", { name, from: S.default })); $("msgline").textContent = t("Theme '{n}' created.", { n: name }); } });
+  load(await api("/api/save", { name: S.selected })); $("msgline").textContent = t("Theme '{n}' saved.", { n: tname(S.selected) });
 });
 $("discard").addEventListener("click", async () => { clearTimeout(editTimer); editPending = false; load(await api("/api/discard", { name: S.selected })); });
-$("reset").addEventListener("click", () => ask({ title: t("Ripristinare l'originale?"), text: t("'{n}' torna com'era quando è arrivato con l'app. Le tue modifiche a questo tema si perdono.", { n: tname(S.selected) }), ok: t("Ripristina"), danger: true,
+$("reset").addEventListener("click", () => ask({ title: t("Restore the original?"), text: t("'{n}' goes back to how it came with the app. Your changes to this theme are lost.", { n: tname(S.selected) }), ok: t("Restore"), danger: true,
   run: async () => { clearTimeout(editTimer); editPending = false; load(await api("/api/reset", { name: S.selected })); } }));
 
 /* ---------- dialogs + theme management ---------- */
@@ -997,74 +993,74 @@ function ask({ title, text, value = null, ok = "OK", danger = false, run }) {
   okb.onclick = async (ev) => { ev.preventDefault(); err.textContent = ""; try { await run(inp.value.trim()); d.close(); } catch (e) { err.textContent = e.message; } };
   d.showModal(); if (value !== null) { inp.focus(); inp.select(); } else okb.focus();
 }
-$("new").addEventListener("click", async () => { await pushEdit(); ask({ title: t("Nuovo tema"), text: t("Parte da Teams com'è adesso. Per partire da un altro tema usa \"Duplica\"."), value: t("Nuovo tema"), ok: t("Crea"),
+$("new").addEventListener("click", async () => { await pushEdit(); ask({ title: t("New theme"), text: t("Starts from Teams as it is now. To start from another theme use \"Duplicate\"."), value: t("New theme"), ok: t("Create"),
   run: async (name) => load(await api("/api/create", { name, variants: { ...S.default_theme, group: "miei" } })) }); });
-$("dup").addEventListener("click", async () => { await pushEdit(); ask({ title: t("Duplica tema"), text: t("Copia di '{n}' com'è adesso (modifiche non salvate comprese), in \"I miei\".", { n: tname(S.selected) }), value: tname(S.selected) + t(" copia"), ok: t("Duplica"),
+$("dup").addEventListener("click", async () => { await pushEdit(); ask({ title: t("Duplicate theme"), text: t("Copy of '{n}' as it is now (unsaved changes included), in \"Mine\".", { n: tname(S.selected) }), value: tname(S.selected) + t(" copy"), ok: t("Duplicate"),
   run: async (name) => load(await api("/api/create", { name, variants: E })) }); });
-$("ren").addEventListener("click", async () => { await pushEdit(); ask({ title: t("Rinomina tema"), text: t("Nuovo nome:"), value: S.selected, ok: t("Rinomina"),
+$("ren").addEventListener("click", async () => { await pushEdit(); ask({ title: t("Rename theme"), text: t("New name:"), value: S.selected, ok: t("Rename"),
   run: async (name) => load(await api("/api/rename", { old: S.selected, new: name })) }); });
-$("del").addEventListener("click", async () => { await pushEdit(); ask({ title: t("Eliminare il tema?"), text: t("'{n}' viene cancellato.", { n: tname(S.selected) }) + (S.builtin.includes(S.selected) ? t(" È un tema dell'app: non si potrà ripristinare.") : ""), ok: t("Elimina"), danger: true,
+$("del").addEventListener("click", async () => { await pushEdit(); ask({ title: t("Delete the theme?"), text: t("'{n}' will be deleted.", { n: tname(S.selected) }) + (S.builtin.includes(S.selected) ? t(" It's one of the app's themes: it can't be restored.") : ""), ok: t("Delete"), danger: true,
   run: async () => load(await api("/api/delete", { name: S.selected })) }); });
 
 /* ---------- Teams actions ---------- */
 async function action(kind) {
   if (kind === "on" || kind === "off") { pendingOn = kind === "on"; pendingAt = Date.now(); renderStatus(); }
-  try { absorb(await api("/api/action", { kind })); renderStatus(); } catch (e) { $("msgline").textContent = t("Errore: ") + e.message; } }
+  try { absorb(await api("/api/action", { kind })); renderStatus(); } catch (e) { $("msgline").textContent = t("Error: ") + e.message; } }
 const needsReopen = () => S.teams.running && !S.teams.ready;
 async function toggleSection(name, on) {
-  try { absorb(await api("/api/section", { name, on })); } catch (e) { $("msgline").textContent = t("Impostazione non cambiata: ") + e.message; }
+  try { absorb(await api("/api/section", { name, on })); } catch (e) { $("msgline").textContent = t("Setting not changed: ") + e.message; }
   renderStatus();
 }
 async function togglePower() {
   await pushEdit();
   if (shownOn()) return action("off");
-  if (needsReopen()) return ask({ title: t("Teams si riapre un attimo"), text: t("Per accendere Teams Remix, Teams si chiude e si riapre da solo, in pochi secondi. Se sei in una call, aspetta che finisca."), ok: t("Va bene"), run: () => action("on") });
+  if (needsReopen()) return ask({ title: t("Teams reopens for a moment"), text: t("To switch Teams Remix on, Teams closes and reopens by itself, in a few seconds. If you're in a call, wait until it ends."), ok: t("OK"), run: () => action("on") });
   return action("on");
 }
 $("fxtest").addEventListener("click", async () => {
   burst(); await pushEdit();
-  if (!S.teams.on && needsReopen()) return ask({ title: t("Teams si riapre un attimo"), text: t("Per provare gli effetti si accende Teams Remix e Teams si riapre da solo, in pochi secondi. Se sei in una call, aspetta che finisca."), ok: t("Va bene"), run: () => action("fxtest") });
+  if (!S.teams.on && needsReopen()) return ask({ title: t("Teams reopens for a moment"), text: t("To try the effects, Teams Remix switches on and Teams reopens by itself, in a few seconds. If you're in a call, wait until it ends."), ok: t("OK"), run: () => action("fxtest") });
   action("fxtest");
 });
-$("normal").addEventListener("click", () => ask({ title: t("Riaprire Teams com'era?"), text: t("Teams si chiude e si riapre senza Teams Remix: niente tema, coinquilini e soprannomi. Se sei in una call, aspetta che finisca."), ok: t("Riapri Teams"), run: () => action("normal") }));
-$("autostart").addEventListener("change", async (e) => { try { absorb(await api("/api/autostart", { on: e.target.checked })); } catch (err) { $("msgline").textContent = t("Avvio con Windows non cambiato: ") + err.message; } renderStatus(); });
-$("respectrm").addEventListener("change", async (e) => { try { absorb(await api("/api/reduced-motion", { on: e.target.checked })); } catch (err) { $("msgline").textContent = t("Impostazione non cambiata: ") + err.message; } renderStatus(); schedulePreview(); });
-$("offincall").addEventListener("change", async (e) => { try { absorb(await api("/api/off-in-call", { on: e.target.checked })); } catch (err) { $("msgline").textContent = t("Impostazione non cambiata: ") + err.message; } renderStatus(); });
+$("normal").addEventListener("click", () => ask({ title: t("Reopen Teams as it was?"), text: t("Teams closes and reopens without Teams Remix: no theme, housemates or nicknames. If you're in a call, wait until it ends."), ok: t("Reopen Teams"), run: () => action("normal") }));
+$("autostart").addEventListener("change", async (e) => { try { absorb(await api("/api/autostart", { on: e.target.checked })); } catch (err) { $("msgline").textContent = t("Start with Windows not changed: ") + err.message; } renderStatus(); });
+$("respectrm").addEventListener("change", async (e) => { try { absorb(await api("/api/reduced-motion", { on: e.target.checked })); } catch (err) { $("msgline").textContent = t("Setting not changed: ") + err.message; } renderStatus(); schedulePreview(); });
+$("offincall").addEventListener("change", async (e) => { try { absorb(await api("/api/off-in-call", { on: e.target.checked })); } catch (err) { $("msgline").textContent = t("Setting not changed: ") + err.message; } renderStatus(); });
 /* ---------- updates: a newer release on GitHub, installed with one click (Teams is not touched) ---------- */
 let updating = false, POLL = null;
 function renderUpdate() {
   const u = S.update, bar = $("updbar");
   if (updating) return;
   bar.hidden = !u; if (!u) return;
-  const btn = el("button", { class: "btn primary small", type: "button" }, t("Aggiorna"));
+  const btn = el("button", { class: "btn primary small", type: "button" }, t("Update"));
   btn.addEventListener("click", askUpdate);
-  bar.replaceChildren(el("span", { class: "txt" }, t("C'è una versione nuova di Teams Remix: {v}.", { v: u.version })), btn,
-    ...(u.notes ? [el("details", {}, el("summary", {}, t("Cosa cambia")), el("pre", {}, u.notes))] : []));
+  bar.replaceChildren(el("span", { class: "txt" }, t("A new version of Teams Remix is out: {v}.", { v: u.version })), btn,
+    ...(u.notes ? [el("details", {}, el("summary", {}, t("What changes")), el("pre", {}, u.notes))] : []));
 }
 async function askUpdate() {
   await pushEdit();
   const unsaved = [...new Set(Object.keys(S.drafts))];
   if (!unsaved.length) return installUpdate();
-  ask({ title: t("Aggiornare adesso?"), text: t("Hai modifiche non salvate in: {l}. Aggiornando si perdono.", { l: unsaved.map(tname).join(", ") }),
-        ok: t("Aggiorna"), danger: true, run: installUpdate });
+  ask({ title: t("Update now?"), text: t("You have unsaved changes in: {l}. Updating loses them.", { l: unsaved.map(tname).join(", ") }),
+        ok: t("Update"), danger: true, run: installUpdate });
 }
 async function installUpdate() {
   const bar = $("updbar"); updating = true;
-  bar.replaceChildren(el("span", { class: "spin" }), el("span", { class: "txt" }, t("Aggiorno Teams Remix... Teams non si chiude.")));
+  bar.replaceChildren(el("span", { class: "spin" }), el("span", { class: "txt" }, t("Updating Teams Remix... Teams doesn't close.")));
   try {
     const r = await api("/api/update", {});
     clearInterval(POLL);
-    document.body.replaceChildren(el("p", { style: "padding:24px" }, t("Aggiornato alla versione {v}: la finestra nuova si apre da sola, puoi chiudere questa.", { v: r.updated })));
+    document.body.replaceChildren(el("p", { style: "padding:24px" }, t("Updated to version {v}: the new window opens by itself, you can close this one.", { v: r.updated })));
   } catch (e) { updating = false; bar.replaceChildren(el("span", { class: "txt" }, e.message)); }
 }
-$("checkupd").addEventListener("change", async (e) => { try { absorb(await api("/api/check-updates", { on: e.target.checked })); } catch (err) { $("msgline").textContent = t("Impostazione non cambiata: ") + err.message; } renderStatus(); });
+$("checkupd").addEventListener("change", async (e) => { try { absorb(await api("/api/check-updates", { on: e.target.checked })); } catch (err) { $("msgline").textContent = t("Setting not changed: ") + err.message; } renderStatus(); });
 $("lang").addEventListener("click", async (e) => { const b = e.target.closest("button"); if (!b || b.dataset.v === S.lang_pref) return;
-  try { await pushEdit(); await api("/api/lang", { lang: b.dataset.v }); location.reload(); } catch (err) { $("msgline").textContent = t("Impostazione non cambiata: ") + err.message; } });
+  try { await pushEdit(); await api("/api/lang", { lang: b.dataset.v }); location.reload(); } catch (err) { $("msgline").textContent = t("Setting not changed: ") + err.message; } });
 $("quit").addEventListener("click", () => {
   const unsaved = [...new Set(Object.keys(S.drafts).concat(editPending ? [S.selected] : []))];
-  ask({ title: t("Chiudere l'app?"), text: (unsaved.length ? t("Hai modifiche non salvate in: {l}. Chiudendo si perdono. ", { l: unsaved.map(tname).join(", ") }) : "") + t("Tema, coinquilini e soprannomi restano su Teams finché Teams non si ricarica, ma l'app smette di rimetterli."),
-    ok: t("Chiudi l'app"), danger: unsaved.length > 0,
-    run: async () => { await api("/api/quit", {}); document.body.replaceChildren(el("p", { style: "padding:24px" }, t("App chiusa. Puoi chiudere questa finestra."))); closeWindow(); } });
+  ask({ title: t("Close the app?"), text: (unsaved.length ? t("You have unsaved changes in: {l}. Closing loses them. ", { l: unsaved.map(tname).join(", ") }) : "") + t("Theme, housemates and nicknames stay in Teams until Teams reloads, but the app stops putting them back."),
+    ok: t("Close the app"), danger: unsaved.length > 0,
+    run: async () => { await api("/api/quit", {}); document.body.replaceChildren(el("p", { style: "padding:24px" }, t("App closed. You can close this window."))); closeWindow(); } });
 });
 window.addEventListener("beforeunload", (e) => { if (Object.keys(S.drafts).length || editPending) { e.preventDefault(); e.returnValue = ""; } });
 
@@ -1077,41 +1073,41 @@ function renderPets() {
     b.addEventListener("click", () => { PETS.who = PETS.who.includes(k) ? PETS.who.filter((x) => x !== k) : [...PETS.who, k].slice(-4); savePets(); renderPets(); });
     return b; }));
   const ax = $("petextra"); ax.replaceChildren();
-  if (!PETS.who.length) { ax.append(el("p", { class: "hint", style: "margin-top:10px" }, t("Scegli chi abita nel tuo Teams: poi decidi come vivono."))); previewPets(); return; }
-  // each one has its own thing: "la ciotola di mandarini del capibara, la scatola di cavi del robot..."
+  if (!PETS.who.length) { ax.append(el("p", { class: "hint", style: "margin-top:10px" }, t("Pick who lives in your Teams: then decide how they live."))); previewPets(); return; }
+  // each one has its own thing: "the capybara's bowl of tangerines, the robot's box of cables..."
   const things = PETS.who.map((k) => `${THING[k][0]} ${t(THING[k][1])}`).join(", ");
   const seg = (label, opts, cur, onPick) => el("div", { class: "row" }, el("span", { class: "hint" }, label),
     el("div", { class: "seg", role: "group", "aria-label": label }, ...opts.map(([v, txt]) => {
       const b = el("button", { "aria-pressed": String(v === cur) }, txt); b.addEventListener("click", () => { onPick(v); savePets(); renderPets(); }); return b; })));
-  ax.append(seg(t("Come vivono"), [["live", t("🏠 Vivono su Teams")], ["click", t("🥣 Arrivano quando clicco la loro ciotola")], ["auto", t("Passano ogni tanto")]], PETS.when, (v) => { PETS.when = v; }));
+  ax.append(seg(t("How they live"), [["live", t("🏠 They live in Teams")], ["click", t("🥣 They come when I click their bowl")], ["auto", t("They pass by now and then")]], PETS.when, (v) => { PETS.when = v; }));
   const rules = {
-    live: t("Vivono con te: girano per la finestra, si fermano a guardarsi intorno, ogni tanto escono a farsi un giro e poi tornano. La loro ciotola li richiama a mangiare (anche quando sono usciti a farsi un giro) e dopo restano con te per un po'."),
-    click: t("Non ci sono finché non clicchi la ciotola di uno di loro: allora arriva, mangia e se ne va, da un lato a caso."),
-    auto: t("Ogni tanto uno di loro attraversa la finestra in fondo, da un lato o dall'altro, si ferma un attimo e riparte. Niente ciotole."),
+    live: t("They live with you: they wander around the window, stop to look around, now and then go out for a walk and come back. Their bowl calls them to eat (even when they're out for a walk) and afterwards they stay with you for a while."),
+    click: t("They aren't there until you click one of their bowls: then that one comes, eats and leaves, on a random side."),
+    auto: t("Now and then one of them crosses the bottom of the window, from one side or the other, stops a moment and goes on. No bowls."),
   };
   ax.append(el("p", { class: "hint", style: "margin-top:10px" }, rules[PETS.when]));
-  ax.append(el("p", { class: "hint", style: "margin-top:6px" }, t("Sempre: cliccane uno per coccolarlo ❤️, trascinalo per spostarlo."))); 
+  ax.append(el("p", { class: "hint", style: "margin-top:6px" }, t("Always: click one to cuddle it ❤️, drag it to move it."))); 
   if (PETS.when !== "auto") {
     ax.append(el("p", { class: "hint", style: "margin-top:6px" },
-      t("Ognuno ha la sua: {things}. Stanno su Teams in basso a destra, sopra il box dei messaggi: trascinale dove vuoi. ", { things }) +
-      t("Se sposti una ciotola mentre il suo coinquilino arriva, lui cambia strada; se la sposti mentre mangia (o lo prendi in braccio), si arrabbia 💢⛈️ e se ne va") +
-      (PETS.when === "live" ? t(": si nasconde dietro il bordo e torna da solo quando gli passa. Se lo chiami con la ciotola mentre è ancora arrabbiato, sbuca un po' dal bordo, ti fa vedere che è ancora arrabbiato 💢 e torna a nascondersi: del tuo cibo non gli importa.") : ".")));
-    ax.append(seg(t("Grandezza delle ciotole"), [["s", t("Piccole")], ["m", t("Medie")], ["l", t("Grandi")], ["xl", t("Enormi")]], PETS.bowl || "m", (v) => { PETS.bowl = v; }));
+      t("Each one has its own: {things}. They're in Teams at the bottom right, above the message box: drag them wherever you like. ", { things }) +
+      t("If you move a bowl while its housemate is coming, it changes its way; if you move it while it's eating (or pick it up), it gets angry 💢⛈️ and leaves") +
+      (PETS.when === "live" ? t(": it hides behind the edge and comes back by itself when it's over it. If you call it with the bowl while it's still angry, it peeks out from the edge, shows you it's still angry 💢 and hides again: it doesn't care about your food.") : ".")));
+    ax.append(seg(t("Bowl size"), [["s", t("Small")], ["m", t("Medium")], ["l", t("Large")], ["xl", t("Huge")]], PETS.bowl || "m", (v) => { PETS.bowl = v; }));
   } else {
-    ax.append(seg(t("Quanto spesso"), [["rare", t("Raramente")], ["sometimes", t("Ogni tanto")], ["often", t("Spesso")]], PETS.freq, (v) => { PETS.freq = v; }));
+    ax.append(seg(t("How often"), [["rare", t("Rarely")], ["sometimes", t("Now and then")], ["often", t("Often")]], PETS.freq, (v) => { PETS.freq = v; }));
   }
   // optional ideas: all off by default, the plain version is walk, eat, leave
   const more = ax;  // all options on the same level
   const sw = (key, label) => { const c = el("input", { type: "checkbox" }); c.checked = !!PETS[key];
     c.addEventListener("change", () => { PETS[key] = c.checked; savePets(); previewPets(); });
     return el("div", { class: "row" }, el("label", { class: "switch" }, c, label)); };
-  more.append(seg(t("Grandezza dei coinquilini"), [["s", t("Piccoli")], ["m", t("Normali")], ["l", t("Grandi")]], PETS.scale, (v) => { PETS.scale = v; }));
-  more.append(seg(t("Velocità"), [["slow", t("Piano")], ["normal", t("Normale")], ["fast", t("Veloce")]], PETS.speed, (v) => { PETS.speed = v; }));
-  more.append(sw("hearts", t("❤️ Cuoricini mentre mangiano")), sw("nap", t("💤 Pisolino dopo aver mangiato")), sw("trail", t("🌈 Scia arcobaleno dietro")));
-  more.append(el("p", { class: "hint", style: "margin:10px 0 4px" }, t("🏷️ Un nome sopra la testa (lascia vuoto per niente):")));
+  more.append(seg(t("Housemate size"), [["s", t("Little")], ["m", t("Regular")], ["l", t("Large")]], PETS.scale, (v) => { PETS.scale = v; }));
+  more.append(seg(t("Speed"), [["slow", t("Slow")], ["normal", t("Normal")], ["fast", t("Fast")]], PETS.speed, (v) => { PETS.speed = v; }));
+  more.append(sw("hearts", t("❤️ Little hearts while they eat")), sw("nap", t("💤 A nap after eating")), sw("trail", t("🌈 Rainbow trail behind")));
+  more.append(el("p", { class: "hint", style: "margin:10px 0 4px" }, t("🏷️ A name above the head (leave empty for none):")));
   for (const k of PETS.who) {
     const label = t((ANIMAL_PICKS.find(([x]) => x === k) || [k, k])[1]);
-    const inp = el("input", { class: "emoji-in", style: "width:200px;font-size:15px", value: (PETS.names || {})[k] || "", placeholder: t("es. Pippo"), maxlength: "24", "aria-label": t("Nome di {x}", { x: label }) });
+    const inp = el("input", { class: "emoji-in", style: "width:200px;font-size:15px", value: (PETS.names || {})[k] || "", placeholder: t("e.g. Rex"), maxlength: "24", "aria-label": t("Name of {x}", { x: label }) });
     inp.addEventListener("input", () => { PETS.names = { ...(PETS.names || {}), [k]: inp.value }; if (!inp.value.trim()) delete PETS.names[k]; savePets(); previewPets(); });
     more.append(el("div", { class: "row" }, el("span", { class: "hint", style: "width:110px" }, label), inp));
   }
@@ -1119,7 +1115,7 @@ function renderPets() {
 }
 function savePets() {
   clearTimeout(petsTimer);
-  petsTimer = setTimeout(async () => { try { absorb(await api("/api/pets", { pets: PETS })); } catch (e) { $("msgline").textContent = t("Coinquilini non salvati: ") + e.message; } }, 250);
+  petsTimer = setTimeout(async () => { try { absorb(await api("/api/pets", { pets: PETS })); } catch (e) { $("msgline").textContent = t("Housemates not saved: ") + e.message; } }, 250);
 }
 function ensurePetFrame() {
   if (petReady) return petReady;
@@ -1135,12 +1131,12 @@ async function previewPets() {
     if (!w.__ttPetsSetup) { const s = d.createElement("script"); s.textContent = r.engine; d.head.append(s); }
     const key = JSON.stringify(r.cfg);
     if (key !== petKey) { petKey = key; w.__ttPetsSetup(r.cfg); }
-  } catch (e) { $("petnote").textContent = t("Anteprima non disponibile: ") + e.message; }
+  } catch (e) { $("petnote").textContent = t("Preview not available: ") + e.message; }
 }
 $("petcall").addEventListener("click", async () => {
   const w = $("petframe").contentWindow; if (w && w.__ttPetsBurst) w.__ttPetsBurst();
   clearTimeout(petsTimer); try { absorb(await api("/api/pets", { pets: PETS })); } catch (e) {}
-  if (!shownOn() && needsReopen()) return ask({ title: t("Teams si riapre un attimo"), text: t("Per chiamarli su Teams serve accendere \"Attivo su Teams\": Teams si chiude e si riapre da solo. Se sei in una call, aspetta che finisca."), ok: t("Va bene"), run: () => action("pets") });
+  if (!shownOn() && needsReopen()) return ask({ title: t("Teams reopens for a moment"), text: t("To call them in Teams, \"On in Teams\" has to be switched on: Teams closes and reopens by itself. If you're in a call, wait until it ends."), ok: t("OK"), run: () => action("pets") });
   action("pets");
 });
 
@@ -1159,13 +1155,13 @@ function sortNick() { NICK.sort((a, b) => (!a.from.trim()) - (!b.from.trim()) ||
 function renderNick() {
   sortNick();
   const list = $("nicklist"); list.replaceChildren();
-  if (!NICK.length) list.append(el("div", { class: "nickempty" }, t("Nessun soprannome. Premi \"+ Aggiungi\".")));
+  if (!NICK.length) list.append(el("div", { class: "nickempty" }, t("No nicknames. Press \"+ Add\".")));
   NICK.forEach((it, i) => {
-    const from = el("input", { value: it.from, placeholder: t("Cognome Nome, es. Verdi Luna"), "aria-label": t("Nome come appare su Teams"), maxlength: "80" });
-    const to = el("input", { class: "to", value: it.to, placeholder: t("Soprannome, es. Lunetta"), "aria-label": t("Soprannome"), maxlength: "80" });
+    const from = el("input", { value: it.from, placeholder: t("Surname Name, e.g. Green Luna"), "aria-label": t("Name as it shows in Teams"), maxlength: "80" });
+    const to = el("input", { class: "to", value: it.to, placeholder: t("Nickname, e.g. Moony"), "aria-label": t("Nickname"), maxlength: "80" });
     from.addEventListener("input", () => { NICK[i].from = from.value; saveNick(); });
     to.addEventListener("input", () => { NICK[i].to = to.value; saveNick(); });
-    const del = el("button", { class: "btn small ghost danger", "aria-label": t("Togli il soprannome") }, "✕");
+    const del = el("button", { class: "btn small ghost danger", "aria-label": t("Remove the nickname") }, "✕");
     del.addEventListener("click", () => { NICK.splice(i, 1); renderNick(); saveNick(); });
     list.append(el("div", { class: "nickrow" }, photoCell(it), from, el("span", { class: "arrow", "aria-hidden": "true" }, "→"), to, del));
   });
@@ -1177,12 +1173,12 @@ function photoCell(it) {
   const input = el("input", { type: "file", accept: "image/png,image/jpeg,image/webp", hidden: "" });
   const draw = () => {
     const has = !!it.photo;
-    const pic = el("button", { class: "pic" + (has ? " has" : ""), type: "button", "aria-label": has ? t("Cambia la foto") : t("Aggiungi una foto") },
+    const pic = el("button", { class: "pic" + (has ? " has" : ""), type: "button", "aria-label": has ? t("Change the photo") : t("Add a photo") },
       has ? el("img", { src: it._preview || `/photo/${it.photo}?t=${TOKEN}`, alt: "" }) : "📷");
     pic.addEventListener("click", () => input.click());
     const kids = [pic, input];
     if (has) {
-      const un = el("button", { class: "unpic", type: "button", "aria-label": t("Togli la foto") }, "✕");
+      const un = el("button", { class: "unpic", type: "button", "aria-label": t("Remove the photo") }, "✕");
       un.addEventListener("click", () => { delete it.photo; delete it._preview; draw(); saveNick(); });
       kids.push(un);
     }
@@ -1190,9 +1186,9 @@ function photoCell(it) {
   };
   input.addEventListener("change", async () => {
     const f = input.files && input.files[0]; input.value = ""; if (!f) return;
-    $("nicknote").textContent = t("Carico la foto...");
+    $("nicknote").textContent = t("Uploading the photo...");
     try { const data = await smallPhoto(f); const r = await api("/api/nick-photo", { data }); it.photo = r.photo; it._preview = data; draw(); saveNick(); }
-    catch (e) { $("nicknote").textContent = t("Foto non caricata: ") + e.message; }
+    catch (e) { $("nicknote").textContent = t("Photo not uploaded: ") + e.message; }
   });
   draw();
   return box;
@@ -1201,7 +1197,7 @@ function photoCell(it) {
 async function smallPhoto(file) {
   const url = URL.createObjectURL(file);
   try {
-    const img = await new Promise((ok, ko) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => ko(new Error(t("non è un'immagine"))); i.src = url; });
+    const img = await new Promise((ok, ko) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => ko(new Error(t("it's not a picture"))); i.src = url; });
     const s = Math.min(img.naturalWidth, img.naturalHeight), c = document.createElement("canvas"); c.width = c.height = 160;
     const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, 160, 160);
     g.drawImage(img, (img.naturalWidth - s) / 2, (img.naturalHeight - s) / 2, s, s, 0, 0, 160, 160);
@@ -1209,27 +1205,27 @@ async function smallPhoto(file) {
   } finally { URL.revokeObjectURL(url); }
 }
 function renderNickNote() {
-  $("nicknote").textContent = !S.teams.on ? t("Per vederli su Teams accendi \"Attivo su Teams\" in alto.") : nickPending ? t("Salvo...") : NICK.length ? t("Salvati: li vedi già su Teams.") : "";
+  $("nicknote").textContent = !S.teams.on ? t("To see them in Teams, switch on \"On in Teams\" at the top.") : nickPending ? t("Saving...") : NICK.length ? t("Saved: you already see them in Teams.") : "";
 }
 function saveNick() {
-  nickPending = true; $("nicknote").textContent = t("Salvo...");
+  nickPending = true; $("nicknote").textContent = t("Saving...");
   clearTimeout(nickTimer);
   nickTimer = setTimeout(async () => {
     // only the note changes: re-drawing the rows would take the cursor away from the box being typed in
     const items = NICK.map(({ from, to, photo }) => (photo ? { from, to, photo } : { from, to }));  // the preview stays here
     try { absorb(await api("/api/nicknames", { items })); nickPending = false; renderNickNote(); }
-    catch (e) { $("nicknote").textContent = t("Non salvati: ") + e.message; }
+    catch (e) { $("nicknote").textContent = t("Not saved: ") + e.message; }
   }, 450);
 }
 $("nickadd").addEventListener("click", () => { NICK.push({ from: "", to: "" }); renderNick(); $("nicklist").querySelectorAll("input")[NICK.length * 2 - 2].focus(); });
 
 /* ---------- boot + polling ---------- */
 // One window per app: when the app is gone (closed, updated, restarted) this window closes by itself instead of staying
-// on "App non raggiungibile"; its title says it first, so the next start can close it too if the browser refused.
+// on "The app can't be reached"; its title says it first, so the next start can close it too if the browser refused.
 let FAILS = 0;
 function closeWindow() {
   clearInterval(POLL); S.drafts = {}; editPending = false;  // nothing left to save: the app is gone
-  document.title = "Teams Remix (" + t("non raggiungibile") + ")";
+  document.title = "Teams Remix (" + t("can't be reached") + ")";
   window.close();
 }
 // Edge slows the timers of a window that is covered or in the background down to once a minute, so the app also holds
@@ -1256,10 +1252,10 @@ async function poll() {
     if (outside && !editPending) { load(st); return; }
     absorb(st); renderStatus(); renderHead();
   }
-  catch (e) { $("status").hidden = false; $("status").replaceChildren(el("span", { class: "dot" }), el("span", {}, t("App non raggiungibile: è stata chiusa?")));
+  catch (e) { $("status").hidden = false; $("status").replaceChildren(el("span", { class: "dot" }), el("span", {}, t("The app can't be reached: was it closed?")));
     if (e instanceof TypeError && ++FAILS >= 3) closeWindow(); }  // the app does not answer at all (not an error of its own)
 }
-(async () => { const st = await api("/api/state"); LANG = st.lang === "en" ? "en" : "it"; translatePage(); NICK = clone(st.nicknames || []); load(st); renderView(); POLL = setInterval(poll, 1500); watchApp(); })();
+(async () => { const st = await api("/api/state"); LANG = st.lang === "it" ? "it" : "en"; translatePage(); NICK = clone(st.nicknames || []); load(st); renderView(); POLL = setInterval(poll, 1500); watchApp(); })();
 </script>
 </body>
 </html>

@@ -41,7 +41,7 @@ DEFAULTS = {
     "colors_anim": "off", "fall": "", "fall_style": "snow", "pass": [], "pass_freq": "sometimes", "trail": False,
     "jiggle": False, "when": "auto", "trigger": "", "to_bowl": True, "trigger_size": 46, "group": "miei",
 }
-# "Originale di Teams" as an editable starting point: black..white greys map every Teams grey to itself,
+# "Teams original" as an editable starting point: black..white greys map every Teams grey to itself,
 # brand hue/saturation close to Teams' violet. Unedited, Teams gets no CSS at all (exactly the original).
 TEAMS_LIKE = {**DEFAULTS, "background": "#000000", "text": "#ffffff", "brand_hue": 238, "brand_sat": 0.5,
               "link": "#7f85f5", "on_brand": "#ffffff", "glow": "#000000", "font": "", "radius": 1}
@@ -49,7 +49,7 @@ TEAMS_LIKE_LIGHT = {**TEAMS_LIKE, "background": "#ffffff", "text": "#000000", "l
 
 
 def teams_like(mode):
-    """The editable 'Originale di Teams' for Teams' current mode."""
+    """The editable 'Teams original' for Teams' current mode."""
     return dict(TEAMS_LIKE_LIGHT if mode == "light" else TEAMS_LIKE)
 
 
@@ -550,9 +550,9 @@ _FOOD = {
             "<circle cx='17' cy='12' r='4.5' fill='#fff' stroke='#adb5bd' stroke-width='1.2'/><circle cx='17' cy='21' r='4.5' fill='#fff' stroke='#adb5bd' stroke-width='1.2'/>"
             "<circle cx='47' cy='12' r='4.5' fill='#fff' stroke='#adb5bd' stroke-width='1.2'/><circle cx='47' cy='21' r='4.5' fill='#fff' stroke='#adb5bd' stroke-width='1.2'/></g>"),
 }
-_BOWL_LABEL = {"capybara": "Chiama il capibara", "cat": "Chiama il gatto", "dog": "Chiama il cane", "sheep": "Chiama la pecora",
-               "bull": "Chiama il toro", "ghost": "Chiama il fantasma", "robot": "Chiama il robot", "truck": "Chiama il camion",
-               "dude": "Chiama il Drugo"}
+_BOWL_LABEL = {"capybara": "Call the capybara", "cat": "Call the cat", "dog": "Call the dog", "sheep": "Call the sheep",
+               "bull": "Call the bull", "ghost": "Call the ghost", "robot": "Call the robot", "truck": "Call the truck",
+               "dude": "Call the Dude"}
 CABLE_BOX_SVG = ("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 52'>"
                  "<path d='M18 24 C12 10 26 8 21 1' stroke='#ff6b6b' stroke-width='3.5' fill='none' stroke-linecap='round'/>"
                  "<path d='M32 24 C34 8 43 12 40 2' stroke='#ffd43b' stroke-width='3.5' fill='none' stroke-linecap='round'/>"
@@ -640,7 +640,7 @@ def trigger_config(p):
         ms = BURST_MS + (BOWL_TURN * 1000 * (len(walkers) - 1) if p["to_bowl"] else 0)  # the last one must finish eating
         return {"svg": "data:image/svg+xml," + urllib.parse.quote(bowl_svg(animal)), "text": "", "title": tr(_BOWL_LABEL[animal]),
                 "ms": ms, "size": trigger_size(p)}
-    return {"svg": "", "text": sym, "title": tr("Fai partire gli effetti"), "ms": BURST_MS, "size": trigger_size(p)}
+    return {"svg": "", "text": sym, "title": tr("Start the effects"), "ms": BURST_MS, "size": trigger_size(p)}
 
 
 def trigger_size(p):
@@ -1006,18 +1006,18 @@ def readability(base_tokens, params, css):
             rows.append((label, round(contrast(a, b), 1), auto))
     if p["colors_anim"] == "text":
         for col in RAINBOW_TEXT[mode]:
-            add(tr("Testo arcobaleno {col}", col=col), col, bg1)
+            add(tr("Rainbow text {col}", col=col), col, bg1)
     else:
-        add(tr("Testo sullo sfondo"), c("--colorNeutralForeground1"), bg1)
-        add(tr("Testo secondario"), c("--colorNeutralForeground2"), bg2)
-    add(tr("Link sullo sfondo"), p["link"], bg1, "link" in fixed)
+        add(tr("Text on the background"), c("--colorNeutralForeground1"), bg1)
+        add(tr("Secondary text"), c("--colorNeutralForeground2"), bg2)
+    add(tr("Links on the background"), p["link"], bg1, "link" in fixed)
     if p["colors_anim"] in ("buttons", "text"):
         for col in RAINBOW_FILL:
-            add(tr("Scritte sul pulsante {col}", col=col), p["on_brand"], col, "on_brand" in fixed)
+            add(tr("Text on the {col} button", col=col), p["on_brand"], col, "on_brand" in fixed)
     else:
         brand = c("--colorBrandBackground") or brand_preview(p["brand_hue"], p["brand_sat"])
-        add(tr("Scritte nei pulsanti colorati"), p["on_brand"], brand, "on_brand" in fixed)
-        add(tr("Menzioni sullo sfondo"), c("--colorBrandForeground1"), bg1)
+        add(tr("Text in coloured buttons"), p["on_brand"], brand, "on_brand" in fixed)
+        add(tr("Mentions on the background"), c("--colorBrandForeground1"), bg1)
     return rows
 
 

@@ -29,7 +29,7 @@ class Worker(threading.Thread):
         self.lock = threading.Lock()
         self.applied_ver = None
         self._was_running = None
-        self._in_call = False  # "Teams normale durante le call": paused while Teams uses the microphone
+        self._in_call = False  # "During calls, normal Teams": paused while Teams uses the microphone
         self._asked = None  # a click on the switch inside Teams, not handled yet (True: on, False: off)
         self.state = {"running": False, "ready": False, "on": bool(cfg.get("theme_on")), "active": False,
                       "mode": None, "busy": "", "msg": "", "msg_at": "", "call": False}
@@ -71,7 +71,7 @@ class Worker(threading.Thread):
                 pass
 
     def default_mode(self, teams_mode=None):
-        """Light or dark for 'Originale di Teams': the user's choice, else Teams' own mode."""
+        """Light or dark for 'Teams original': the user's choice, else Teams' own mode."""
         m = self.cfg.get("default_mode")
         return m if m in theme.MODES else (teams_mode or self.snapshot().get("mode") or "dark")
 
@@ -110,7 +110,7 @@ class Worker(threading.Thread):
             try:
                 getattr(self, "do_" + job)()
             except Exception as e:  # keep the worker alive, show the error
-                self.say(tr("Qualcosa non ha funzionato ({e}). Riprova tra poco.", e=e))
+                self.say(tr("Something went wrong ({e}). Try again in a moment.", e=e))
             self._refresh()
 
     def _refresh(self):
@@ -124,7 +124,7 @@ class Worker(threading.Thread):
 
     # ---------- the switch inside Teams ----------
     def _show_toggle(self, port, hidden=False):
-        """The switches in Teams show the same choices as the app ("Attivo su Teams" and its three parts); a click on
+        """The switches in Teams show the same choices as the app ("On in Teams" and its three parts); a click on
         one is kept for do_tick. Hidden while Teams has to be normal for a call: nothing of Teams Remix during a call."""
         asked = teams.toggle_sync(port, None if hidden else teams.toggle_config(self.want_on, self.cfg.get("sections")))
         if asked is not None:
@@ -137,14 +137,14 @@ class Worker(threading.Thread):
             self._show_toggle(port, bool(self.cfg.get("off_in_call")) and teams.teams_in_call())
 
     def set_section(self, name, on):
-        """Themes (with their effects), housemates or nicknames on or off, under "Attivo su Teams": from the app or from
+        """Themes (with their effects), housemates or nicknames on or off, under "On in Teams": from the app or from
         Teams, the same choice in the same file."""
         if name not in teams.SECTIONS:
             raise ValueError("unknown section")
         self.cfg["sections"] = {**teams.sections_of(self.cfg), name: bool(on)}
         teams.save_config(self.cfg)
         what = tr(teams.TOGGLE_TEXTS["label_" + name])
-        self.say(tr("{what}: accesi su Teams.", what=what) if on else tr("{what}: spenti su Teams.", what=what))
+        self.say(tr("{what}: on in Teams.", what=what) if on else tr("{what}: off in Teams.", what=what))
 
     # ---------- core ----------
     def _call_pause(self, port):
@@ -156,12 +156,12 @@ class Worker(threading.Thread):
             teams.remove_css(port)
             self.applied_ver = None
             self._set(call=True)
-            self.say(tr("Sei in call: Teams e' normale. A call finita torna tutto da solo."))
+            self.say(tr("You're in a call: Teams is back to normal. Everything comes back by itself when the call ends."))
         elif not in_call and self._in_call:
             self._in_call = False
             self._set(call=False)
             if self.want_on and self._sync(port, force=True):
-                self.say(tr("Call finita: Teams Remix e' di nuovo attivo."))
+                self.say(tr("Call over: Teams Remix is on again."))
         return self._in_call
 
     def _sync(self, port, force=False):
@@ -183,11 +183,11 @@ class Worker(threading.Thread):
         name, params = self.store.current()
         respect = bool(self.cfg.get("respect_reduced_motion"))
         sec = teams.sections_of(self.cfg)  # the three parts that can be switched off one by one
-        # 'Originale di Teams': an empty sheet = Teams' own colours, the channel stays open for the next theme.
+        # 'Teams original': an empty sheet = Teams' own colours, the channel stays open for the next theme.
         if not sec["themes"]:  # themes and their effects off: Teams' own colours, as with the unedited original
             css, popup_css, trig = "/* Teams Remix: themes off */\n", "/* Teams Remix: themes off */\n", None
         elif params is None:
-            # 'Originale di Teams' unedited: nothing in Teams' own mode, the original colours of the other mode if chosen
+            # 'Teams original' unedited: nothing in Teams' own mode, the original colours of the other mode if chosen
             want = self.default_mode(mode)
             css = "/* Teams default */\n" if want == mode else theme.pin_css(self.base_for(want))
             trig, popup_css = None, None
@@ -222,9 +222,9 @@ class Worker(threading.Thread):
         self._set(busy=why)
         port = teams.restart_with_port(self.cfg)
         if not port:
-            self.say(tr("Non sono riuscito ad accendere Teams Remix: Teams e' stato riaperto normale. Riprova tra poco."))
+            self.say(tr("Couldn't switch Teams Remix on: Teams was reopened as normal. Try again in a moment."))
             return
-        self._set(busy=tr("Teams si sta caricando..."))
+        self._set(busy=tr("Teams is loading..."))
         for _ in range(60):
             if teams.base_tokens(port):
                 break
@@ -232,9 +232,9 @@ class Worker(threading.Thread):
         self.applied_ver = None
         if self._sync(port, force=True):
             name, _ = self.store.current()
-            self.say(tr("Fatto! Teams Remix e' attivo (tema '{name}').", name=name))
+            self.say(tr("Done! Teams Remix is on (theme '{name}').", name=name))
         else:
-            self.say(tr("Teams ci mette un po' a caricarsi: Teams Remix arriva da solo appena e' pronto."))
+            self.say(tr("Teams is taking a while to load: Teams Remix shows up by itself as soon as it's ready."))
 
     # ---------- jobs ----------
     def do_tick(self):
@@ -261,7 +261,7 @@ class Worker(threading.Thread):
                     return
                 r = self._sync(port)
                 if r == "fixed":
-                    self.say(tr("Una finestra di Teams si era ricaricata: ho rimesso tutto."))
+                    self.say(tr("A Teams window had reloaded: everything is back."))
             elif time.time() - self._live_base_at > BASE_EVERY:  # off: just keep knowing Teams' mode, rarely
                 base = teams.base_tokens(port)
                 self._live_base_at = time.time()
@@ -273,7 +273,7 @@ class Worker(threading.Thread):
         elif running and just_started and self.want_on:
             # Teams was just opened by hand, without the theme: nobody is in a call yet, reopen it now.
             time.sleep(5)
-            self._reopen_with_theme(tr("Teams si e' appena aperto: lo riapro per accendere Teams Remix..."))
+            self._reopen_with_theme(tr("Teams just opened: reopening it to switch Teams Remix on..."))
 
     def do_on(self):
         self._want(True)
@@ -281,18 +281,18 @@ class Worker(threading.Thread):
         if self.cfg.get("off_in_call") and teams.teams_in_call():  # never reopen Teams, never colour it, during a call
             if port:
                 self._call_pause(port)
-            self.say(tr("Sei in call: Teams Remix si accende da solo a call finita."))
+            self.say(tr("You're in a call: Teams Remix switches on by itself when the call ends."))
             return
         if port:
             self.applied_ver = None
             r = self._sync(port, force=True)
             name, _ = self.store.current()
-            self.say(tr("Fatto! Teams Remix e' attivo (tema '{name}').", name=name) if r else tr("Teams si sta ancora caricando: Teams Remix arriva da solo."))
+            self.say(tr("Done! Teams Remix is on (theme '{name}').", name=name) if r else tr("Teams is still loading: Teams Remix shows up by itself."))
             self._toggle_now()
         elif teams.teams_running():
-            self._reopen_with_theme(tr("Riapro Teams per accendere Teams Remix (pochi secondi)..."))
+            self._reopen_with_theme(tr("Reopening Teams to switch Teams Remix on (a few seconds)..."))
         else:
-            self._reopen_with_theme(tr("Apro Teams e accendo Teams Remix..."))
+            self._reopen_with_theme(tr("Opening Teams and switching Teams Remix on..."))
 
     def do_apply(self):
         """Theme edited or another theme chosen: refresh it on Teams if the theme is on."""
@@ -310,16 +310,16 @@ class Worker(threading.Thread):
         teams.test_effects(port)
         name, params = self.store.current()
         if not teams.sections_of(self.cfg)["themes"]:
-            self.say(tr("Temi ed effetti sono spenti: accendili in alto."))
+            self.say(tr("Themes and effects are off: switch them on at the top."))
         elif params is None:
-            self.say(tr("Il tema originale di Teams non ha effetti: scegli un altro tema."))
+            self.say(tr("Teams' original theme has no effects: pick another theme."))
         elif theme.has_effects(params):
-            self.say(tr("Effetti partiti su Teams: guarda la finestra di Teams!"))
+            self.say(tr("Effects started on Teams: look at the Teams window!"))
         else:
-            self.say(tr("'{name}' non ha effetti: accendine qualcuno nella scheda Effetti.", name=name))
+            self.say(tr("'{name}' has no effects: switch some on in the Effects tab.", name=name))
 
     def do_pets(self):
-        """'Chiamali ora' from the app."""
+        """'Call them now' from the app."""
         if not self.want_on or not teams.live_port(self.cfg):
             self.do_on()
         port = teams.live_port(self.cfg)
@@ -327,9 +327,9 @@ class Worker(threading.Thread):
             self._sync(port)
             teams.call_pets(port)
             if not teams.sections_of(self.cfg)["pets"]:
-                self.say(tr("I coinquilini sono spenti: accendili in alto."))
+                self.say(tr("The housemates are off: switch them on at the top."))
                 return
-            self.say(tr("Coinquilini chiamati: guarda Teams!") if (self.cfg.get("pets") or {}).get("who") else tr("Scegli prima almeno un coinquilino."))
+            self.say(tr("Housemates called: look at Teams!") if (self.cfg.get("pets") or {}).get("who") else tr("Pick at least one housemate first."))
 
     def do_off(self):
         self._want(False)
@@ -339,20 +339,20 @@ class Worker(threading.Thread):
         self._set(call=False)
         if port:
             teams.remove_css(port)  # the switch in Teams stays: it is the way to switch back on
-        self.say(tr("Teams Remix spento: Teams e' com'era. Tema, coinquilini e soprannomi restano salvati."))
+        self.say(tr("Teams Remix off: Teams is as it was. Theme, housemates and nicknames stay saved."))
         self._toggle_now()
 
     def do_normal(self):
         self._want(False)
         self.applied_ver = None
-        self._set(busy=tr("Riapro Teams com'era..."))
+        self._set(busy=tr("Reopening Teams as it was..."))
         teams.restart_normal(self.cfg)
-        self.say(tr("Teams riaperto com'era, senza Teams Remix."))
+        self.say(tr("Teams reopened as it was, without Teams Remix."))
 
     def do_startup(self):
         if not self.want_on:
             return
-        self._set(busy=tr("Aspetto che parta Teams..."))
+        self._set(busy=tr("Waiting for Teams to start..."))
         for _ in range(120):
             if teams.teams_running():
                 break
@@ -362,4 +362,4 @@ class Worker(threading.Thread):
             self.do_on()
         else:
             time.sleep(5)  # let Teams finish its own start before reopening it
-            self._reopen_with_theme(tr("Accendo Teams Remix..."))
+            self._reopen_with_theme(tr("Switching Teams Remix on..."))
